@@ -1,0 +1,152 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 3rem;
+  background-color: var(--gray);
+  color: var(--white);
+}
+
+.logo .brand {
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin-left: 0.3rem;
+}
+
+.nav-links a {
+  margin: 0 1rem;
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--coral);
+}
+
+.btn-login {
+  background-color: var(--coral);
+  color: var(--white);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-login:hover {
+  background-color: var(--blue);
+}
+
+.section-1 {
+  background: url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f") center/cover no-repeat;
+  color: var(--white);
+  padding: 5rem 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.section-1-content {
+  display: flex;
+  align-items: center;
+  max-width: 1200px;
+}
+
+.section-1 .text-content {
+  flex: 1;
+  margin-right: 2rem;
+}
+
+.section-1 h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.section-1 p {
+  margin-bottom: 2rem;
+}
+
+.section-1 .btn-primary {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.section-1 .btn-primary:hover {
+  background-color: var(--color-primary);
+}
+
+.section-1-image img {
+  max-width: 400px;
+  border-radius: 12px;
+}
+
+/* =====================
+   🟦 Section 2 (Features)
+===================== */
+.section-2-info {
+  background-color: var(--color-white);
+  padding: 4rem 3rem;
+  display: grid;
+  gap: 3rem;
+}
+
+.section-2-info h2 {
+  color: var(--color-primary);
+}
+
+.section-2-info p {
+  max-width: 600px;
+}
+
+.feature-1, .feature-2, .feature-3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feature-2, .feature-3 {
+  flex-direction: row-reverse;
+}
+
+.feature-1 img, .feature-2 img, .feature-3 img {
+  max-width: 120px;
+}
+
+/* =====================
+   🟦 Section 3 (Testimonios)
+===================== */
+.section-3-pasos {
+  background-color: var(--color-soft);
+  padding: 4rem 3rem;
+  text-align: center;
+}
+
+.section-3-pasos h2 {
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+}
+
+.testimonial {
+  background: var(--color-white);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 1rem auto;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.testimonial p {
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.testimonial span {
+  font-weight: 600;
+  color: var(--color-dark);
+}
