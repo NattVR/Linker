@@ -86,9 +86,7 @@
   border-radius: 12px;
 }
 
-/* =====================
-   🟦 Section 2 (Features)
-===================== */
+
 .section-2-info {
   background-color: var(--color-white);
   padding: 4rem 3rem;
@@ -118,9 +116,7 @@
   max-width: 120px;
 }
 
-/* =====================
-   🟦 Section 3 (Testimonios)
-===================== */
+
 .section-3-pasos {
   background-color: var(--color-soft);
   padding: 4rem 3rem;
