@@ -1,12 +1,12 @@
 footer {
-  background-color: #000000;
-  color: white;
-  font-family: 'Rubik', sans-serif;
+  background-color: #ffffff1e;
+  color: rgb(32, 32, 32);
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
   flex-wrap: wrap;
+  box-shadow: 2px 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 footer div {
@@ -15,7 +15,7 @@ footer div {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 20px;
+  margin: 10px;
 }
 
 footer div div {

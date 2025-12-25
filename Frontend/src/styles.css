@@ -1,24 +1,3 @@
-:root {
-  --blue: #0259DD;   /* Azul fuerte */
-  --coral: #FF6648; /* Naranja coral */
-  --soft-blue: #84AFFB;    /* Azul claro */
-  --peach: #FFE1D7;      /* Durazno pastel */
-  --gray: #2E2E2E;      /* Texto oscuro */
-  --color-light: #F5F6FA;     /* Fondo claro */
-  --white: #FFFFFF;
-}
-
-html, body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Raleway", "Inter", sans-serif;
-}
 
 .swal-custom {
     background: rgba(0, 0, 0, 0.733);
@@ -41,4 +20,35 @@ html, body {
   border-radius: 6pxt;
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #ffffff;
+}
+
+/* Scrollbar personalizado (opcional) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

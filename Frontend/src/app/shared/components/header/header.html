@@ -1,12 +1,11 @@
 <header>
   <nav>
     <ul>
-      <li routerLink="" style="cursor: pointer">
-        <img src="assets/img/logo.png" alt="Logo" class="logo" />
+      <li routerLink="" >
         <h1>Linker</h1>
       </li>
       @if(isLogged()) {
-      <li class="SectionBar" [class.active]="isMenuOpen">
+      <li class="sectionbar" [class.active]="isMenuOpen">
         <a class="message-switch" (click)="sidebarService.Switch(); closeMenu()">Mensajes</a>
         @if (getUserType()) {
         <a routerLink="empresa" (click)="closeMenu()">Perfil</a>
@@ -15,24 +14,23 @@
         }
 
         <a routerLink="match" (click)="closeMenu()">Match</a>
-        <a class="LoginButton-responsive" (click)="onLogout()">Cerrar Sesión</a>
+        <a class="login-button-responsive" (click)="onLogout()">Cerrar Sesión</a>
       </li>
       <li>
-        <button class="LoginButton" (click)="onLogout()">Cerrar Sesión</button>
+        <button class="login.button" (click)="onLogout()">Cerrar Sesión</button>
       </li>
       } @else {
-      <li class="SectionBar" [class.active]="isMenuOpen">
-        <a href="#section-1" (click)="closeMenu()">Inicio</a>
-        <a href="#feature-1" (click)="closeMenu()">Nosotros</a>
-        <a href="#feature-2" (click)="closeMenu()">Matches</a>
-        <a href="#feature-3" (click)="closeMenu()">Empleos</a>
-        <a href="#section-3-steps" (click)="closeMenu()">Acerca de</a>
-        <a class="LoginButton-responsive" routerLink="login" (click)="closeMenu()"
+      <li class="section-bar" [class.active]="isMenuOpen">
+        <a href="#home" (click)="closeMenu()">Inicio</a>
+        <a href="#features" (click)="closeMenu()">Nosotros</a>
+        <a href="#cta" (click)="closeMenu()">Comenzar</a>
+        
+        <a class="login-button-responsive" routerLink="login" (click)="closeMenu()"
           >Iniciar Sesión</a
         >
       </li>
       <li>
-        <button class="LoginButton" routerLink="login" (click)="closeMenu()">Iniciar Sesión</button>
+        <button class="login-button" routerLink="login" (click)="closeMenu()">Iniciar Sesión</button>
       </li>
       }
       <li class="menu-icon" (click)="toggleMenu()">
