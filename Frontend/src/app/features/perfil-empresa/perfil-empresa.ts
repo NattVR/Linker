@@ -27,6 +27,12 @@ export class PerfilEmpresa {
   //certificados: this.fb.array([this.crearCertificado()]),
   });
 
+  activeTab: 'vacantes' | 'certificados' | 'estadisticas' = 'vacantes';
+
+  setActiveTab(tab: 'vacantes' | 'certificados' | 'estadisticas') {
+    this.activeTab = tab;
+  }
+
   ngOnInit() {
     const id = sessionStorage.getItem('userId');
 
@@ -39,6 +45,7 @@ export class PerfilEmpresa {
       });
     }
   }
+
 
   /*get vacantesForm(): FormArray {
     return this.empresaForm.get('vacantes') as FormArray;

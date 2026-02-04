@@ -1,18 +1,77 @@
 <section>
-
-  <div class="columna-izquierda">
-    <div class="perfil-container">
-      <div class="perfil-header">
-        <img src="assets/img/match-user-icon.webp" class="foto" />
-        <span class="nombre">{{ name }}</span>
-      </div>
-      <hr />
+  <div class="perfil-container">
+    <div class="btn-change">
+    <button class="edit-btn">Editar Perfil</button>
     </div>
+    <div class="perfil-header">
+      <img src="assets/img/match-user-icon.webp" class="foto" />
+      <span class="nombre"> {{ name }}</span>
+    </div>
+
+    <p class="company-type">Tecnología / Software</p>
+
+
+    <div class="contact-info">
+      <div class="contact-item">Ciudad de México, MX</div>
+      <div class="contact-item">50-300 empleados</div>
+      <div class="contact-item">www.techflow.com</div>
+    </div>
+
+   
+    <p class="description">
+      Somos una empresa innovadora enfocada en crear soluciones tecnológicas que transforman
+      industrias. Creemos en el poder de la creatividad, la colaboración y el impacto positivo.
+    </p>
+
+
+    <div class="section">
+      <h3 class="section-title">Cultura</h3>
+      <div class="tags">
+        <span class="tag">Tecnología</span>
+        <span class="tag">Innovación</span>
+        <span class="tag">Diversidad</span>
+        <span class="tag">Crecimiento Profesional</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Beneficios</h3>
+      <div class="tags">
+        <span class="tag">Seguros de Gastos Médicos</span>
+        <span class="tag">Home Office</span>
+        <span class="tag">Días de Vacaciones Flexibles</span>
+        <span class="tag">Budget de Capacitación</span>
+      </div>
+    </div>
+
+  <div class="divider">
+    <div class="btn-group">
+    <button (click)="setActiveTab('vacantes')" 
+    class="divider-btn"
+    [class.active]="activeTab === 'vacantes'"
+    >Vacantes</button>
+    <button (click)="setActiveTab('certificados')" 
+    class="divider-btn"
+    [class.active]="activeTab === 'certificados'"
+    >Certificados</button>
+    <button (click)="setActiveTab('estadisticas')"
+     class="divider-btn"
+     [class.active]="activeTab === 'estadisticas'">Estadisticas</button>
+    </div>
+    
+    @if (activeTab === 'vacantes') {
+      <app-perfil-vacantes></app-perfil-vacantes>
+    } 
+    @else if (activeTab === 'certificados') {
+      <app-perfil-empresa-certificados></app-perfil-empresa-certificados>
+    } 
+    @else if (activeTab === 'estadisticas') {
+      <p>Estadísticas de la empresa</p>
+    }
+
+  </div>
+
   </div>
 
 
-  <div class="columna-derecha">
-    <app-perfil-vacantes></app-perfil-vacantes>
-    <app-perfil-empresa-certificados></app-perfil-empresa-certificados>
-  </div>
 </section>

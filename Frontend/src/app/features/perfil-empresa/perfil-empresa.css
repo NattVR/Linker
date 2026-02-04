@@ -1,50 +1,41 @@
 section {
-  position: relative;
+  display: flex;
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #ff6b5b, #5b5dff);
-  display: flex;
+  background-color: #c4c4c421;
   justify-content: center;
-  align-items: flex-start;
-  padding: 3rem;
-  box-sizing: border-box;
+  align-items: center;
+  flex-direction: column;
+  padding: 3% 20%;
   gap: 2.5rem;
 }
 
-.columna-izquierda {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  width: 100%;
-  max-width: 350px;
-  flex-shrink: 0;
+.btn-change {
+  text-align: right;
 }
 
 .perfil-container {
-  position: sticky;
   top: 3rem;
   width: 100%;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  border-radius: 25px;
+  background-color: #fff;
+  border-radius: 20px;
   padding: 1.8rem;
-  color: #fff;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-  height: fit-content;
+  z-index: 2;
+  height: auto;
 }
 
 .perfil-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 1rem;
   text-align: center;
 }
 
 .foto {
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.4);
 }
@@ -54,33 +45,113 @@ section {
   font-weight: bold;
 }
 
-hr {
+.edit-btn {
+  color: #ffffff;
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  margin: 1.5rem 0;
+  padding: 10px 10px;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #6366f1, #ec4899);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;;
 }
 
-.columna-derecha {
+.edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(132, 175, 251, 0.4);
+}
+
+.company-type {
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.contact-info {
   display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  width: 100%;
-  max-width: 900px;
+  gap: 16px;
+  font-size: 13px;
+  color: #6b7280;
+  margin: 12px 0;
+  flex-wrap: wrap;
 }
 
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-app-perfil-vacantes,
-app-perfil-empresa-certificados {
-  display: block;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
+.description {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.section{
+  margin-bottom: 2%;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 6px 12px;
   border-radius: 20px;
-  padding: 2rem;
-  color: #fff;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-  width: 100%;
+  font-size: 12px;
+  border: 1px solid   #6366f1;
+  transition: all 0.2s;
 }
 
+.tag:hover {
+  background:  #6366f1;
+  color: #fff;
+}
+
+.divider {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+  flex-direction: column;
+}
+
+.divider-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  gap: 1rem;
+  border: none;
+  padding: 10px 50px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background-color: transparent;
+}
+
+.divider-btn:hover {
+  color: #ec4899;
+}
+
+.divider-btn.active {
+  color:  #6366f1;
+  text-decoration: underline;
+  background-color: #acaaaa21;
+}
 
 @media (max-width: 1200px) {
   section {

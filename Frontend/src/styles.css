@@ -35,7 +35,7 @@ body {
   background-color: #ffffff;
 }
 
-/* Scrollbar personalizado (opcional) */
+
 ::-webkit-scrollbar {
   width: 8px;
 }

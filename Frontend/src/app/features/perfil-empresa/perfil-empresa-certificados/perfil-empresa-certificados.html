@@ -1,103 +1,72 @@
 <div class="main-panel">
-
-  <div (click)="toggleOpen()" class="panel-header">
-    <div class="panel-title-group">
-  
-      <h2>Gestión de Certificados</h2>
-    </div>
-    <button class="toggle-button">
-      {{ isOpen ? 'Cerrar' : 'Abrir' }}
-    </button>
-  </div>
-
-  @if (isOpen) {
-  <div class="panel-content">
-
-    <div class="tabs-container">
-      <button
-        (click)="setActiveTab('form')"
-        class="tab-button"
-        [ngClass]="{ 'tab-active': activeTab === 'form' }"
-      >
-        ✍️ Nuevo Certificado
-      </button>
-      <button
-        (click)="setActiveTab('list'); cargarCertificados()"
-        class="tab-button"
-        [ngClass]="{ 'tab-active': activeTab === 'list' }"
-      >
-        📄 Certificados
+  @if (activeTab === 'form') {
+    <div class="btn-change">
+      <button (click)="setActiveTab('list'); cargarCertificados()" class="tab-button">
+        Certificados
         @if (certificados.length > 0) {
-        <span class="certificados-count">{{ certificados.length }}</span>
+          <span class="certificados-count">{{ certificados.length }}</span>
         }
       </button>
     </div>
 
-
-    @if (activeTab === 'form') {
     <form [formGroup]="nuevoCertificado" (ngSubmit)="guardarCertificados()">
       <div class="form-content">
         <h3>Seleccionar Certificado</h3>
 
         <div class="dropdown-container">
-          <button
-            type="button"
-            class="dropdown-button"
-            (click)="toggleListaCertificados()"
-          >
+          <button type="button" class="dropdown-button" (click)="toggleListaCertificados()">
             {{ certificadoSeleccionado?.nombre_certificado || 'Seleccione un certificado' }}
           </button>
 
           @if (mostrarDropdown) {
-          <div class="dropdown-list">
-            @for (cert of certificados; track cert.id_certificado) {
-            <div
-              (click)="seleccionarCertificado(cert)"
-              class="dropdown-item"
-            >
-              {{ cert.nombre_certificado }} — {{ cert.entidad_emisora }}
+            <div class="dropdown-list">
+              @for (cert of certificados; track cert.id_certificado) {
+                <div (click)="seleccionarCertificado(cert)" class="dropdown-item">
+                  {{ cert.nombre_certificado }} — {{ cert.entidad_emisora }}
+                </div>
+              }
             </div>
-            }
-          </div>
           }
         </div>
 
-  
         <div class="form-group-grid form-group-grid-2">
           <input type="date" formControlName="fechaEmision" class="form-input" />
           <input type="date" formControlName="fechaCaducidad" class="form-input" />
         </div>
 
-        <button type="submit" class="publish-button" (click)=" agregarCertificado()">GUARDAR CERTIFICADO</button>
-      </div>
-    </form>
-    }
-
-
-    @if (activeTab === 'list') {
-    <div class="list-content">
-      @if (certificadosOfEmpresa.length === 0) {
-      <div class="no-certificados-message">
-        <h3>No tienes certificados agregados</h3>
-        <button (click)="setActiveTab('form')" class="create-first-button">
-          Agregar primer certificado
+        <button type="submit" class="publish-button" (click)="agregarCertificado()">
+          GUARDAR CERTIFICADO
         </button>
       </div>
-      } @else {
-      <div class="certificados-list">
-        @for (c of certificadosOfEmpresa; track c.id_detalles_certificados) {
-        <div class="certificado-card">
-          <div class="certificado-header">
-            <h3>{{ c.certificado.nombre_certificado }}</h3>
-            <p>{{ c.fecha_emision +' /'+c.fecha_caducidad}}</p>
-            <span>🏢 {{ c.certificado.entidad_emisora }}</span>
-          </div>
+    </form>
+  }
+
+  @if (activeTab === 'list') {
+    <div class="btn-change">
+      <button (click)="setActiveTab('form')" class="tab-button">✍️ Nuevo Certificado</button>
+    </div>
+
+    <div class="list-content">
+      @if (certificadosOfEmpresa.length === 0) {
+        <div class="no-certificados-message">
+          <h3>No tienes certificados agregados</h3>
+          <button (click)="setActiveTab('form')" class="create-first-button">
+            Agregar primer certificado
+          </button>
         </div>
-        }
-      </div>
+      } @else {
+        <div class="certificados-list">
+          @for (c of certificadosOfEmpresa; track c.id_detalles_certificados) {
+            <div class="certificado-card">
+              <div class="certificado-header">
+                <h3>{{ c.certificado.nombre_certificado }}</h3>
+                <p>{{ c.fecha_emision + ' /' + c.fecha_caducidad }}</p>
+                <span>🏢 {{ c.certificado.entidad_emisora }}</span>
+              </div>
+            </div>
+          }
+        </div>
       }
     </div>
-    }
-  </div>
   }
 </div>

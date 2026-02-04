@@ -21,8 +21,6 @@ export class PerfilVacantes {
   fb = inject(FormBuilder);
   perfil = inject(Perfil);
   match = inject(Match)
-
-  isOpen = false;
   activeTab: 'form' | 'list' = 'form';
 
   tiposTrabajo = ['Full-time', 'Part-time', 'Contrato', 'Prácticas'];
@@ -56,10 +54,7 @@ export class PerfilVacantes {
     return this.nuevaVacante.get('vacantesIdiomas') as FormArray;
   }
 
-  // ========= ABRIR / CERRAR PANEL =========
-  toggleOpen() {
-    this.isOpen = !this.isOpen;
-  }
+
 
   // ========= CAMBIAR TAB =========
   setActiveTab(tab: 'form' | 'list') {

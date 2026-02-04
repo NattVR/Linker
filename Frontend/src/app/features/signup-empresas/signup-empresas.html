@@ -1,5 +1,5 @@
 <section class="backgroud">
-  <div class="signupForm">
+  <div class="signup-form">
     <h2>Registrate</h2>
 
     <div class="step-indicator">
@@ -14,22 +14,28 @@
       </div>
     </div>
 
-    <form  *ngIf="currentStep === 1" [formGroup]="empresaForm">
-
+    @if (currentStep=== 1) {
+    <form [formGroup]="empresaForm">
       <div class="form-step">
         <div class="form-group">
           <label>Nombre Empresa</label>
-          <input type="text" id="name_empresa" formControlName="name_empresa" />
+          <input type="text" id="name_empresa" formControlName="name_empresa" placeholder="Tu empresa" />
+        </div>
 
+        <div class="form-group">
           <label>NIT</label>
-          <input type="text" id="NIT" formControlName="NIT" />
+          <input type="text" id="NIT" formControlName="NIT" placeholder="Ej:12345" />
         </div>
       </div>
 
+      <div class="button-group">
+        <button type="button" class="btn-primary" (click)="nextStep()">Continuar</button>
+      </div>
     </form>
-
+    } 
     
-    <form  *ngIf="currentStep === 2" [formGroup]="signupEmpresasForm">
+    @if (currentStep===2) {
+    <form [formGroup]="signupEmpresasForm">
       <div class="form-step">
         <div class="form-group">
           <label>Email</label>
@@ -40,7 +46,9 @@
             placeholder="Ingresa tu email"
             formControlName="email"
           />
+        </div>
 
+        <div class="form-group">
           <label for="password">Contraseña</label>
           <input
             type="password"
@@ -49,7 +57,9 @@
             placeholder="Ingresa tu contraseña"
             formControlName="password"
           />
+        </div>
 
+        <div class="form-group">
           <label for="password">Confirmar contraseña</label>
           <input
             type="password"
@@ -59,45 +69,21 @@
             formControlName="repassword"
           />
         </div>
+
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="btn-secondary" (click)="previousStep()">Atrás</button>
+        <button type="submit" class="btn-primary" (click)="onSignupEmpresa()">Registrar</button>
       </div>
     </form>
+    }
 
-      <div class="link">
-
-        <div class="button-group">
-        <button 
-          type="button" 
-          class="btn-secondary" 
-          *ngIf="currentStep > 1"
-          (click)="previousStep()"
-        >
-          Atrás
-        </button>
-        
-        <button 
-          type="button" 
-          class="btn-primary" 
-          *ngIf="currentStep === 1"
-          (click)="nextStep()"
-        >
-          Continuar
-        </button>
-        
-        <button 
-          type="submit" 
-          class="btn-primary" 
-          *ngIf="currentStep === 2"
-          (click)="onSignupEmpresa()"
-        >
-          Registrar
-        </button>
-      </div>
-      
-        <a routerLink="/login">
-          ¿Ya eres miembro? <br />
-          Inicia Sesión
-        </a>
-      </div>
-    
+    <div class="link">
+      <a routerLink="/login">
+        ¿Ya eres miembro? <br />
+        Inicia Sesión
+      </a>
+    </div>
   </div>
 </section>

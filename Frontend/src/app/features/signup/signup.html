@@ -1,5 +1,5 @@
 <section class="background">
-  <div class="signupForm">
+  <div class="signup-form">
     <h2>Regístrate</h2>
 
     <div class="link">
@@ -22,7 +22,8 @@
       </div>
     </div>
 
-    <form *ngIf="currentStep === 1" [formGroup]="postulanteForm">
+    @if (currentStep === 1) {
+    <form [formGroup]="postulanteForm">
       <div class="form-group">
         <label>Nombres</label>
         <input type="text" formControlName="name" placeholder="Tu nombre" />
@@ -37,8 +38,10 @@
         <button type="button" class="btn-primary" (click)="nextStep()">Continuar</button>
       </div>
     </form>
+  }
 
-    <form *ngIf="currentStep === 2" [formGroup]="signupForm">
+  @if (currentStep === 2) {
+    <form [formGroup]="signupForm">
       <div class="form-group">
         <label>Email</label>
         <input type="email" formControlName="email" placeholder="Ingresa tu email" />
@@ -53,12 +56,14 @@
         <label>Confirmar contraseña</label>
         <input type="password" formControlName="repassword" placeholder="Repite tu contraseña" />
       </div>
+    
 
       <div class="button-group">
         <button type="button" class="btn-secondary" (click)="previousStep()">Atrás</button>
         <button type="submit" class="btn-primary" (click)="onSignUp()">Registrar</button>
       </div>
     </form>
+  }
 
     <div class="link">
       <a routerLink="/login">
