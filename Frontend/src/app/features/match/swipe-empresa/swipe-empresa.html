@@ -2,6 +2,7 @@
   @if(list.length===0){
           <button class="btn-refresh" (click)="getCards()">
             ¡Carguemos Postulantes!
+            <i class="fa-solid fa-arrows-rotate"></i>    
           </button>
   }
   @else{
@@ -17,13 +18,13 @@
     <div class="card-content">
       <div class="card-image-container">
         <img [src]="p.foto" alt="Foto postulante" class="card-image" />
-        <div class="distance-badge">{{ p.ubicacion }}</div>
+        <div class="distance-badge"><i class="fa-solid fa-location-dot"></i>{{ p.ubicacion }}</div>
       </div>
 
       <div class="card-info">
         <div class="title">
-          <div class="card-name">{{ p.name + ' '+ p.lastname }}</div>
-          <div class="card-experience">{{ p.anos_experiencia }} años experiencia</div>
+          <div class="card-name"><i class="fa-solid fa-user"></i>{{ p.name + ' '+ p.lastname }}</div>
+          <div class="card-experience"><i class="fa-solid fa-user"></i>{{ p.anos_experiencia }} años experiencia</div>
         </div>
 
         <div class="tags">
@@ -42,6 +43,7 @@
         <div class="curriculum-row">
           <button class="curriculum-btn">
             Ver Curriculum
+            <i class="fa-solid fa-location-dot"></i>
           </button>
         </div>
       </div>

@@ -14,10 +14,10 @@
         }
 
         <a routerLink="match" (click)="closeMenu()">Match</a>
-        <a class="login-button-responsive" (click)="onLogout()">Cerrar Sesión</a>
+        <a class="login-button-responsive" (click)="onLogout()">Logout</a>
       </li>
       <li>
-        <button class="login.button" (click)="onLogout()">Cerrar Sesión</button>
+        <button class="login.button" (click)="onLogout()">Logout</button>
       </li>
       } @else {
       <li class="section-bar" [class.active]="isMenuOpen">
@@ -26,11 +26,11 @@
         <a href="#cta" (click)="closeMenu()">Comenzar</a>
         
         <a class="login-button-responsive" routerLink="login" (click)="closeMenu()"
-          >Iniciar Sesión</a
+          >Login</a
         >
       </li>
       <li>
-        <button class="login-button" routerLink="login" (click)="closeMenu()">Iniciar Sesión</button>
+        <button class="login-button" routerLink="login" (click)="closeMenu()">Login</button>
       </li>
       }
       <li class="menu-icon" (click)="toggleMenu()">

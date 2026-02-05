@@ -1,15 +1,12 @@
 .layout-section {
-  background-image: url('/assets/img/match-background.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: flex;
-  flex-direction: row;
+  padding: 3% 10%;
+  background-color: #acaaaa21;
   min-height: 100vh;
-  padding: 10px;
-  gap: 40px;
-  align-items: flex-start;
+  display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 /* app-sidebar {

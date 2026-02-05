@@ -26,7 +26,6 @@
 
 button:hover{
   border-color: #6366f1;
-  background-color: #f9fafb;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
 }
@@ -268,24 +267,6 @@ button:focus {
 .no-certificados-message p {
   color: var(--text-secondary);
   margin: 0;
-}
-
-.create-first-button {
-  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-blue-hover) 100%);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 0.5rem;
-  box-shadow: 0 4px 15px rgba(91, 93, 255, 0.3);
-}
-
-.create-first-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(91, 93, 255, 0.4);
 }
 
 .certificados-list {

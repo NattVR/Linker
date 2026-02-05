@@ -5,6 +5,7 @@
     <div class="btn-change">
       <button (click)="cargarVacantes()" (click)="setActiveTab('list')" class="tab-button">
         Publicadas
+        <i class="fa-solid fa-list-check"></i>
         @if (vacantes.length > 0) {
           <span class="vacantes-count">{{ vacantes.length }}</span>
         }
@@ -123,7 +124,7 @@
   
   @if (activeTab === 'list') {
     <div class="btn-change">
-      <button (click)="setActiveTab('form')" class="tab-button">Nueva Vacante</button>
+      <button (click)="setActiveTab('form')" class="tab-button">Nueva Vacante <i class="fa-solid fa-pen-clip"></i></button>
     </div>
 
     <div class="list-content">
@@ -155,19 +156,19 @@
                   <span class="tag tag-salario"> ${{ v.salario }}</span>
                 }
                 @if (v.ubicacion) {
-                  <span class="tag tag-ubicacion">📍 {{ v.ubicacion }}</span>
+                  <span class="tag tag-ubicacion"><i class="fa-solid fa-location-dot"></i> {{ v.ubicacion }}</span>
                 }
                 @if (v.modalidad) {
-                  <span class="tag tag-modalidad">🏢 {{ v.modalidad }}</span>
+                  <span class="tag tag-modalidad"><i class="fa-regular fa-building"></i>{{ v.modalidad }}</span>
                 }
                 @if (v.tipo_trabajo) {
-                  <span class="tag tag-tipoTrabajo">👔 {{ v.tipo_trabajo }}</span>
+                  <span class="tag tag-tipoTrabajo"><i class="fa-solid fa-id-card-clip"></i> {{ v.tipo_trabajo }}</span>
                 }
                 @if (v.habilidades?.length) {
-                  <span class="tag tag-habilidad">🎯 {{ v.habilidades?.join?.(', ') }}</span>
+                  <span class="tag tag-habilidad"><i class="fa-solid fa-square-poll-horizontal"></i>{{ v.habilidades?.join?.(', ') }}</span>
                 }
                 @if (v.idiomas?.length) {
-                  <span class="tag tag-idioma">🌍 {{ v.idiomas?.join?.(', ') }}</span>
+                  <span class="tag tag-idioma"> <i class="fa-solid fa-square-poll-horizontal"></i> {{ v.idiomas?.join?.(', ') }}</span>
                 }
               </div>
             </div>

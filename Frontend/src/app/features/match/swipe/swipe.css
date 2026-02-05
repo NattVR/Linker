@@ -1,5 +1,4 @@
 .card-section {
-  position: relative;
   width: 100%;
   overflow: hidden;
   max-width: 450px;
@@ -17,7 +16,6 @@
   cursor: grab;
   user-select: none;
   transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
-
 }
 
 .cards.grabbing {
@@ -42,11 +40,6 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-
-.emoji {
-  height: 25%;
-  width: 25%;
 }
 
 .distance-badge {
@@ -124,11 +117,11 @@
 }
 
 .tag{
- background: linear-gradient(135deg, var(--blue) 0%, var(--soft-blue) 100%);
+ background: linear-gradient(145deg,  #6366f1 0%,  #ec4899 100%);
 }
 
 .tag-language{
-  background: linear-gradient(135deg, var(--coral), var(--peach) 100%);
+  background: linear-gradient(135deg, #4de0f3, #2896b8 100%);
 
 }
 
@@ -160,7 +153,8 @@
   border: none;
   background: white;
   border-radius: 50%;
-  padding: 8px;
+  font-size: 18px;
+  padding: 20px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;

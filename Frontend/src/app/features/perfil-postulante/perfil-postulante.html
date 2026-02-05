@@ -1,7 +1,6 @@
 <section>
   <div class="perfil-container">
     <form [formGroup]="postulanteForm" (ngSubmit)="OnPostulante()">
-      <h2>PERFIL POSTULANTE</h2>
 
       <div *ngIf="!isLoading">
         <div class="perfil-header">
@@ -10,11 +9,8 @@
         </div>
       </div>
 
-      <hr />
-
       <div class="campo">
         <div class="mini-titulo">
-          <img src="assets/img/icono-cv.png" class="icon" />
           <label>Mi CV</label>
         </div>
         <select formControlName="experiencia">
@@ -41,8 +37,7 @@
           class="campo"
         >
           <div class="mini-titulo">
-            <img src="assets/img/icono-libros.png" class="icon" />
-            <label>Estudio {{ i + 1 }}</label>
+            <label>Estudios {{ i + 1 }}</label>
           </div>
           <input type="text" placeholder="Título" formControlName="titulo" />
           <select formControlName="nivel">
@@ -73,7 +68,7 @@
           (click)="agregarEstudio()"
           *ngIf="estudiosForm.length < 5"
         >
-          AGREGAR
+         +
         </button>
         <button
           type="button"
@@ -81,7 +76,7 @@
           (click)="eliminarEstudio(estudiosForm.length - 1)"
           *ngIf="estudiosForm.length > 1"
         >
-          ELIMINAR
+          -
         </button>
       </div>
 
@@ -92,7 +87,6 @@
           class="campo"
         >
           <div class="mini-titulo">
-            <img src="assets/img/icono-bombilla.png" class="icon" />
             <label>Habilidad {{ i + 1 }}</label>
           </div>
             <select formControlName="nombre">
@@ -122,7 +116,7 @@
           (click)="agregarHabilidad()"
           *ngIf="habilidadesForm.length < 5"
         >
-          AGREGAR
+          +
         </button>
         <button
           type="button"
@@ -130,7 +124,7 @@
           (click)="eliminarHabilidad(habilidadesForm.length - 1)"
           *ngIf="habilidadesForm.length > 1"
         >
-          ELIMINAR
+          -
         </button>
       </div>
 
@@ -141,7 +135,6 @@
           class="campo"
         >
           <div class="mini-titulo">
-            <img src="assets/img/icono-idioma.png" class="icon" />
             <label>Idioma {{ i + 1 }}</label>
           </div>
           <select formControlName="nombre">
@@ -171,7 +164,7 @@
           (click)="agregarIdioma()"
           *ngIf="idiomasForm.length < 5"
         >
-          AGREGAR
+         +
         </button>
         <button
           type="button"
@@ -179,7 +172,7 @@
           (click)="eliminarIdioma(idiomasForm.length - 1)"
           *ngIf="idiomasForm.length > 1"
         >
-          ELIMINAR
+          -
         </button>
       </div>
 

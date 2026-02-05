@@ -3,6 +3,7 @@
     <div class="btn-change">
       <button (click)="setActiveTab('list'); cargarCertificados()" class="tab-button">
         Certificados
+        <i class="fa-solid fa-list-check"></i>
         @if (certificados.length > 0) {
           <span class="certificados-count">{{ certificados.length }}</span>
         }
@@ -43,14 +44,14 @@
 
   @if (activeTab === 'list') {
     <div class="btn-change">
-      <button (click)="setActiveTab('form')" class="tab-button">✍️ Nuevo Certificado</button>
+      <button (click)="setActiveTab('form')" class="tab-button">Nuevo Certificado <i class="fa-solid fa-pen-clip"></i></button>
     </div>
 
     <div class="list-content">
       @if (certificadosOfEmpresa.length === 0) {
         <div class="no-certificados-message">
           <h3>No tienes certificados agregados</h3>
-          <button (click)="setActiveTab('form')" class="create-first-button">
+          <button (click)="setActiveTab('form')" class="tab-button">
             Agregar primer certificado
           </button>
         </div>
@@ -61,7 +62,7 @@
               <div class="certificado-header">
                 <h3>{{ c.certificado.nombre_certificado }}</h3>
                 <p>{{ c.fecha_emision + ' /' + c.fecha_caducidad }}</p>
-                <span>🏢 {{ c.certificado.entidad_emisora }}</span>
+                <span><i class="fa-regular fa-building"></i> {{ c.certificado.entidad_emisora }}</span>
               </div>
             </div>
           }

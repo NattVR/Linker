@@ -1,20 +1,20 @@
 <section>
   <div class="perfil-container">
     <div class="btn-change">
-    <button class="edit-btn">Editar Perfil</button>
+    <button class="edit-btn">Editar Perfil <i class="fa-solid fa-pen-to-square" style="color: #ffffff;"></i></button>
     </div>
     <div class="perfil-header">
       <img src="assets/img/match-user-icon.webp" class="foto" />
       <span class="nombre"> {{ name }}</span>
     </div>
 
-    <p class="company-type">Tecnología / Software</p>
+    <p class="company-type"><i class="fa-regular fa-building"></i>Tecnología / Software</p>
 
 
     <div class="contact-info">
-      <div class="contact-item">Ciudad de México, MX</div>
-      <div class="contact-item">50-300 empleados</div>
-      <div class="contact-item">www.techflow.com</div>
+      <div class="contact-item"> <i class="fa-solid fa-map-pin" style="color: #a30212;"></i>Ciudad de México, MX</div>
+      <div class="contact-item"><i class="fa-solid fa-user-group" style="color: #470bf8;"></i>50-300 empleados</div>
+      <div class="contact-item"> ww.techflow.com</div>
     </div>
 
    
@@ -49,14 +49,20 @@
     <button (click)="setActiveTab('vacantes')" 
     class="divider-btn"
     [class.active]="activeTab === 'vacantes'"
-    >Vacantes</button>
+    >Vacantes
+    <i class="fa-solid fa-book-open" ></i>
+    </button>
     <button (click)="setActiveTab('certificados')" 
     class="divider-btn"
     [class.active]="activeTab === 'certificados'"
-    >Certificados</button>
+    >Certificados
+    <i class="fa-solid fa-award"></i>
+    </button>
     <button (click)="setActiveTab('estadisticas')"
      class="divider-btn"
-     [class.active]="activeTab === 'estadisticas'">Estadisticas</button>
+     [class.active]="activeTab === 'estadisticas'">Estadisticas
+    <i class="fa-solid fa-chart-simple"></i>
+    </button>
     </div>
     
     @if (activeTab === 'vacantes') {

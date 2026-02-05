@@ -34,7 +34,7 @@ button:hover {
 }
 
  .highlight {
- background: linear-gradient(135deg, #6366f1, #ec4899);
+  background: linear-gradient(135deg, #6366f1, #ec4899);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -84,13 +84,16 @@ button:hover {
   height: 100%;
   object-fit: cover;
 }
-
+ 
+.icon-heart {
+  font-size: 90px;
+}
 
 .heart {
   position: absolute;
   font-size: 120px;
-  width: 130px;
-  height: 130px;
+  width: 150px;
+  height: 150px;
   background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%);
   border: none;
   cursor: pointer;
