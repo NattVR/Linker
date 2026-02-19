@@ -12,7 +12,7 @@ export class UserService {
     @InjectRepository(User)
     private usuarioRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async createUser(dto: UserDto) {
     const salt = bcrypt.genSaltSync(10);
@@ -59,19 +59,18 @@ export class UserService {
     };
   }
 
-  async getPerfilUser(userId:string){
+  async getPerfilUser(userId: string) {
     const perfil = await this.usuarioRepository.findOne({
-      where:{id:userId},
-      relations:['empresa','postulante']
-    })
+      where: { id: userId },
+      relations: ['empresa', 'postulante']
+    });
+
+    console.log('Perfil encontrado:', perfil);
+    console.log('Postulante:', perfil?.postulante);
 
     if (!perfil) return null;
-
-    if(perfil.postulante){
-      return perfil.postulante
-    }
-    if(perfil.empresa){
-      return perfil.empresa
-    }
+    if (perfil.postulante) return perfil.postulante;
+    if (perfil.empresa) return perfil.empresa;
+    return null;
   }
 }

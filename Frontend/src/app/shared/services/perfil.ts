@@ -47,8 +47,8 @@ export class Perfil {
     });
   }
 
-  createVacante(vacante:CrearVacante): Observable<any> {
-    console.log(vacante,'desde service')
+  createVacante(vacante: CrearVacante): Observable<any> {
+    console.log(vacante, 'desde service')
     return this.http.post('http://localhost:3000/vacantes', vacante);
   }
 
@@ -56,19 +56,19 @@ export class Perfil {
     return this.http.get<Habilidad[]>('http://localhost:3000/habilidades');
   }
 
-  getIdiomas():Observable<any>{
+  getIdiomas(): Observable<any> {
     return this.http.get('http://localhost:3000/idiomas');
   }
 
-  getCerticados():Observable<any>{
+  getCerticados(): Observable<any> {
     return this.http.get('http://localhost:3000/certificados')
   }
 
-  createCertificado(certificado: CrearCertificadoEmpresa): Observable<any>{
+  createCertificado(certificado: CrearCertificadoEmpresa): Observable<any> {
     return this.http.post('http://localhost:3000/detalles-certificados', certificado)
   }
 
-  getCertificadosOfEmpresa(idEmpresa:string): Observable<any>{
+  getCertificadosOfEmpresa(idEmpresa: string): Observable<any> {
     return this.http.get(`http://localhost:3000/detalles-certificados/empresa/${idEmpresa}`)
   }
 
@@ -101,60 +101,51 @@ export class Perfil {
       experiencia: datosFormulario.experiencia,
       cv: datosFormulario.cv,
     });
-    
-    const detalleEstudios$ = datosFormulario.estudios.map((estudio: any) => {
-      const estudioPayload = {
-        titulo: estudio.titulo,
-        nivel: estudio.nivel,
-      };
 
-      return this.crearEstudio(estudioPayload).pipe(
+    const limpiar$ = this.http.delete(`http://localhost:3000/postulante/limpiar/${idUsuario}`);
+
+    const detalleEstudios$ = datosFormulario.estudios.map((estudio: any) =>
+      this.crearEstudio({ titulo: estudio.titulo, nivel: estudio.nivel }).pipe(
         switchMap((estResp: any) => {
-          const idEstudio = estResp?.id_estudio || estResp?.id || estResp?.estudioId;
-          if (!idEstudio) {
-            throw new Error('No se obtuvo el id del estudio creado');
-          }
-
-          const detallePayload = {
+          const idEstudio = estResp?.id_estudio || estResp?.id;
+          if (!idEstudio) throw new Error('No se obtuvo el id del estudio creado');
+          return this.crearDetalleEstudios({
             postulante: { id_postulante: idUsuario },
             estudio: { id_estudio: idEstudio },
             certificado: estudio.certificado
-          };
-
-          return this.crearDetalleEstudios(detallePayload);
+          });
         })
-      );
-    });
-
-    const postulanteHabilidades$ = datosFormulario.habilidades.map((habilidad: any) => {
-      const habilidadPayload = {
-        postulante: { id_postulante: idUsuario },
-        habilidades: { id_habilidad: habilidad.id },
-        certificado: habilidad.certificado, 
-      };
-
-      return this.crearPostulanteHabilidad(habilidadPayload);
-    });
-    
-    const postulanteIdiomas$ = datosFormulario.idiomas.map((idioma: any) => {
-      const idiomaPayload = {
-        postulante: { id_postulante: idUsuario },
-        idioma: { id_idioma: idioma.id },
-        certificado: idioma.certificado , 
-      };
-
-      return this.crearPostulanteIdioma(idiomaPayload);
-    });
-
-    return actualizarPostulante$.pipe(
-      switchMap(() =>
-        forkJoin([
-          ...detalleEstudios$,
-          ...postulanteHabilidades$,
-          ...postulanteIdiomas$,
-        ])
       )
     );
+
+    const postulanteHabilidades$ = datosFormulario.habilidades.map((habilidad: any) =>
+      this.crearPostulanteHabilidad({
+        postulante: { id_postulante: idUsuario },
+        habilidades: { id_habilidad: habilidad.id },
+        certificado: habilidad.certificado,
+      })
+    );
+
+    const postulanteIdiomas$ = datosFormulario.idiomas.map((idioma: any) =>
+      this.crearPostulanteIdioma({
+        postulante: { id_postulante: idUsuario },
+        idioma: { id_idioma: idioma.id },
+        certificado: idioma.certificado,
+      })
+    );
+
+    return actualizarPostulante$.pipe(
+      switchMap(() => limpiar$),
+      switchMap(() => forkJoin([
+        ...detalleEstudios$,
+        ...postulanteHabilidades$,
+        ...postulanteIdiomas$,
+      ]))
+    );
+  }
+
+  getPerfilCompleto(id: string) {
+    return this.http.get(`http://localhost:3000/postulante/perfil-completo/${id}`);
   }
 
   /*guardarPerfil(perfil: PerfilPostulanteModel| PerfilEmpresaModel) {

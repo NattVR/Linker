@@ -19,23 +19,14 @@
           <option value="3">Semi-Senior</option>
           <option value="5">Senior</option>
         </select>
-        <input 
-            type="file" 
-            id="cv" 
-            (change)="onCvChange($event)"
-            style="display: none" 
-          />
-          <label for="cv" class="file-label"> 
-            {{ cvFile ? cvFile.name : 'Seleccionar currículum' }}
-          </label>
+        <input type="file" id="cv" (change)="onCvChange($event)" style="display: none" />
+        <label for="cv" class="file-label">
+          {{ cvFile ? cvFile.name : (postulanteForm.get('cv')?.value || 'Seleccionar currículum') }}
+        </label>
       </div>
 
       <div formArrayName="estudios">
-        <div
-          *ngFor="let estudio of estudiosForm.controls; let i = index"
-          [formGroupName]="i"
-          class="campo"
-        >
+        <div *ngFor="let estudio of estudiosForm.controls; let i = index" [formGroupName]="i" class="campo">
           <div class="mini-titulo">
             <label>Estudios {{ i + 1 }}</label>
           </div>
@@ -50,128 +41,78 @@
             <option value="Maestría">Maestría</option>
             <option value="5">Doctorado</option>
           </select>
-          <input
-            type="file"
-            id="certificado-estudios-{{ i }}"
-            (change)="onCertificadoEstudioChange($event, i)"
-            style="display: none"
-          />
-          <label for="certificado-estudios-{{ i }}" class="file-label"> 
-            {{ certificadosEstudios.get(i)?.name || 'Seleccionar certificado estudio' }}
+          <input type="file" id="certificado-estudios-{{ i }}" (change)="onCertificadoEstudioChange($event, i)"
+            style="display: none" />
+          <label for="certificado-estudios-{{ i }}" class="file-label">
+            {{ certificadosEstudios.get(i)?.name || estudiosForm.at(i).get('certificado')?.value || 'Seleccionar
+            certificado estudio' }}
           </label>
         </div>
       </div>
       <div class="botones-container">
-        <button
-          type="button"
-          class="agregar"
-          (click)="agregarEstudio()"
-          *ngIf="estudiosForm.length < 5"
-        >
-         +
+        <button type="button" class="agregar" (click)="agregarEstudio()" *ngIf="estudiosForm.length < 5">
+          +
         </button>
-        <button
-          type="button"
-          class="eliminar"
-          (click)="eliminarEstudio(estudiosForm.length - 1)"
-          *ngIf="estudiosForm.length > 1"
-        >
+        <button type="button" class="eliminar" (click)="eliminarEstudio(estudiosForm.length - 1)"
+          *ngIf="estudiosForm.length > 1">
           -
         </button>
       </div>
 
       <div formArrayName="habilidades">
-        <div
-          *ngFor="let habilidad of habilidadesForm.controls; let i = index"
-          [formGroupName]="i"
-          class="campo"
-        >
+        <div *ngFor="let habilidad of habilidadesForm.controls; let i = index" [formGroupName]="i" class="campo">
           <div class="mini-titulo">
             <label>Habilidad {{ i + 1 }}</label>
           </div>
-            <select formControlName="nombre">
-              <option value="">Selecciona una habilidad</option>
-              <option 
-                *ngFor="let hab of catalogoHabilidades" 
-                [value]="hab.id_habilidad"
-              >
-                {{ hab.nombre_habilidad }}
-              </option>
-            </select>
-          <input
-            type="file"
-            id="certificado-habilidades-{{ i }}"
-            (change)="onCertificadoHabilidadChange($event, i)"
-            style="display: none"
-          />
-          <label for="certificado-habilidades-{{ i }}" class="file-label"> 
-            {{ certificadosHabilidades.get(i)?.name || 'Seleccionar certificado habilidad' }}
+          <select formControlName="nombre">
+            <option value="">Selecciona una habilidad</option>
+            <option *ngFor="let hab of catalogoHabilidades" [value]="hab.id_habilidad">
+              {{ hab.nombre_habilidad }}
+            </option>
+          </select>
+          <input type="file" id="certificado-habilidades-{{ i }}" (change)="onCertificadoHabilidadChange($event, i)"
+            style="display: none" />
+          <label for="certificado-habilidades-{{ i }}" class="file-label">
+            {{ certificadosHabilidades.get(i)?.name || habilidadesForm.at(i).get('certificado')?.value || 'Seleccionar
+            certificado habilidad' }}
           </label>
         </div>
       </div>
       <div class="botones-container">
-        <button
-          type="button"
-          class="agregar"
-          (click)="agregarHabilidad()"
-          *ngIf="habilidadesForm.length < 5"
-        >
+        <button type="button" class="agregar" (click)="agregarHabilidad()" *ngIf="habilidadesForm.length < 5">
           +
         </button>
-        <button
-          type="button"
-          class="eliminar"
-          (click)="eliminarHabilidad(habilidadesForm.length - 1)"
-          *ngIf="habilidadesForm.length > 1"
-        >
+        <button type="button" class="eliminar" (click)="eliminarHabilidad(habilidadesForm.length - 1)"
+          *ngIf="habilidadesForm.length > 1">
           -
         </button>
       </div>
 
       <div formArrayName="idiomas">
-        <div
-          *ngFor="let idioma of idiomasForm.controls; let i = index"
-          [formGroupName]="i"
-          class="campo"
-        >
+        <div *ngFor="let idioma of idiomasForm.controls; let i = index" [formGroupName]="i" class="campo">
           <div class="mini-titulo">
             <label>Idioma {{ i + 1 }}</label>
           </div>
           <select formControlName="nombre">
             <option value="">Selecciona un idioma</option>
-            <option 
-              *ngFor="let idm of catalogoIdiomas" 
-              [value]="idm.id_idioma"
-            >
+            <option *ngFor="let idm of catalogoIdiomas" [value]="idm.id_idioma">
               {{ idm.nombre }}
             </option>
           </select>
-          <input
-            type="file"
-            id="certificado-idiomas-{{ i }}"
-            (change)="onCertificadoIdiomaChange($event, i)"
-            style="display: none"
-          />
-          <label for="certificado-idiomas-{{ i }}" class="file-label"> 
-            {{ certificadosIdiomas.get(i)?.name || 'Seleccionar certificado de idioma' }}
+          <input type="file" id="certificado-idiomas-{{ i }}" (change)="onCertificadoIdiomaChange($event, i)"
+            style="display: none" />
+          <label for="certificado-idiomas-{{ i }}" class="file-label">
+            {{ certificadosIdiomas.get(i)?.name || idiomasForm.at(i).get('certificado')?.value || 'Seleccionar
+            certificado de idioma' }}
           </label>
         </div>
       </div>
       <div class="botones-container">
-        <button
-          type="button"
-          class="agregar"
-          (click)="agregarIdioma()"
-          *ngIf="idiomasForm.length < 5"
-        >
-         +
+        <button type="button" class="agregar" (click)="agregarIdioma()" *ngIf="idiomasForm.length < 5">
+          +
         </button>
-        <button
-          type="button"
-          class="eliminar"
-          (click)="eliminarIdioma(idiomasForm.length - 1)"
-          *ngIf="idiomasForm.length > 1"
-        >
+        <button type="button" class="eliminar" (click)="eliminarIdioma(idiomasForm.length - 1)"
+          *ngIf="idiomasForm.length > 1">
           -
         </button>
       </div>

@@ -35,18 +35,65 @@ export class PerfilPostulante implements OnInit {
 
   ngOnInit() {
     this.idPostulante = sessionStorage.getItem('perfilId') || '';
+    this.inicializarFormulario();
+    this.cargarCatalogos();
+
     if (this.idPostulante) {
-      
-      this.perfil.getUserNamePostulante(this.idPostulante ).subscribe({
+      this.perfil.getUserNamePostulante(this.idPostulante).subscribe({
         next: (data: any) => {
           this.name = `${data.name} ${data.lastname}`;
         },
-        error: (err) => console.error('Error al obtener nombre:', err),
+        error: (err: any) => console.error('Error al obtener nombre:', err),
+      });
+
+      this.perfil.getPerfilCompleto(this.idPostulante).subscribe({
+        next: (data: any) => {
+          console.log('DATA PERFIL:', JSON.stringify(data, null, 2));
+          if (!data) return;
+
+          this.postulanteForm.patchValue({
+            experiencia: data.años_experiencia || '',
+            cv: data.curriculum || ''
+          });
+
+          if (data.curriculum) {
+            this.postulanteForm.patchValue({ cv: data.curriculum });
+          }
+
+          if (data.postulanteEstudios?.length) {
+            this.estudiosForm.clear();
+            data.postulanteEstudios.forEach((de: any) => {
+              this.estudiosForm.push(this.fb.group({
+                titulo: [de.estudio?.titulo || '', Validators.required],
+                nivel: [de.estudio?.nivel || '', Validators.required],
+                certificado: [de.certificado || '']
+              }));
+            });
+          }
+
+          if (data.postulanteHabilidades?.length) {
+            this.habilidadesForm.clear();
+            data.postulanteHabilidades.forEach((ph: any) => {
+              this.habilidadesForm.push(this.fb.group({
+                nombre: [ph.habilidades?.id_habilidad || '', Validators.required],
+                certificado: [ph.certificado || '']
+              }));
+            });
+          }
+
+          if (data.postulanteIdiomas?.length) {
+            this.idiomasForm.clear();
+            data.postulanteIdiomas.forEach((pi: any) => {
+              this.idiomasForm.push(this.fb.group({
+                nombre: [pi.idioma?.id_idioma || '', Validators.required],
+                certificado: [pi.certificado || '']
+              }));
+            });
+          }
+        },
+        error: (err: any) => console.error('Error al cargar perfil:', err)
       });
     }
-
-    this.inicializarFormulario();
-    this.cargarCatalogos();
   }
 
   inicializarFormulario() {
@@ -192,38 +239,39 @@ export class PerfilPostulante implements OnInit {
       return;
     }
 
-    if (!this.cvFile) {
+    // Permite CV ya guardado anteriormente
+    const cvNombre = this.cvFile ? this.cvFile.name : this.postulanteForm.get('cv')?.value;
+    if (!cvNombre) {
       this.alert.error('Debe cargar su currículum');
       return;
     }
 
     const datosFormulario = {
       experiencia: this.postulanteForm.value.experiencia,
-      cv: this.cvFile.name,
+      cv: cvNombre,
       estudios: this.postulanteForm.value.estudios.map((estudio: any, index: number) => {
         const certificadoFile = this.certificadosEstudios.get(index);
         return {
           titulo: estudio.titulo,
           nivel: estudio.nivel,
-          certificado: certificadoFile ? certificadoFile.name : null
+          certificado: certificadoFile ? certificadoFile.name : estudio.certificado || null
         };
       }),
       habilidades: this.postulanteForm.value.habilidades.map((habilidad: any, index: number) => {
         const certificadoFile = this.certificadosHabilidades.get(index);
         return {
           id: habilidad.nombre,
-          certificado: certificadoFile ? certificadoFile.name : null
+          certificado: certificadoFile ? certificadoFile.name : habilidad.certificado || null
         };
       }),
       idiomas: this.postulanteForm.value.idiomas.map((idioma: any, index: number) => {
         const certificadoFile = this.certificadosIdiomas.get(index);
         return {
           id: idioma.nombre,
-          certificado: certificadoFile ? certificadoFile.name : null
+          certificado: certificadoFile ? certificadoFile.name : idioma.certificado || null
         };
       })
     };
-
 
     this.postulante.guardarPerfilPostulante(this.idPostulante, datosFormulario).subscribe({
       next: (response) => {
@@ -235,14 +283,14 @@ export class PerfilPostulante implements OnInit {
       }
     });
   }
-    
-    /*const response = this.postulante.guardarPerfil(perfil);
 
-    if (!!response.success) {
-      this.alert.success(response.message);
-      this.router.navigate(['/match']);
-    } else {
-      this.alert.error(response.message);
-    }*/
+  /*const response = this.postulante.guardarPerfil(perfil);
+
+  if (!!response.success) {
+    this.alert.success(response.message);
+    this.router.navigate(['/match']);
+  } else {
+    this.alert.error(response.message);
+  }*/
 
 }

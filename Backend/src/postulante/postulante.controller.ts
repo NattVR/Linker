@@ -13,11 +13,21 @@ import { UpdatePostulanteDto } from './dto/update-postulante.dto';
 
 @Controller('postulante')
 export class PostulanteController {
-  constructor(private readonly postulanteService: PostulanteService) {}
+  constructor(private readonly postulanteService: PostulanteService) { }
 
   @Post('registro')
   async register(@Body() dto: CreatePostulanteDto) {
     return this.postulanteService.createPostulante(dto);
+  }
+
+  @Get('perfil-completo/:id')
+  async getPerfilCompleto(@Param('id') id: string) {
+    return this.postulanteService.getPerfilCompleto(id);
+  }
+
+  @Delete('limpiar/:id')
+  async limpiarPerfil(@Param('id') id: string) {
+    return this.postulanteService.limpiarPerfilPostulante(id);
   }
 
   @Get(':id')
