@@ -99,8 +99,15 @@ async create(createVacanteDto: CreateVacanteDto) {
     })
   }*/
 
-  update(id: number, updateVacanteDto: UpdateVacanteDto) {
-    return `This action updates a #${id} vacante`;
+  async update(id: string, updateVacanteDto: UpdateVacanteDto) {
+    const vacante = await this.vacanteRepository.findOne({
+      where: { id_vacante: id },
+    });
+    if (!vacante) {
+      throw new Error('Vacante no encontrada');
+    }
+    Object.assign(vacante, updateVacanteDto);
+    return await this.vacanteRepository.save(vacante);
   }
 
   remove(id: number) {

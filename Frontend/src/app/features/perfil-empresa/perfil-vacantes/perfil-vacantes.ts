@@ -34,6 +34,9 @@ export class PerfilVacantes {
 
   vacantes: Vacante[] = [];
 
+  modoEdicion = false;
+  vacanteEditandoId: string | null = null;
+
   nuevaVacante: FormGroup = this.fb.group({
     titulo: [''],
     salario: [''],
@@ -136,17 +139,55 @@ export class PerfilVacantes {
     if (!vacante.vacantesIdiomas?.length) vacante.vacantesIdiomas = [];
 
 
+    if (this.modoEdicion && this.vacanteEditandoId) {
+
+    this.perfil.updateVacante(this.vacanteEditandoId, vacante).subscribe({
+      next: (res) => {
+        console.log('Vacante actualizada:', res);
+        this.resetFormulario();
+      },
+      error: (err) => console.error(err)
+    });
+
+  } else {
+
     this.perfil.createVacante(vacante).subscribe({
-    next: (res) => {
-      console.log('Vacante guardada correctamente:', res);
-      this.nuevaVacante.reset();
-      this.habilidades.clear();
-      this.idiomas.clear();
-    },
-    error: (err) => {
-      console.error('Error al guardar la vacante:', err);
-    }
-  });
+      next: (res) => {
+        console.log('Vacante guardada correctamente:', res);
+        this.resetFormulario();
+      },
+      error: (err) => console.error(err)
+    });
+
+  }
+  }
+
+  // ========= EDITAR VACANTE =========
+  editarVacante(v: Vacante) {
+    this.setActiveTab('form');
+
+    this.modoEdicion = true;
+    this.vacanteEditandoId = v.id_vacante;
+
+    this.nuevaVacante.patchValue({
+      titulo: v.titulo,
+      salario: v.salario,
+      ubicacion: v.ubicacion,
+      tipo_trabajo: v.tipo_trabajo,
+      tipo_modalidad: v.modalidad
+    });
+  }
+
+  resetFormulario() {
+    this.nuevaVacante.reset();
+    this.habilidades.clear();
+    this.idiomas.clear();
+
+    this.modoEdicion = false;
+    this.vacanteEditandoId = null;
+
+    this.setActiveTab('list');
+    this.cargarVacantes();
   }
 
   // ========= ELIMINAR VACANTE =========

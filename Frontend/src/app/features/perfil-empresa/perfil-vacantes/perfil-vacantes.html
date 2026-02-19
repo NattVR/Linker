@@ -144,6 +144,13 @@
               <div class="vacante-header">
                 <h3>{{ v.titulo }}</h3>
                 <button
+                  (click)="editarVacante(v)"
+                  class="edit-button"
+                  title="Editar vacante"
+                >
+                  ✎
+                </button>
+                <button
                   (click)="eliminarVacante(v.id_vacante)"
                   class="delete-button"
                   title="Eliminar vacante"

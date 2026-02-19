@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Put  } from '@nestjs/common';
 import { VacantesService } from './vacantes.service';
 import { CreateVacanteDto } from './dto/create-vacante.dto';
+import { UpdateVacanteDto } from './dto/update-vacante.dto';
 
 @Controller('vacantes')
 export class VacantesController {
@@ -29,5 +30,13 @@ export class VacantesController {
   @Get('vacantes/:id')
   getVacantes(@Param('id') postulanteId: string) {
     return this.vacantesService.getVacantes(postulanteId);
+  }
+  
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateVacanteDto: UpdateVacanteDto,
+  ) {
+    return this.vacantesService.update(id, updateVacanteDto);
   }
 }

@@ -13,6 +13,9 @@ interface PerfilPostulanteResponse {
   providedIn: 'root',
 })
 export class Perfil {
+  updateVacante(id: string, data: any) {
+  return this.http.put(`http://localhost:3000/vacantes/${id}`, data);
+  }
   auth = inject(Auth);
   http = inject(HttpClient);
 
