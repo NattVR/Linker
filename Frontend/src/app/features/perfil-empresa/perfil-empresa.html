@@ -1,83 +1,114 @@
 <section>
   <div class="perfil-container">
-    <div class="btn-change">
-    <button class="edit-btn">Editar Perfil <i class="fa-solid fa-pen-to-square" style="color: #ffffff;"></i></button>
-    </div>
-    <div class="perfil-header">
-      <img src="assets/img/match-user-icon.webp" class="foto" />
-      <span class="nombre"> {{ name }}</span>
-    </div>
+    @if (activeTabEmpresa === 'perfil') {
+      <div class="container">
+        <div class="btn-change">
+          <button (click)="setActiveTabEmpresa('editar_perfil')" class="edit-btn">
+            Editar Perfil <i class="fa-solid fa-pen-to-square" style="color: #ffffff"></i>
+          </button>
+        </div>
 
-    <p class="company-type"><i class="fa-regular fa-building"></i>Tecnología / Software</p>
+        <div class="perfil-header">
+          <img src="assets/img/match-user-icon.webp" class="foto" />
+          <span class="nombre"> {{ name }}</span>
+        </div>
 
+        <p class="company-type"><i class="fa-regular fa-building"></i>Tecnología / Software</p>
 
-    <div class="contact-info">
-      <div class="contact-item"> <i class="fa-solid fa-map-pin" style="color: #a30212;"></i>Ciudad de México, MX</div>
-      <div class="contact-item"><i class="fa-solid fa-user-group" style="color: #470bf8;"></i>50-300 empleados</div>
-      <div class="contact-item"> ww.techflow.com</div>
-    </div>
+        <div class="contact-info">
+          <div class="contact-item">
+            <i class="fa-solid fa-map-pin" style="color: #a30212"></i>Ciudad de México, MX
+          </div>
+          <div class="contact-item">
+            <i class="fa-solid fa-user-group" style="color: #470bf8"></i>50-300 empleados
+          </div>
+        </div>
 
-   
-    <p class="description">
-      Somos una empresa innovadora enfocada en crear soluciones tecnológicas que transforman
-      industrias. Creemos en el poder de la creatividad, la colaboración y el impacto positivo.
-    </p>
-
-
-    <div class="section">
-      <h3 class="section-title">Cultura</h3>
-      <div class="tags">
-        <span class="tag">Tecnología</span>
-        <span class="tag">Innovación</span>
-        <span class="tag">Diversidad</span>
-        <span class="tag">Crecimiento Profesional</span>
+        <p class="description">
+          Somos una empresa innovadora enfocada en crear soluciones tecnológicas que transforman
+          industrias. Creemos en el poder de la creatividad, la colaboración y el impacto positivo.
+        </p>
       </div>
-    </div>
-
-    <div class="section">
-      <h3 class="section-title">Beneficios</h3>
-      <div class="tags">
-        <span class="tag">Seguros de Gastos Médicos</span>
-        <span class="tag">Home Office</span>
-        <span class="tag">Días de Vacaciones Flexibles</span>
-        <span class="tag">Budget de Capacitación</span>
-      </div>
-    </div>
-
-  <div class="divider">
-    <div class="btn-group">
-    <button (click)="setActiveTab('vacantes')" 
-    class="divider-btn"
-    [class.active]="activeTab === 'vacantes'"
-    >Vacantes
-    <i class="fa-solid fa-book-open" ></i>
-    </button>
-    <button (click)="setActiveTab('certificados')" 
-    class="divider-btn"
-    [class.active]="activeTab === 'certificados'"
-    >Certificados
-    <i class="fa-solid fa-award"></i>
-    </button>
-    <button (click)="setActiveTab('estadisticas')"
-     class="divider-btn"
-     [class.active]="activeTab === 'estadisticas'">Estadisticas
-    <i class="fa-solid fa-chart-simple"></i>
-    </button>
-    </div>
-    
-    @if (activeTab === 'vacantes') {
-      <app-perfil-vacantes></app-perfil-vacantes>
-    } 
-    @else if (activeTab === 'certificados') {
-      <app-perfil-empresa-certificados></app-perfil-empresa-certificados>
-    } 
-    @else if (activeTab === 'estadisticas') {
-      <p>Estadísticas de la empresa</p>
     }
 
+    @if (activeTabEmpresa === 'editar_perfil') {
+      <div class="container">
+        <div class="btn-change">
+          <button (click)="setActiveTabEmpresa('perfil')" class="edit-btn">
+            Perfil <i class="fa-regular fa-circle-user" style="color: #ffffff"></i>
+          </button>
+        </div>
+
+        <h2>Editar Perfil</h2>
+
+        <form>
+          <div class="form-group">
+            <label for="companyName">Nombre de la Empresa</label>
+            <input type="text" id="companyName" name="companyName" value="{{ name }}" />
+          </div>
+
+          <div class="form-group">
+            <label for="companyType">Industria</label>
+            <input type="text" id="companyType" name="companyType" value="Tecnología / Software" />
+          </div>
+
+          <div class="form-group">
+            <label for="location">Ubicación</label>
+            <input type="text" id="location" name="location" value="Ciudad de México, MX" />
+          </div>
+
+          <div class="form-group">
+            <label for="website">Sitio Web / Redes</label>
+            <input type="text" id="website" name="website" value="ww.techflow.com" />
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="setActiveTabEmpresa('perfil')">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-save">
+              Guardar <i class="fa-regular fa-floppy-disk"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <div class="divider">
+      <div class="btn-group">
+        <button
+          (click)="setActiveTab('vacantes')"
+          class="divider-btn"
+          [class.active]="activeTab === 'vacantes'"
+        >
+          Vacantes
+          <i class="fa-solid fa-book-open"></i>
+        </button>
+        <button
+          (click)="setActiveTab('certificados')"
+          class="divider-btn"
+          [class.active]="activeTab === 'certificados'"
+        >
+          Certificados
+          <i class="fa-solid fa-award"></i>
+        </button>
+        <button
+          (click)="setActiveTab('estadisticas')"
+          class="divider-btn"
+          [class.active]="activeTab === 'estadisticas'"
+        >
+          Estadisticas
+          <i class="fa-solid fa-chart-simple"></i>
+        </button>
+      </div>
+
+      @if (activeTab === 'vacantes') {
+        <app-perfil-vacantes></app-perfil-vacantes>
+      } @else if (activeTab === 'certificados') {
+        <app-perfil-empresa-certificados></app-perfil-empresa-certificados>
+      } @else if (activeTab === 'estadisticas') {
+        <p>Estadísticas de la empresa</p>
+      }
+    </div>
   </div>
-
-  </div>
-
-
 </section>

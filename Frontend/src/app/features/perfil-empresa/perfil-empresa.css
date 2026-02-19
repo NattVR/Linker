@@ -25,6 +25,12 @@ section {
   height: auto;
 }
 
+.container{
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+}
+
 .perfil-header {
   display: flex;
   flex-direction: row;
@@ -41,7 +47,7 @@ section {
 }
 
 .nombre {
-  font-size: 1.4rem;
+  font-size: 2rem;
   font-weight: bold;
 }
 
@@ -64,14 +70,14 @@ section {
 
 .company-type {
   color: #6b7280;
-  font-size: 14px;
+  font-size: 15px;
   margin-top: 4px;
 }
 
 .contact-info {
   display: flex;
   gap: 16px;
-  font-size: 13px;
+  font-size: 15px;
   color: #6b7280;
   margin: 12px 0;
   flex-wrap: wrap;
@@ -85,42 +91,9 @@ section {
 
 .description {
   color: #374151;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.5;
   margin-bottom: 16px;
-}
-
-.section{
-  margin-bottom: 2%;
-}
-
-.section-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  background: #f3f4f6;
-  color: #374151;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  border: 1px solid   #6366f1;
-  transition: all 0.2s;
-}
-
-.tag:hover {
-  background:  #6366f1;
-  color: #fff;
 }
 
 .divider {
@@ -151,6 +124,87 @@ section {
   color:  #6366f1;
   text-decoration: underline;
   background-color: #acaaaa21;
+}
+
+.container h2 {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #374151;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #374151;
+  background-color: #f9fafb;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:hover {
+  border-color: #a5b4fc;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-cancel {
+  background-color: transparent;
+  border: 1.5px solid #e5e7eb;
+  color: #6b7280;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  border-color: #ec4899;
+  color: #ec4899;
+}
+
+.btn-save {
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #6366f1, #ec4899);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(132, 175, 251, 0.4);
 }
 
 @media (max-width: 1200px) {
