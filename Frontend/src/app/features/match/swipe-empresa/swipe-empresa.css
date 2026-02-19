@@ -121,12 +121,13 @@
   white-space: nowrap;
 }
 
-.tag {
-  background: linear-gradient(135deg, var(--blue) 0%, var(--soft-blue) 100%);
+.tag{
+ background: linear-gradient(145deg,  #6366f1 0%,  #ec4899 100%);
 }
 
-.tag-language {
-  background: linear-gradient(135deg, var(--coral), var(--peach) 100%);
+.tag-language{
+  background: linear-gradient(135deg, #4de0f3, #2896b8 100%);
+
 }
 
 .curriculum-btn {

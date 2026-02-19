@@ -34,4 +34,11 @@ export class EmpresaController {
   async isEmpresa(@Param('id') id: string) {
     return this.empresaService.isEmpresa(id);
   }
+
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateEmpresaDto: UpdateEmpresaDto){
+    return this.empresaService.update(id, updateEmpresaDto);
+  }
 }

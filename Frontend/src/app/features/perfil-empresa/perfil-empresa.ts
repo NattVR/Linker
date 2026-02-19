@@ -29,8 +29,14 @@ export class PerfilEmpresa {
 
   activeTab: 'vacantes' | 'certificados' | 'estadisticas' = 'vacantes';
 
+  activeTabEmpresa: 'perfil' | 'editar_perfil' = 'perfil';
+
   setActiveTab(tab: 'vacantes' | 'certificados' | 'estadisticas') {
     this.activeTab = tab;
+  }
+
+  setActiveTabEmpresa(tab: 'perfil' | 'editar_perfil') {
+    this.activeTabEmpresa = tab;
   }
 
   ngOnInit() {

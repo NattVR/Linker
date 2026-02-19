@@ -22,6 +22,10 @@ export class Empresa {
   @Column({ type: 'varchar', nullable: true })
   descripcion: string;
   @Column({ type: 'varchar', nullable: true })
+  ubicacion: string
+  @Column({ type: 'varchar', nullable: true })
+  sector: string;
+  @Column({ type: 'varchar', nullable: true })
   foto: string;
   @Column({ type: 'varchar' })
   NIT: string;

@@ -30,16 +30,19 @@
           <div class="card-salary"><i class="fa-solid fa-hand-holding-dollar"></i>{{ ' $'+ v.salario }}</div>
         </div>
         <!--<div class="card-description">{{ v.description }}</div>-->
+  
         <div class="tags">
           @for(tag of v.habilidades; track tag) {
           <div class="tag">{{ tag }}</div>
           }
         </div>
+
         <div class="tags">
           @for(tag of v.idiomas; track tag) {
           <div class="tag-language">{{ tag }}</div>
           }
         </div>
+  
         <div class="info-row">
           <div class="info-item">
             <span><i class="fa-solid fa-city"></i></span>

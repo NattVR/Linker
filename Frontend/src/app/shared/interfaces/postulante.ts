@@ -13,6 +13,10 @@ interface Habilidad {
   id_habilidad: string;
   nombre_habilidad:string;
 }
+interface Idioma {
+  id_habilidad: string;
+  nombre_habilidad:string;
+}
 
 interface Idioma {
   id_idioma: string;
@@ -33,6 +37,6 @@ interface Postulante{
   curriculum:string;
   foto:string;
   ubicacion:string;
-  habilidades?: any[]
-  idiomas?:any[]
+  habilidades?: any[];
+  idiomas?: any[];
 }

@@ -24,35 +24,36 @@ export class VacantesService {
     return vacanteEntity;
   }*/
 
-async create(createVacanteDto: CreateVacanteDto) {
+  async create(createVacanteDto: CreateVacanteDto) {
+    const { vacantesIdiomas, vacanteHabilidades, empresa, ...vacanteData } =
+      createVacanteDto;
+    console.log('habilidades',vacanteHabilidades,'idiomas',vacantesIdiomas,'data',vacanteData);
 
-  const { vacantesIdiomas, vacanteHabilidades, empresa, ...vacanteData } = createVacanteDto; 
-  console.log('habilidades', vacanteHabilidades, 'idiomas', vacantesIdiomas, 'data', vacanteData);
-
-
-  const nuevaVacante = this.vacanteRepository.create({
+    const nuevaVacante = this.vacanteRepository.create({
       ...vacanteData,
-      empresa: { id: empresa }, 
-  });
+      empresa: { id: empresa },
+    });
 
+    if (vacantesIdiomas && vacantesIdiomas.length > 0) {
+      nuevaVacante.vacantesIdiomas = vacantesIdiomas.map(
+        (id_idioma) =>
+          ({
+            idioma: { id_idioma },
+          }) as any,
+      );
+    }
 
-  if (vacantesIdiomas && vacantesIdiomas.length > 0) {
-  
-    nuevaVacante.vacantesIdiomas = vacantesIdiomas.map((id_idioma) => ({
-      idioma: { id_idioma }, 
-    } as any)); 
+    if (vacanteHabilidades && vacanteHabilidades.length > 0) {
+      nuevaVacante.vacanteHabilidades = vacanteHabilidades.map(
+        (id_habilidad) =>
+          ({
+            habilidades: { id_habilidad },
+          }) as any,
+      );
+    }
+
+    return await this.vacanteRepository.save(nuevaVacante);
   }
-
-  if (vacanteHabilidades && vacanteHabilidades.length > 0) {
-   
-    nuevaVacante.vacanteHabilidades = vacanteHabilidades.map((id_habilidad) => ({
-      habilidades: { id_habilidad }, 
-    } as any));
-  }
-
-  return await this.vacanteRepository.save(nuevaVacante);
-}
-
 
   findAll() {
     return this.vacanteRepository.find({
@@ -60,33 +61,68 @@ async create(createVacanteDto: CreateVacanteDto) {
     });
   }
 
-  findAllVacantesofEmpresa(empresaid: string) {
-    return this.vacanteRepository.find({
+  async findAllVacantesofEmpresa(empresaid: string) {
+    const vacantesReslt = await this.vacanteRepository.find({
       where: {
         empresa: { id: empresaid },
       },
-      relations: ['empresa'],
+      relations: [
+        'empresa',
+        'vacanteHabilidades',
+        'vacanteHabilidades.habilidades',
+        'vacantesIdiomas',
+        'vacantesIdiomas.idioma',
+      ],
     });
+    const vacantesFormateadas = vacantesReslt.map(
+      ({ vacantesIdiomas, vacanteHabilidades, ...v }) => ({
+        ...v,
+        idiomas: vacantesIdiomas?.map((vi) => vi.idioma.nombre) ?? [],
+        habilidades:
+          vacanteHabilidades?.map((vh) => vh.habilidades.nombre_habilidad) ??
+          [],
+      }),
+    );
+    return vacantesFormateadas;
   }
 
   async getVacantes(postulanteId: string) {
     const vacantesExcluidas =
       await this.interaccionService.isFilteredVacantes(postulanteId);
     console.log('desde vacante', vacantesExcluidas);
-    const vacantes = this.vacanteRepository.find({
-      select:{ 
-        empresa:{
-          name_empresa:true,
-          id:true
-        }
-      },
-      where: {
-        id_vacante: Not(In(vacantesExcluidas)),
-      },
-      relations:['empresa','vacanteHabilidades','vacantesIdiomas'],
-      take:5
-    });
-    return vacantes;
+    const vacantes = this.vacanteRepository
+      .createQueryBuilder('vacante')
+      .leftJoinAndSelect('vacante.empresa', 'empresa')
+      .leftJoinAndSelect('vacante.vacanteHabilidades', 'vacanteHabilidades')
+      .leftJoinAndSelect('vacanteHabilidades.habilidades', 'habilidades')
+      .leftJoinAndSelect('vacante.vacantesIdiomas', 'vacantesIdiomas')
+      .leftJoinAndSelect('vacantesIdiomas.idioma', 'idioma')
+      .limit(5);
+    if (vacantesExcluidas?.length > 0) {
+      vacantes.andWhere('vacante.id_vacante NOT IN (:...excluidas)', {
+        excluidas: vacantesExcluidas,
+      });
+    }
+
+    const vacantesResult = await vacantes.getMany();
+
+    const vacantesFormateadas = vacantesResult.map(
+      ({ vacantesIdiomas, vacanteHabilidades, ...v }) => ({
+        ...v,
+        idiomas: vacantesIdiomas?.map((vi) => vi.idioma.nombre) ?? [],
+        habilidades:
+          vacanteHabilidades?.map((vh) => vh.habilidades.nombre_habilidad) ??
+          [],
+      }),
+    );
+
+    console.log(
+      'Vacantes obtenidas:',
+      vacantesResult,
+      'Vacantes formateadas:',
+      vacantesFormateadas,
+    );
+    return vacantesFormateadas;
   }
 
   /*sync getEmpresaOfVacante(vacanteId: string){
