@@ -4,6 +4,7 @@ import { Empresa } from './entities/empresa.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
+import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 
 @Injectable()
 export class EmpresaService {
@@ -50,14 +51,13 @@ export class EmpresaService {
   async getEmpresaById(id: string) {
     const empresa = await this.empresaRepository.findOne({
       where: { user: { id } },
-      relations: ['user'],
     });
     if (!empresa) {
       return null;
     }
-    return {
-      name_empresa: empresa.name_empresa,
-    };
+    else{
+    return empresa}
+    
   }
 
   async isEmpresa(id: string) {
@@ -66,4 +66,16 @@ export class EmpresaService {
     });
     return empresa ? true : false;
   }
+
+
+  async update(id: string, updateEmpresaDto: UpdateEmpresaDto) {
+    const empresa = await this.getEmpresaById(id);
+    if (!empresa) {
+      throw new NotFoundException('Empresa no encontrada');
+    } else {
+      const updatedEmpresa = this.empresaRepository.merge(empresa, updateEmpresaDto);
+      console.log('Empresa actualizada:', updatedEmpresa);
+      return this.empresaRepository.save(updatedEmpresa);
+    }
+}
 }
