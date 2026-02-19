@@ -112,7 +112,7 @@ h1 {
     height: 5rem;
   }
 
-  /* Mostrar ícono hamburguesa */
+  
   .menu-icon {
     display: flex;
     font-size: 30px;
@@ -121,11 +121,11 @@ h1 {
     margin-right: 2rem;
   }
 
-  /* Menú desplegable */
+  
   .sectionbar {
     display: none;
     flex-direction: column;
-    background: #111;
+    background: #f1f1f1fb;
     position: fixed;
     top: 70px;
     right: 10px;

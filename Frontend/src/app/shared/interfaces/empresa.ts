@@ -7,8 +7,11 @@ interface Vacante {
   ubicacion: string;
   empresa:Empresa;
   habilidades?: any[];
-  idiomas?: any[];
-  
+  idiomas?: any[]; 
+}
+
+interface VacanteHabilidades {
+  id_vacante_habilidades: string;
 }
 
 interface CrearVacante{

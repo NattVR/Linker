@@ -68,16 +68,28 @@ export class PostulanteService {
     const postulantesExcluidos =
       await this.interaccionesService.isFilteredPostulantes(vacanteId);
     console.log(postulantesExcluidos)
-    const postulantes = await this.postulanteRepository.find({
-      where: {
-        id: Not(In(postulantesExcluidos)),
-      },
-      relations:['postulanteHabilidades','postulanteIdiomas']
-    });
-
-    return postulantes;
+    const postulantes = this.postulanteRepository
+    .createQueryBuilder('postulante')
+    .leftJoinAndSelect('postulante.postulanteHabilidades', 'postulanteHabilidades')
+    .leftJoinAndSelect('postulanteHabilidades.habilidades', 'habilidades')
+    .leftJoinAndSelect('postulante.postulanteIdiomas', 'postulanteIdiomas')
+    .leftJoinAndSelect('postulanteIdiomas.idioma', 'idioma')
+    .limit(5);
+    if (postulantesExcluidos?.length > 0) {
+      postulantes.andWhere('postulante.id NOT IN (:...excluidos)', { excluidos: postulantesExcluidos });
+    }
+    const postulantesResult = await postulantes.getMany();
+    const postulantesFormateados = postulantesResult.map(
+      ({ postulanteHabilidades, postulanteIdiomas, ...p }) => ({
+        ...p,
+        idiomas: postulanteIdiomas?.map(pi => pi.idioma.nombre) ?? [],
+        habilidades: postulanteHabilidades?.map(ph => ph.habilidades.nombre_habilidad) ?? [],
+      }),
+    );
+    return postulantesFormateados;
   }
 
+  
   async updatePostulante(idUsuario: string, dto: any) {
     const postulante = await this.postulanteRepository.findOne({ where: { id: idUsuario } });
     if (!postulante) {
