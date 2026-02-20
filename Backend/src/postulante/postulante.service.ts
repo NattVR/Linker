@@ -16,7 +16,7 @@ export class PostulanteService {
     private readonly usuarioRepository: Repository<User>,
 
     private readonly interaccionesService: InteraccionesService,
-  ) {}
+  ) { }
 
   async createPostulante(dto: CreatePostulanteDto) {
     const user = await this.usuarioRepository.findOne({
@@ -69,12 +69,12 @@ export class PostulanteService {
       await this.interaccionesService.isFilteredPostulantes(vacanteId);
     console.log(postulantesExcluidos)
     const postulantes = this.postulanteRepository
-    .createQueryBuilder('postulante')
-    .leftJoinAndSelect('postulante.postulanteHabilidades', 'postulanteHabilidades')
-    .leftJoinAndSelect('postulanteHabilidades.habilidades', 'habilidades')
-    .leftJoinAndSelect('postulante.postulanteIdiomas', 'postulanteIdiomas')
-    .leftJoinAndSelect('postulanteIdiomas.idioma', 'idioma')
-    .limit(5);
+      .createQueryBuilder('postulante')
+      .leftJoinAndSelect('postulante.postulanteHabilidades', 'postulanteHabilidades')
+      .leftJoinAndSelect('postulanteHabilidades.habilidades', 'habilidades')
+      .leftJoinAndSelect('postulante.postulanteIdiomas', 'postulanteIdiomas')
+      .leftJoinAndSelect('postulanteIdiomas.idioma', 'idioma')
+      .limit(5);
     if (postulantesExcluidos?.length > 0) {
       postulantes.andWhere('postulante.id NOT IN (:...excluidos)', { excluidos: postulantesExcluidos });
     }
@@ -89,21 +89,55 @@ export class PostulanteService {
     return postulantesFormateados;
   }
 
-  
+
   async updatePostulante(idUsuario: string, dto: any) {
     const postulante = await this.postulanteRepository.findOne({ where: { id: idUsuario } });
     if (!postulante) {
       throw new NotFoundException(`Postulante no encontrado`);
     }
 
-    if (dto.experiencia  !== undefined) {
-    postulante.años_experiencia = dto.experiencia;
-  }
-  
-  if (dto.cv  !== undefined) {
-    postulante.curriculum = dto.cv;
-  }
+    if (dto.experiencia !== undefined) {
+      postulante.años_experiencia = dto.experiencia;
+    }
+
+    if (dto.cv !== undefined) {
+      postulante.curriculum = dto.cv;
+    }
     return await this.postulanteRepository.save(postulante);
+  }
+
+  async getPerfilCompleto(idPostulante: string) {
+    const postulante = await this.postulanteRepository
+      .createQueryBuilder('postulante')
+      .leftJoinAndSelect('postulante.postulanteHabilidades', 'postulanteHabilidades')
+      .leftJoinAndSelect('postulanteHabilidades.habilidades', 'habilidades')
+      .leftJoinAndSelect('postulante.postulanteIdiomas', 'postulanteIdiomas')
+      .leftJoinAndSelect('postulanteIdiomas.idioma', 'idioma')
+      .leftJoinAndSelect('postulante.postulanteEstudios', 'postulanteEstudios')
+      .leftJoinAndSelect('postulanteEstudios.estudio', 'estudio')
+      .where('postulante.id = :id', { id: idPostulante })
+      .getOne();
+
+    console.log('Postulante encontrado:', postulante);
+    return postulante;
+  }
+
+  async limpiarPerfilPostulante(idPostulante: string) {
+    try {
+      await this.postulanteRepository.manager.query(
+        `DELETE FROM postulante_habilidades WHERE id_postulante = $1`, [idPostulante]
+      );
+      await this.postulanteRepository.manager.query(
+        `DELETE FROM postulante_idiomas WHERE id_postulante = $1`, [idPostulante]
+      );
+      await this.postulanteRepository.manager.query(
+        `DELETE FROM detalles_estudios WHERE id_postulante = $1`, [idPostulante]
+      );
+      return { message: 'Perfil limpiado' };
+    } catch (error) {
+      console.error('Error al limpiar:', error);
+      return { message: 'Sin registros previos' };
+    }
   }
 
   /*async getPostulantesNoInteraction(empresaId:string){  
