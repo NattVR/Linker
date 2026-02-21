@@ -33,10 +33,8 @@ export class VacantesController {
   }
   
   @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateVacanteDto: UpdateVacanteDto,
-  ) {
+  update(@Param('id') id: string,
+        @Body() updateVacanteDto: UpdateVacanteDto,) {
     return this.vacantesService.update(id, updateVacanteDto);
   }
 }

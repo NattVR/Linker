@@ -245,6 +245,31 @@ button:focus {
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
 }
 
+.edit-button {
+  background: linear-gradient(145deg, #6366f1, #ec4899);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.edit-button img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+.edit-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
+}
+
 .list-content {
   min-height: 300px;
 }

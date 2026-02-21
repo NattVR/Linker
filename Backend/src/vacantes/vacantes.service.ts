@@ -136,13 +136,35 @@ export class VacantesService {
   }*/
 
   async update(id: string, updateVacanteDto: UpdateVacanteDto) {
+
     const vacante = await this.vacanteRepository.findOne({
       where: { id_vacante: id },
+      relations: ['vacanteHabilidades', 'vacantesIdiomas'],
     });
+
     if (!vacante) {
       throw new Error('Vacante no encontrada');
     }
-    Object.assign(vacante, updateVacanteDto);
+
+    const { vacantesIdiomas, vacanteHabilidades, ...vacanteData } = updateVacanteDto;
+    Object.assign(vacante, vacanteData);
+    if (vacanteHabilidades) {
+      vacante.vacanteHabilidades = vacanteHabilidades.map(
+        (id_habilidad) =>
+          ({
+            habilidades: { id_habilidad },
+          }) as any
+      );
+    }
+    if (vacantesIdiomas) {
+      vacante.vacantesIdiomas = vacantesIdiomas.map(
+        (id_idioma) =>
+          ({
+            idioma: { id_idioma },
+          }) as any
+      );
+    }
+
     return await this.vacanteRepository.save(vacante);
   }
 

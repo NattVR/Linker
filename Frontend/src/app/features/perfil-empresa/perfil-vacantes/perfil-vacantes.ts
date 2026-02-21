@@ -41,7 +41,7 @@ export class PerfilVacantes {
     titulo: [''],
     salario: [''],
     ubicacion: [''],
-    tipo_modalidad: [''],
+    modalidad: [''],
     tipo_trabajo: [''],
     vacanteHabilidades: this.fb.array([]),
     vacantesIdiomas: this.fb.array([]),
@@ -163,7 +163,7 @@ export class PerfilVacantes {
   }
 
   // ========= EDITAR VACANTE =========
-  editarVacante(v: Vacante) {
+  editarVacante(v: any) {
     this.setActiveTab('form');
 
     this.modoEdicion = true;
@@ -173,8 +173,35 @@ export class PerfilVacantes {
       titulo: v.titulo,
       salario: v.salario,
       ubicacion: v.ubicacion,
-      tipo_trabajo: v.tipo_trabajo,
-      tipo_modalidad: v.modalidad
+      modalidad: v.modalidad,
+      tipo_trabajo: v.tipo_trabajo
+    });
+
+    this.habilidades.clear();
+    this.idiomas.clear();
+
+    this.perfil.getCatalogosPostulante().subscribe(({ habilidades, idiomas }) => {
+
+      v.habilidades?.forEach((nombreHab: string) => {
+        const encontrada = habilidades.find(
+          (h: any) => h.nombre_habilidad === nombreHab
+        );
+
+        if (encontrada) {
+          this.habilidades.push(new FormControl(encontrada.id_habilidad));
+        }
+      });
+
+      v.idiomas?.forEach((nombreIdioma: string) => {
+        const encontrado = idiomas.find(
+          (i: any) => i.nombre === nombreIdioma
+        );
+
+        if (encontrado) {
+          this.idiomas.push(new FormControl(encontrado.id_idioma));
+        }
+      });
+
     });
   }
 
