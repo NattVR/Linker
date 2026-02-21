@@ -67,5 +67,8 @@ interface PerfilEmpresaModel {
 interface Empresa {
   id_perfil: string;
   name_empresa: string;
+  ubicacion: string;
+  descripcion: string;
+  sector: string;
   NIT: string;
 }

@@ -19,6 +19,11 @@ export class Perfil {
   auth = inject(Auth);
   http = inject(HttpClient);
 
+
+  updatePerfilEmpresa(id: string, datos: any): Observable<any> {
+    return this.http.patch(`http://localhost:3000/empresa/${id}`, datos);
+  }
+
   getIsEmpresa(id: string): Observable<{ isEmpresa: boolean }> {
     return this.http.get<{ isEmpresa: boolean }>(`http://localhost:3000/empresa/isEmpresa/${id}`);
   }
@@ -31,8 +36,8 @@ export class Perfil {
     return this.http.get<PerfilPostulanteResponse>(`http://localhost:3000/postulante/${id}`);
   }
 
-  getUserNameEmpresa(id: string): Observable<{ name: string }> {
-    return this.http.get<{ name: string }>(`http://localhost:3000/empresa/${id}`);
+  getEmpresa(id: string): Observable<Empresa> {
+    return this.http.get<Empresa>(`http://localhost:3000/empresa/${id}`);
   }
 
   getCatalogoHabilidades(): Observable<any> {
@@ -145,7 +150,9 @@ export class Perfil {
         ...postulanteIdiomas$,
       ]))
     );
+
   }
+
 
   getPerfilCompleto(id: string) {
     return this.http.get(`http://localhost:3000/postulante/perfil-completo/${id}`);

@@ -137,6 +137,7 @@ section {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-bottom: 15px;
 }
 
 .form-group label {
@@ -147,7 +148,7 @@ section {
 }
 
 .form-group input {
-  width: 100%;
+  width: 80%;
   padding: 10px 14px;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;

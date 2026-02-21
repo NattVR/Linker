@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { Alerts } from '../../shared/services/alerts';
@@ -19,10 +19,17 @@ export class PerfilEmpresa {
   empresa = inject(Perfil);
   fb = inject(FormBuilder);
   router = inject(Router);
-  name = '';
+  name_empresa = '';
+  sector = '';
+  ubicacion = '';
+  descripcion = '';
 
-  empresaForm = this.fb.group({
+  perfilEmpresa: FormGroup= this.fb.group({
+    name_empresa: ['', Validators.required],
+    sector: ['', Validators.required],
+    ubicacion: ['', Validators.required],
     descripcion: ['', Validators.required],
+
     //vacantes: this.fb.array([this.crearVacante()]),
   //certificados: this.fb.array([this.crearCertificado()]),
   });
@@ -40,16 +47,43 @@ export class PerfilEmpresa {
   }
 
   ngOnInit() {
+    this.cargarDatosEmpresa();
+  }
+
+  cargarDatosEmpresa() {
     const id = sessionStorage.getItem('userId');
 
     if (id) {
-      this.empresa.getUserNameEmpresa(id).subscribe({
-        next: (data: any) => {
-          this.name = `${data.name_empresa}`;
-        },
-        error: (err) => console.error('Error al obtener nombre:', err),
+      this.empresa.getEmpresa(id).subscribe({
+        next: (data:Empresa ) => {
+          this.name_empresa = data.name_empresa;
+          this.sector = data.sector;
+          this.ubicacion = data.ubicacion;
+          this.descripcion = data.descripcion;
+          console.log(data,'desde perfil empresa component');
+          },
+        error: (err) => console.error('Error al obtener empresa:', err),
       });
     }
+  }
+
+  updateEmpresa() {
+    const id = sessionStorage.getItem('userId');
+    if (!id) {
+      this.alert.error('ID de usuario no encontrado');
+    }
+    const datos = this.perfilEmpresa.value;
+    this.empresa.updatePerfilEmpresa(id!, datos).subscribe({
+      next: (response) => {
+        this.cargarDatosEmpresa();
+        this.alert.success('Perfil actualizado con éxito');
+        this.activeTabEmpresa = 'perfil';
+      },
+      error: (err) => {
+        console.error('Error al actualizar perfil:', err);
+        this.alert.error('Error al actualizar perfil');
+      },
+    });
   }
 
 
