@@ -14,7 +14,7 @@ interface PerfilPostulanteResponse {
 })
 export class Perfil {
   updateVacante(id: string, data: any) {
-  return this.http.put(`http://localhost:3000/vacantes/${id}`, data);
+    return this.http.put(`http://localhost:3000/vacantes/${id}`, data);
   }
   auth = inject(Auth);
   http = inject(HttpClient);
@@ -156,6 +156,13 @@ export class Perfil {
 
   getPerfilCompleto(id: string) {
     return this.http.get(`http://localhost:3000/postulante/perfil-completo/${id}`);
+  }
+
+  updateCertificado(id: string, datos: any): Observable<any> {
+    return this.http.patch(`http://localhost:3000/detalles-certificados/${id}`, datos);
+  }
+  deleteCertificado(id: string): Observable<any> {
+    return this.http.delete(`http://localhost:3000/detalles-certificados/${id}`);
   }
 
   /*guardarPerfil(perfil: PerfilPostulanteModel| PerfilEmpresaModel) {

@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Perfil } from '../../../shared/services/perfil';
-import { Match } from '../../../shared/services/match';
 import { CommonModule } from '@angular/common';
+import { Alerts } from '../../../shared/services/alerts';
 
 @Component({
   selector: 'app-perfil-empresa-certificados',
@@ -10,98 +10,150 @@ import { CommonModule } from '@angular/common';
   templateUrl: './perfil-empresa-certificados.html',
   styleUrl: './perfil-empresa-certificados.css',
 })
-export class PerfilEmpresaCertificados {
+export class PerfilEmpresaCertificados implements OnInit {
   fb = inject(FormBuilder);
   perfil = inject(Perfil);
-  match = inject(Match);
+  alert = inject(Alerts);
 
-  isOpen = false;
-  activeTab: 'form' | 'list' = 'form';
-  mostrarDropdown = false; // controla si la lista se muestra o no
-  
-  idEmpresa=sessionStorage.getItem('perfilId');
+  activeTab: 'form' | 'list' = 'list';
+  mostrarDropdown = false;
+  modoEdicion = false;
+  idEditando: string | null = null; // ✅ string, no number (uuid)
 
+  idEmpresa = sessionStorage.getItem('perfilId');
   certificados: Certificado[] = [];
   certificadoSeleccionado: Certificado | null = null;
   certificadosOfEmpresa: CertificadoEmpresa[] = [];
 
-  nuevoCertificado: FormGroup = this.fb.group({
-    id_certificado: [''],
-    id_empresa: [''],
-    fechaEmision: [''],
-    fechaCaducidad: [''],
+  certificadoForm: FormGroup = this.fb.group({
+    fechaEmision: ['', Validators.required],
+    fechaCaducidad: ['', Validators.required],
   });
 
-  toggleOpen() {
-    this.isOpen = !this.isOpen;
+  ngOnInit() {
+    this.cargarCertificados();
+    this.cargarCatalogoCertificados();
   }
 
-  setActiveTab(tab: 'form' | 'list') {
-    this.activeTab = tab;
-  }
-
-  toggleListaCertificados() {
-    this.mostrarDropdown = !this.mostrarDropdown;
+  cargarCatalogoCertificados() {
     this.perfil.getCerticados().subscribe({
-      next: (res: Certificado[]) => {
-        this.certificados = res;
-        console.log(this.certificados);
-      },
-      error: () => console.error('Error al cargar habilidades'),
+      next: (res: Certificado[]) => (this.certificados = res),
+      error: () => this.alert.error('Error al cargar el catálogo de certificados'),
     });
-    console.log(this.certificados, 'certificados');
+  }
+
+  cargarCertificados() {
+    if (!this.idEmpresa) return;
+    this.perfil.getCertificadosOfEmpresa(this.idEmpresa).subscribe({
+      next: (data: CertificadoEmpresa[]) => (this.certificadosOfEmpresa = data),
+      error: () => this.alert.error('Error al obtener los certificados'),
+    });
+  }
+
+  toggleDropdown() {
+    this.mostrarDropdown = !this.mostrarDropdown;
   }
 
   seleccionarCertificado(cert: Certificado) {
     this.certificadoSeleccionado = cert;
     this.mostrarDropdown = false;
-    //this.nuevoCertificado.patchValue({ id_certificado: cert.id_certificado });
-    console.log('ID seleccionado:', cert.id_certificado);
-  }
-
-  // 📋 Cargar certificados de la empresa
-  cargarCertificados() {
-    console.log('desde cargar certificados', this.idEmpresa)
-
-    this.perfil.getCertificadosOfEmpresa(this.idEmpresa!).subscribe({
-      next: (data: CertificadoEmpresa[] )=>{
-        this.certificadosOfEmpresa= data
-        console.log(this.certificadosOfEmpresa, 'certificados de la empresa')
-      },
-      error:(err)=>{
-        console.log(err, 'error al obtener vacantes')
-      }
-    })
   }
 
   agregarCertificado() {
-
-    const certificado = this.nuevoCertificado.value;
+    if (!this.certificadoSeleccionado) {
+      this.alert.error('Selecciona un certificado');
+      return;
+    }
+    if (this.certificadoForm.invalid) {
+      this.alert.error('Completa las fechas');
+      return;
+    }
 
     const data: CrearCertificadoEmpresa = {
-      certificado: { id_certificado: this.certificadoSeleccionado?.id_certificado! },
+      certificado: { id_certificado: this.certificadoSeleccionado.id_certificado },
       empresa: { id: this.idEmpresa! },
-      fecha_emision: certificado.fechaEmision,
-      fecha_caducidad: certificado.fechaCaducidad,
+      fecha_emision: this.certificadoForm.value.fechaEmision,
+      fecha_caducidad: this.certificadoForm.value.fechaCaducidad,
     };
-    
-    console.log('certificado',data)
 
-    this.perfil.createCertificado(data).subscribe()
-
+    this.perfil.createCertificado(data).subscribe({
+      next: () => {
+        this.alert.success('Certificado agregado');
+        this.resetForm();
+        this.cargarCertificados();
+        this.activeTab = 'list';
+      },
+      error: () => this.alert.error('Error al agregar certificado'),
+    });
   }
 
-  // 💾 Guardar certificados
-  guardarCertificados() {
-    /*if (this.nuevoCertificado.invalid) return;
-
-    const id_empresa = sessionStorage.getItem('empresaId') || '';
-    const certificadosData = this.nuevoCertificado.value.certificados;
-
-    // Reiniciar formulario
-    this.nuevoCertificado.reset();
-    this.certificadosForm.clear();
-    this.agregarCertificado();*/
+  iniciarEdicion(cert: CertificadoEmpresa) {
+    this.modoEdicion = true;
+    this.idEditando = cert.id_detalles_certificados; // ✅ ya es string
+    this.certificadoSeleccionado = cert.certificado as Certificado;
+    this.certificadoForm.patchValue({
+      fechaEmision: cert.fecha_emision,
+      fechaCaducidad: cert.fecha_caducidad,
+    });
+    this.activeTab = 'form';
   }
-  //nuevoCertificado!: FormGroup;
+
+  guardarEdicion() {
+    if (this.certificadoForm.invalid) {
+      this.alert.error('Completa las fechas');
+      return;
+    }
+
+    const datos = {
+      fecha_emision: this.certificadoForm.value.fechaEmision,
+      fecha_caducidad: this.certificadoForm.value.fechaCaducidad,
+    };
+
+    this.perfil.updateCertificado(this.idEditando!, datos).subscribe({
+      next: () => {
+        this.alert.success('Certificado actualizado');
+        this.resetForm();
+        this.cargarCertificados();
+        this.activeTab = 'list';
+      },
+      error: () => this.alert.error('Error al actualizar certificado'),
+    });
+  }
+
+  eliminarCertificado(id: string) { // ✅ string, no number
+    if (!confirm('¿Estás seguro de que deseas eliminar este certificado?')) return;
+
+    this.perfil.deleteCertificado(id).subscribe({
+      next: () => {
+        this.alert.success('Certificado eliminado');
+        this.cargarCertificados();
+      },
+      error: () => this.alert.error('Error al eliminar certificado'),
+    });
+  }
+
+  submitForm() {
+    if (this.modoEdicion) {
+      this.guardarEdicion();
+    } else {
+      this.agregarCertificado();
+    }
+  }
+
+  resetForm() {
+    this.certificadoForm.reset();
+    this.certificadoSeleccionado = null;
+    this.modoEdicion = false;
+    this.idEditando = null;
+  }
+
+  cancelarEdicion() {
+    this.resetForm();
+    this.activeTab = 'list';
+  }
+
+  setActiveTab(tab: 'form' | 'list') {
+    if (tab === 'form') this.resetForm();
+    this.activeTab = tab;
+  }
 }

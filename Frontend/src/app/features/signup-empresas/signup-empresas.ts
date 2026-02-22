@@ -24,7 +24,7 @@ export class SignupEmpresas {
     const nameControl = this.empresaForm.get('name_empresa');
     const nitControl = this.empresaForm.get('NIT');
 
-    if (nameControl?.valid && nitControl?.valid) {
+    if (nameControl?.valid && nitControl?.valid) { // 2. Control de validación para los campos de empresa
       this.currentStep = 2;
     }
   }

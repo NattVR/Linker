@@ -5,7 +5,9 @@ import { UpdateDetallesCertificadoDto } from './dto/update-detalles_certificado.
 
 @Controller('detalles-certificados')
 export class DetallesCertificadosController {
-  constructor(private readonly detallesCertificadosService: DetallesCertificadosService) {}
+  constructor(
+    private readonly detallesCertificadosService: DetallesCertificadosService,
+  ) {}
 
   @Post()
   create(@Body() createDetallesCertificadoDto: CreateDetallesCertificadoDto) {
@@ -18,17 +20,20 @@ export class DetallesCertificadosController {
   }
 
   @Get('empresa/:id')
-  findCertificadosForEmpresa(@Param('id') id:string){
-    return this.detallesCertificadosService.findAllByEmpresa(id)
+  findCertificadosForEmpresa(@Param('id') id: string) {
+    return this.detallesCertificadosService.findAllByEmpresa(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDetallesCertificadoDto: UpdateDetallesCertificadoDto) {
-    return this.detallesCertificadosService.update(+id, updateDetallesCertificadoDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateDetallesCertificadoDto: UpdateDetallesCertificadoDto,
+  ) {
+    return this.detallesCertificadosService.update(id, updateDetallesCertificadoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.detallesCertificadosService.remove(+id);
+    return this.detallesCertificadosService.remove(id);
   }
 }

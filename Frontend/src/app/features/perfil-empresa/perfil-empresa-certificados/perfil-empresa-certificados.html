@@ -1,73 +1,127 @@
 <div class="main-panel">
+  <div class="btn-change">
+    @if (activeTab === 'form') {
+    <button (click)="cancelarEdicion()" class="tab-button">
+      <i class="fa-solid fa-list-check"></i>
+      Ver Certificados
+      @if (certificadosOfEmpresa.length > 0) {
+      <span class="certificados-count">{{ certificadosOfEmpresa.length }}</span>
+      }
+    </button>
+    } @else {
+    <button (click)="setActiveTab('form')" class="tab-button">
+      <i class="fa-solid fa-pen-clip"></i>
+      Nuevo Certificado
+    </button>
+    }
+  </div>
+
   @if (activeTab === 'form') {
-    <div class="btn-change">
-      <button (click)="setActiveTab('list'); cargarCertificados()" class="tab-button">
-        Certificados
-        <i class="fa-solid fa-list-check"></i>
-        @if (certificados.length > 0) {
-          <span class="certificados-count">{{ certificados.length }}</span>
-        }
+  <div class="form-content">
+    <h3>{{ modoEdicion ? 'Editar Certificado' : 'Agregar Certificado' }}</h3>
+
+    @if (!modoEdicion) {
+    <div class="dropdown-container">
+      <button type="button" class="dropdown-button" (click)="toggleDropdown()">
+        <i class="fa-solid fa-certificate"></i>
+        {{ certificadoSeleccionado?.nombre_certificado || 'Seleccione un certificado' }}
+        <i class="fa-solid fa-chevron-down"></i>
       </button>
+
+      @if (mostrarDropdown) {
+      <div class="dropdown-list">
+        @if (certificados.length === 0) {
+        <div class="dropdown-empty">No hay certificados disponibles</div>
+        }
+        @for (cert of certificados; track cert.id_certificado) {
+        <div (click)="seleccionarCertificado(cert)" class="dropdown-item"
+          [class.selected]="certificadoSeleccionado?.id_certificado === cert.id_certificado">
+          <span class="cert-nombre">{{ cert.nombre_certificado }}</span>
+          <span class="cert-entidad">{{ cert.entidad_emisora }}</span>
+        </div>
+        }
+      </div>
+      }
     </div>
+    } @else {
+    <div class="cert-readonly">
+      <i class="fa-solid fa-certificate"></i>
+      <span>{{ certificadoSeleccionado?.nombre_certificado }}</span>
+      <small>{{ certificadoSeleccionado?.entidad_emisora }}</small>
+    </div>
+    }
 
-    <form [formGroup]="nuevoCertificado" (ngSubmit)="guardarCertificados()">
-      <div class="form-content">
-        <h3>Seleccionar Certificado</h3>
-
-        <div class="dropdown-container">
-          <button type="button" class="dropdown-button" (click)="toggleListaCertificados()">
-            {{ certificadoSeleccionado?.nombre_certificado || 'Seleccione un certificado' }}
-          </button>
-
-          @if (mostrarDropdown) {
-            <div class="dropdown-list">
-              @for (cert of certificados; track cert.id_certificado) {
-                <div (click)="seleccionarCertificado(cert)" class="dropdown-item">
-                  {{ cert.nombre_certificado }} — {{ cert.entidad_emisora }}
-                </div>
-              }
-            </div>
-          }
+    <form [formGroup]="certificadoForm" (ngSubmit)="submitForm()">
+      <div class="form-group-grid form-group-grid-2">
+        <div class="form-group">
+          <label>Fecha de Emisión</label>
+          <input type="date" formControlName="fechaEmision" class="form-input"
+            [class.input-error]="certificadoForm.get('fechaEmision')?.invalid && certificadoForm.get('fechaEmision')?.touched" />
         </div>
-
-        <div class="form-group-grid form-group-grid-2">
-          <input type="date" formControlName="fechaEmision" class="form-input" />
-          <input type="date" formControlName="fechaCaducidad" class="form-input" />
+        <div class="form-group">
+          <label>Fecha de Caducidad</label>
+          <input type="date" formControlName="fechaCaducidad" class="form-input"
+            [class.input-error]="certificadoForm.get('fechaCaducidad')?.invalid && certificadoForm.get('fechaCaducidad')?.touched" />
         </div>
+      </div>
 
-        <button type="submit" class="publish-button" (click)="agregarCertificado()">
-          GUARDAR CERTIFICADO
+      <div class="form-actions">
+        @if (modoEdicion) {
+        <button type="button" class="btn-cancel" (click)="cancelarEdicion()">
+          Cancelar
+        </button>
+        }
+        <button type="submit" class="publish-button">
+          <i class="fa-regular fa-floppy-disk"></i>
+          {{ modoEdicion ? 'Guardar Cambios' : 'Agregar Certificado' }}
         </button>
       </div>
     </form>
+  </div>
   }
 
   @if (activeTab === 'list') {
-    <div class="btn-change">
-      <button (click)="setActiveTab('form')" class="tab-button">Nuevo Certificado <i class="fa-solid fa-pen-clip"></i></button>
+  <div class="list-content">
+    @if (certificadosOfEmpresa.length === 0) {
+    <div class="no-certificados-message">
+      <i class="fa-solid fa-certificate" style="font-size: 2rem; color: #ccc;"></i>
+      <h3>No tienes certificados agregados</h3>
+      <button (click)="setActiveTab('form')" class="tab-button">
+        <i class="fa-solid fa-plus"></i> Agregar primer certificado
+      </button>
     </div>
-
-    <div class="list-content">
-      @if (certificadosOfEmpresa.length === 0) {
-        <div class="no-certificados-message">
-          <h3>No tienes certificados agregados</h3>
-          <button (click)="setActiveTab('form')" class="tab-button">
-            Agregar primer certificado
-          </button>
-        </div>
-      } @else {
-        <div class="certificados-list">
-          @for (c of certificadosOfEmpresa; track c.id_detalles_certificados) {
-            <div class="certificado-card">
-              <div class="certificado-header">
-                <h3>{{ c.certificado.nombre_certificado }}</h3>
-                <p>{{ c.fecha_emision + ' /' + c.fecha_caducidad }}</p>
-                <span><i class="fa-regular fa-building"></i> {{ c.certificado.entidad_emisora }}</span>
-              </div>
+    } @else {
+    <div class="certificados-list">
+      @for (c of certificadosOfEmpresa; track c.id_detalles_certificados) {
+      <div class="certificado-card">
+        <div class="certificado-header">
+          <div class="cert-info">
+            <h3>{{ c.certificado.nombre_certificado }}</h3>
+            <span class="cert-entidad">
+              <i class="fa-regular fa-building"></i>
+              {{ c.certificado.entidad_emisora }}
+            </span>
+            <div class="cert-fechas">
+              <span><i class="fa-regular fa-calendar"></i> Emitido: {{ c.fecha_emision }}</span>
+              <span><i class="fa-regular fa-calendar-xmark"></i> Caduca: {{ c.fecha_caducidad }}</span>
             </div>
-          }
+          </div>
+
+          <div class="cert-actions">
+            <button class="btn-icon btn-edit" title="Editar" (click)="iniciarEdicion(c)">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn-icon btn-delete" title="Eliminar"
+              (click)="eliminarCertificado(c.id_detalles_certificados)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
         </div>
+      </div>
       }
     </div>
+    }
+  </div>
   }
+
 </div>
