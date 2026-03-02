@@ -19,14 +19,7 @@ export class InteraccionesService {
     const { postulante, vacante, accion_empresa, accion_postulante, empresa } =
       createInteraccioneDto;
 
-    console.log(postulante);
-    console.log(accion_empresa);
-    console.log(vacante);
-    console.log(accion_postulante);
-    console.log(empresa);
-
     const interaccionExistente = await this.findOne(vacante, postulante);
-    console.log(interaccionExistente);
 
     if (!interaccionExistente) {
       const interaccion = this.interaccionRepository.create({
@@ -43,7 +36,6 @@ export class InteraccionesService {
     } else {
       // 2. Aplicar la nueva acción SOLO si está definida en el DTO (es decir, fue enviada)
       if (accion_empresa !== null) {
-        console.log('es like empresa');
         interaccionExistente.accionEmpresa = accion_empresa;
       }
 
@@ -59,7 +51,6 @@ export class InteraccionesService {
 
   async isMatch(empresaId: string, vacanteId: string, postulanteId: string) {
     const interaccionExistente = await this.findOne(vacanteId, postulanteId);
-    console.log('desde match', interaccionExistente);
 
     if (interaccionExistente) {
       if (

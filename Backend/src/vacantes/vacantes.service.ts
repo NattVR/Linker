@@ -26,16 +26,16 @@ export class VacantesService {
 
   async create(createVacanteDto: CreateVacanteDto) {
     const { vacantesIdiomas, vacanteHabilidades, empresa, ...vacanteData } =
-      createVacanteDto;
-    console.log('habilidades',vacanteHabilidades,'idiomas',vacantesIdiomas,'data',vacanteData);
+      createVacanteDto; //  2
+    console.log('habilidades',vacanteHabilidades,'idiomas',vacantesIdiomas,'data',vacanteData); // 3
 
     const nuevaVacante = this.vacanteRepository.create({
       ...vacanteData,
       empresa: { id: empresa },
-    });
+    }); // 4
 
-    if (vacantesIdiomas && vacantesIdiomas.length > 0) {
-      nuevaVacante.vacantesIdiomas = vacantesIdiomas.map(
+    if (vacantesIdiomas && vacantesIdiomas.length > 0) { // 5
+      nuevaVacante.vacantesIdiomas = vacantesIdiomas.map( // 6
         (id_idioma) =>
           ({
             idioma: { id_idioma },
@@ -43,8 +43,8 @@ export class VacantesService {
       );
     }
 
-    if (vacanteHabilidades && vacanteHabilidades.length > 0) {
-      nuevaVacante.vacanteHabilidades = vacanteHabilidades.map(
+    if (vacanteHabilidades && vacanteHabilidades.length > 0) { // 7
+      nuevaVacante.vacanteHabilidades = vacanteHabilidades.map( // 8
         (id_habilidad) =>
           ({
             habilidades: { id_habilidad },
@@ -52,7 +52,7 @@ export class VacantesService {
       );
     }
 
-    return await this.vacanteRepository.save(nuevaVacante);
+    return await this.vacanteRepository.save(nuevaVacante); // 9
   }
 
   findAll() {

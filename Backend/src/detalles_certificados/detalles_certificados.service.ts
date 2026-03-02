@@ -33,17 +33,17 @@ export class DetallesCertificadosService {
   }
 
   async update(id: string, updateDetallesCertificadoDto: UpdateDetallesCertificadoDto) {
-    const detalle = await this.detallesCertificadoRepository.findOne({
+    const detalle = await this.detallesCertificadoRepository.findOne({ // 2
       where: { id_detalles_certificados: id },
       relations: ['certificado'],
     });
 
-    if (!detalle) {
-      throw new NotFoundException(`Certificado con id ${id} no encontrado`);
+    if (!detalle) { // 3
+      throw new NotFoundException(`Certificado con id ${id} no encontrado`); // 4
     }
 
-    Object.assign(detalle, updateDetallesCertificadoDto);
-    return await this.detallesCertificadoRepository.save(detalle);
+    Object.assign(detalle, updateDetallesCertificadoDto); // 5
+    return await this.detallesCertificadoRepository.save(detalle); // 6
   }
 
   async remove(id: string) {

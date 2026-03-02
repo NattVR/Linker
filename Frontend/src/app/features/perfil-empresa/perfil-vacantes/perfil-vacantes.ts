@@ -122,42 +122,42 @@ export class PerfilVacantes {
   publicarVacante() {
   //const vacante: Vacante = this.nuevaVacante.value;
 
-   let idEmpresa: string | null = sessionStorage.getItem('perfilId');
+   let idEmpresa: string | null = sessionStorage.getItem('perfilId'); //  2
 
     // 1. Manejar el caso de null (previniendo el error de TypeScript ts(2322))
-    if (!idEmpresa) {
-        console.error("No se pudo obtener el perfilId de sessionStorage.");
+    if (!idEmpresa) { //  3
+        console.error("No se pudo obtener el perfilId de sessionStorage."); //  4
         // Podrías mostrar un mensaje al usuario o retornar
-        return; 
+        return; //  5
     }
-    this.nuevaVacante.get('empresa')?.setValue(idEmpresa);
-    const vacante: CrearVacante= this.nuevaVacante.value;
+    this.nuevaVacante.get('empresa')?.setValue(idEmpresa); // 6
+    const vacante: CrearVacante= this.nuevaVacante.value; //  7
 
-    if (!vacante.vacanteHabilidades?.length) vacante.vacanteHabilidades = [];
-    if (!vacante.vacantesIdiomas?.length) vacante.vacantesIdiomas = [];
+    if (!vacante.vacanteHabilidades?.length) vacante.vacanteHabilidades = []; //  8 y 9
+    if (!vacante.vacantesIdiomas?.length) vacante.vacantesIdiomas = []; //  10 y 11
 
 
-    if (this.modoEdicion && this.vacanteEditandoId) {
+    if (this.modoEdicion && this.vacanteEditandoId) { //  12
 
-    this.perfil.updateVacante(this.vacanteEditandoId, vacante).subscribe({
-      next: (res) => {
-        console.log('Vacante actualizada:', res);
-        this.resetFormulario();
-      },
-      error: (err) => console.error(err)
-    });
+      this.perfil.updateVacante(this.vacanteEditandoId, vacante).subscribe({ //  13
+        next: (res) => { 
+          console.log('Vacante actualizada:', res); //  14
+          this.resetFormulario(); //  15
+        },
+        error: (err) => console.error(err) //  16
+      });
 
-  } else {
+    } else {
 
-    this.perfil.createVacante(vacante).subscribe({
-      next: (res) => {
-        console.log('Vacante guardada correctamente:', res);
-        this.resetFormulario();
-      },
-      error: (err) => console.error(err)
-    });
+      this.perfil.createVacante(vacante).subscribe({ // 17
+        next: (res) => {
+          console.log('Vacante guardada correctamente:', res); //18
+          this.resetFormulario();// 19
+        },
+        error: (err) => console.error(err) // 20
+      });
 
-  }
+    }
   }
 
   // ========= EDITAR VACANTE =========
