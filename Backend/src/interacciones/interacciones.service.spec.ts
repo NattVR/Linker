@@ -3,7 +3,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { InteraccionesService } from './interacciones.service';
 import { Interaccion } from './entities/interacciones.entity';
-<<<<<<< HEAD
 import { MatchesService } from 'src/matches/matches.service';
 
 describe('InteraccionesService', () => {
@@ -68,8 +67,6 @@ describe('InteraccionesService', () => {
     expect(result).toBeNull();
   });
 });
-=======
-import { MatchesService } from '../matches/matches.service';
 
 const makeDto = (overrides: Partial<{
     postulante: string;
@@ -388,4 +385,3 @@ describe('HU — Hacer Match Reclutador | InteraccionesService.isMatch()', () =>
         expect(matchArg.postulante).toEqual({ id: 'uuid-p' });
     });
 });
->>>>>>> cb1c1e54546b91c41894376b4e2a90e53adbd20a
