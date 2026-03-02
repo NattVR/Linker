@@ -90,11 +90,10 @@ export class InteraccionesService {
       loadRelationIds: true,
     });
     console.log(interaccion);
-    if (!interaccion) {
-      console.log('no existe');
-    } else {
-      console.log('hay relacion');
-    }
+    //if (!interaccion) {
+      //console.log('no existe');
+    //} else {
+      //console.log('hay relacion');}
     return interaccion;
   }
 

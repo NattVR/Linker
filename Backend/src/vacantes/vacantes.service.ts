@@ -79,8 +79,7 @@ export class VacantesService {
         ...v,
         idiomas: vacantesIdiomas?.map((vi) => vi.idioma.nombre) ?? [],
         habilidades:
-          vacanteHabilidades?.map((vh) => vh.habilidades.nombre_habilidad) ??
-          [],
+          vacanteHabilidades?.map((vh) => vh.habilidades.nombre_habilidad) ??[],
       }),
     );
     return vacantesFormateadas;

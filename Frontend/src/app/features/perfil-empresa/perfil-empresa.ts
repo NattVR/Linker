@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { Alerts } from '../../shared/services/alerts';
 import { Perfil } from '../../shared/services/perfil';

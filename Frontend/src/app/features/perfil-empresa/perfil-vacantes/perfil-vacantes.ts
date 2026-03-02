@@ -57,8 +57,6 @@ export class PerfilVacantes {
     return this.nuevaVacante.get('vacantesIdiomas') as FormArray;
   }
 
-
-
   // ========= CAMBIAR TAB =========
   setActiveTab(tab: 'form' | 'list') {
     this.activeTab = tab;
@@ -230,7 +228,8 @@ export class PerfilVacantes {
         this.vacantes=data;
       },
       error: (err)=>{
-        console.log('error al cargar vacanres',err)
+        alert('Error al cargar vacantes');
+        console.log('error al cargar vacantes',err)
       }
     });
     console.log(this.vacantes)

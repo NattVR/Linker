@@ -24,14 +24,14 @@ export class SignupEmpresas {
     const nameControl = this.empresaForm.get('name_empresa');
     const nitControl = this.empresaForm.get('NIT');
 
-    if (nameControl?.valid && nitControl?.valid) { // 2. Control de validación para los campos de empresa
+    if (nameControl?.valid && nitControl?.valid) { 
       this.currentStep = 2;
     }
   }
 
   previousStep(): void {
     if (this.currentStep > 1) {
-      this.currentStep--;
+      this.currentStep;
     }
   }
 
@@ -56,31 +56,31 @@ export class SignupEmpresas {
     if (this.signupEmpresasForm.hasError('passwordMismatch')) {
       this.alert.error('Las contraseñas no coinciden');
       return;
-    }
-
+    } //1 y 2 
+    
     if (this.signupEmpresasForm.invalid || this.empresaForm.invalid) {
       this.alert.error('Campos incorrectos');
       return;
-    }
+    } // 3-4
 
     this.auth.signUp(user).subscribe({
-      next: (response) => {
+      next: (response) => { //5
         if (response.success) {
-          empresa.id_perfil = response.user.id;
+          empresa.id_perfil = response.user.id;// como pruebo if
 
           this.auth.signUpEmpresa(empresa).subscribe({
-            next: (postresponse) => {
-              if (postresponse) {
+            next: (postresponse) => {//6
+              if (postresponse) { 
                 this.alert.success('Registro exitoso. Por favor, inicie sesión.');
                 this.router.navigate(['login']);
               }
             },
           });
-        } else {
+        } else {//7
           this.alert.error(response.message);
-        }
+        } //8 error backend
       },
-      error: (error) => {
+      error: (error) => { //9
         console.error(error);
         this.alert.error('Error en la solicitud');
       },

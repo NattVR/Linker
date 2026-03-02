@@ -18,7 +18,7 @@ export class PerfilEmpresaCertificados implements OnInit {
   activeTab: 'form' | 'list' = 'list';
   mostrarDropdown = false;
   modoEdicion = false;
-  idEditando: string | null = null; // ✅ string, no number (uuid)
+  idEditando: string | null = null; 
 
   idEmpresa = sessionStorage.getItem('perfilId');
   certificados: Certificado[] = [];
@@ -89,7 +89,7 @@ export class PerfilEmpresaCertificados implements OnInit {
 
   iniciarEdicion(cert: CertificadoEmpresa) {
     this.modoEdicion = true;
-    this.idEditando = cert.id_detalles_certificados; // ✅ ya es string
+    this.idEditando = cert.id_detalles_certificados;
     this.certificadoSeleccionado = cert.certificado as Certificado;
     this.certificadoForm.patchValue({
       fechaEmision: cert.fecha_emision,
@@ -120,7 +120,7 @@ export class PerfilEmpresaCertificados implements OnInit {
     });
   }
 
-  eliminarCertificado(id: string) { // ✅ string, no number
+  eliminarCertificado(id: string) { 
     if (!confirm('¿Estás seguro de que deseas eliminar este certificado?')) return;
 
     this.perfil.deleteCertificado(id).subscribe({
