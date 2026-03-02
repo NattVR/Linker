@@ -77,7 +77,7 @@ describe('Registrar Postulante', () => {
     expect(component.currentStep).toBe(1);
   });
 
-  it('C1 contrasenas no coincidenerror y return sin signUp', () => {
+  it('C1 contraseñas no coincidenerror y return sin signUp', () => {
      component.signupForm.setValue({
       email: 'test@mail.com',
       password: 'abc1234567800',
@@ -165,7 +165,7 @@ describe('Registrar Postulante', () => {
     component.onSignUp();
 
     expect(authSpy.signUpPostulante).toHaveBeenCalled();
-    expect(alertsSpy.success).not.toHaveBeenCalled();
+    expect(alertsSpy.error).toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
@@ -177,7 +177,7 @@ describe('Registrar Postulante', () => {
     component.onSignUp();
 
     expect(authSpy.signUpPostulante).toHaveBeenCalled();
-    expect(alertsSpy.success).not.toHaveBeenCalled();
+    expect(alertsSpy.error).toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
@@ -234,7 +234,7 @@ describe('Registrar Postulante', () => {
     expect(authSpy.signUp).not.toHaveBeenCalled();
   });
 
-  it('[CP-021] registro con nombre/apellido numericos llega a API', () => {
+  it('[CP-021] registro con nombre/apellido numericos ', () => {
     component.signupForm.setValue({
       email: 'test@gmail.com',
       password: '12345678bnm',
