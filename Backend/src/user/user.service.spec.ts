@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -8,6 +7,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 import { UserDto } from './dto/create-user.dto';
+
 
 describe('UserService', () => {
   let service: UserService;
@@ -91,64 +91,7 @@ describe('UserService', () => {
     );
     expect(console.error).toHaveBeenCalled();
   });
-});
-=======
-// =============================================================================
-// HU4RF02 — Registrar Reclutador | Backend
-// Archivo: src/user/user.service.spec.ts
-//
-// BD en memoria (sqlite) — driver estándar, soporta timestamp y todos los tipos
-// Instalar: npm install --save-dev sqlite3
-// =============================================================================
 
-import { Test, TestingModule }  from '@nestjs/testing';
-import { TypeOrmModule }        from '@nestjs/typeorm';
-import { JwtModule }            from '@nestjs/jwt';
-import { BadRequestException }  from '@nestjs/common';
-import { UserService }          from './user.service';
-import { User }                 from './entities/user.entity';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Driver: 'sqlite' (no better-sqlite3)
-//   → soporta timestamp, json y demás tipos de PostgreSQL
-//   → carga todas las entidades con glob para evitar "metadata not found"
-// ─────────────────────────────────────────────────────────────────────────────
-const SQLITE_CONFIG = {
-  type:        'sqlite' as const,
-  database:    ':memory:',
-  entities:    [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: true,
-  dropSchema:  true,
-  logging:     false,
-};
-
-describe('UserService — createUser()', () => {
-  let service: UserService;
-  let module:  TestingModule;
-
-  beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [
-        TypeOrmModule.forRoot(SQLITE_CONFIG),
-        TypeOrmModule.forFeature([User]),
-        JwtModule.register({
-          secret:      'test-secret',
-          signOptions: { expiresIn: '1h' },
-        }),
-      ],
-      providers: [UserService],
-    }).compile();
-
-    service = module.get<UserService>(UserService);
-  }, 30_000);
-
-  afterAll(async () => {
-    if (module) await module.close();
-  }, 15_000);
-
-  // ===========================================================================
-  // CAMINOS DEL DIAGRAMA DE FLUJO
-  // ===========================================================================
 
   // [C1] email único → save() exitoso → success:true + user.id
   it('[C1] Camino 1,2,3,4,5,6,F — email único → save() exitoso → retorna success:true con id', async () => {
@@ -209,4 +152,3 @@ describe('UserService — createUser()', () => {
     expect(result.user.id).toBeTruthy();
   });
 });
->>>>>>> cb1c1e54546b91c41894376b4e2a90e53adbd20a

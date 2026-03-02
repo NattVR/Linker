@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-<<<<<<< HEAD
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { PerfilVacantes } from './perfil-vacantes';
 import { Match } from '../../../shared/services/match';
 import { Perfil } from '../../../shared/services/perfil';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 
+//NAT
 describe('PerfilVacantes', () => {
   let component: PerfilVacantes;
   let fixture: ComponentFixture<PerfilVacantes>;
@@ -93,14 +95,7 @@ describe('PerfilVacantes', () => {
     );
   });
 });
-=======
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { of, throwError } from 'rxjs';
 
-import { PerfilVacantes } from './perfil-vacantes';
-import { Perfil } from '../../../shared/services/perfil';
-import { Match } from '../../../shared/services/match';
 
 function fillVacanteForm(component: PerfilVacantes, overrides: Partial<{
     titulo: string;
@@ -596,4 +591,3 @@ describe('HU8RF9 — Publicar Vacante | PerfilVacantes.publicarVacante()', () =>
         );
     });
 });
->>>>>>> cb1c1e54546b91c41894376b4e2a90e53adbd20a

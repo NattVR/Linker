@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { SwipeEmpresa } from './swipe-empresa';
@@ -7,7 +6,9 @@ import { Perfil } from '../../../shared/services/perfil';
 import { Match } from '../../../shared/services/match';
 import { Auth } from '../../../shared/services/auth';
 import { Alerts } from '../../../shared/services/alerts';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
+//NAT
 describe('SwipeEmpresa', () => {
   let component: SwipeEmpresa;
   let fixture: ComponentFixture<SwipeEmpresa>;
@@ -224,21 +225,12 @@ describe('SwipeEmpresa', () => {
     expect(filterSpy.Switch).toHaveBeenCalled();
   });
 });
-=======
+
+//TEPHO
+
 // =============================================================================
 // Seleccionar Vacante | Frontend — getVacantes() → getCards()
 // =============================================================================
-
-import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { of, throwError } from 'rxjs';
-import { SwipeEmpresa } from './swipe-empresa';
-import { Match } from '../../../shared/services/match';
-import { Auth } from '../../../shared/services/auth';
-import { Alerts } from '../../../shared/services/alerts';
-import { Perfil } from '../../../shared/services/perfil';
-import { FilterService } from '../../../services/filter/filter-service';
-
 
 describe('Seleccionar Vacante | SwipeEmpresa.getCards()', () => {
     let component: SwipeEmpresa;
@@ -385,4 +377,3 @@ describe('Seleccionar Vacante | SwipeEmpresa.getCards()', () => {
         expect(component.list).toEqual([{ id: 'p-existente' } as Postulante]);
     });
 });
->>>>>>> cb1c1e54546b91c41894376b4e2a90e53adbd20a
