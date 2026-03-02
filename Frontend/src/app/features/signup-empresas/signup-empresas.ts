@@ -56,38 +56,6 @@ export class SignupEmpresas {
     let user = this.signupEmpresasForm.value as User;
     let empresa = this.empresaForm.value as Empresa;
 
-<<<<<<< HEAD
-    if (this.signupEmpresasForm.hasError('passwordMismatch')) {
-      this.alert.error('Las contraseñas no coinciden');
-      return;
-    } //1 y 2 
-    
-    if (this.signupEmpresasForm.invalid || this.empresaForm.invalid) {
-      this.alert.error('Campos incorrectos');
-      return;
-    } // 3-4
-
-    this.auth.signUp(user).subscribe({
-      next: (response) => { //5
-        if (response.success) {
-          empresa.id_perfil = response.user.id;// como pruebo if
-
-          this.auth.signUpEmpresa(empresa).subscribe({
-            next: (postresponse) => {//6
-              if (postresponse) { 
-                this.alert.success('Registro exitoso. Por favor, inicie sesión.');
-                this.router.navigate(['login']);
-              }
-            },
-          });
-        } else {//7
-          this.alert.error(response.message);
-        } //8 error backend
-      },
-      error: (error) => { //9
-        console.error(error);
-        this.alert.error('Error en la solicitud');
-=======
     if (this.signupEmpresasForm.hasError('passwordMismatch')) { // 4
       this.alert.error('Las contraseñas no coinciden'); // 5
       return; // 6
@@ -118,7 +86,6 @@ export class SignupEmpresas {
       error: (error) => {
         console.error(error); // 18
         this.alert.error('Error en la solicitud'); // 19
->>>>>>> cb1c1e54546b91c41894376b4e2a90e53adbd20a
       },
     });
   }

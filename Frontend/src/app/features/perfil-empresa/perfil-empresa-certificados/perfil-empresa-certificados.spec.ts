@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
-=======
 // =============================================================================
 // HU — Editar Certificado | Frontend
 // Archivo: src/app/features/perfil-empresa-certificados/perfil-empresa-certificados.spec.ts
@@ -11,13 +7,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { of, throwError } from 'rxjs';
-
->>>>>>> cb1c1e54546b91c41894376b4e2a90e53adbd20a
 import { PerfilEmpresaCertificados } from './perfil-empresa-certificados';
 import { Perfil } from '../../../shared/services/perfil';
 import { Alerts } from '../../../shared/services/alerts';
 
-<<<<<<< HEAD
 describe('PerfilEmpresaCertificados', () => {
   let component: PerfilEmpresaCertificados;
   let fixture: ComponentFixture<PerfilEmpresaCertificados>;
@@ -180,7 +173,8 @@ describe('PerfilEmpresaCertificados', () => {
     expect(alertsSpy.error).toHaveBeenCalledWith('Error al agregar certificado');
   });
 });
-=======
+
+
 describe('Editar Certificado | PerfilEmpresaCertificados.guardarEdicion()', () => {
     let component: PerfilEmpresaCertificados;
     let fixture: ComponentFixture<PerfilEmpresaCertificados>;
@@ -372,4 +366,3 @@ describe('Editar Certificado | PerfilEmpresaCertificados.guardarEdicion()', () =
         expect(idUsado).toBe('mi-id-especifico-uuid');
     });
 });
->>>>>>> cb1c1e54546b91c41894376b4e2a90e53adbd20a
