@@ -120,22 +120,22 @@ export class SwipeEmpresa {
 
 
   getCards() {
-    let vacante = sessionStorage.getItem('vacante')
-    if(vacante){
-      this.match.getPostulantes(vacante).subscribe({
+    let vacante = sessionStorage.getItem('vacante') // 3
+    if(vacante){ // 4
+      this.match.getPostulantes(vacante).subscribe({ // 5
         next: (data: Postulante[]) => {
-          this.list = data;
-          console.log('empresa',data)
-          console.log(this.list);
+          this.list = data; // 6
+          console.log('empresa',data) // 7
+          console.log(this.list); // 8
         },
         error: (err: any) => {
-          console.log(err);
-          this.alerts.info('No hay mas postulantes para la vacante')
+          console.log(err); // 9
+          this.alerts.info('No hay mas postulantes para la vacante') // 10
         },
       });
     }
     else{
-      this.alerts.warning('Selecciona una vacante')
+      this.alerts.warning('Selecciona una vacante') // 11
     }
   }
 

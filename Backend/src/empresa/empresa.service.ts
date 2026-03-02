@@ -8,6 +8,7 @@ import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 
 @Injectable()
 export class EmpresaService {
+  // 1
   constructor(
     @InjectRepository(Empresa)
     private empresaRepository: Repository<Empresa>,
@@ -23,26 +24,26 @@ export class EmpresaService {
   }
 
   async createEmpresa(dto: CreateEmpresaDto) {
-    const user = await this.usuarioRepository.findOne({
+    const user = await this.usuarioRepository.findOne({ // 2
       where: { id: dto.id_perfil },
     });
 
-    if (!user) {
-      throw new NotFoundException(
+    if (!user) { // 3
+      throw new NotFoundException( // 4
         'No se encontró el perfil de usuario asociado.',
       );
     }
 
-    console.log('DTO recibido:', dto);
-    console.log('Usuario encontrado:', user?.id);
+    console.log('DTO recibido:', dto); // 5
+    console.log('Usuario encontrado:', user?.id); // 6
 
-    const empresa = this.empresaRepository.create({
+    const empresa = this.empresaRepository.create({ // 7
       ...dto,
       user,
     });
 
-    const registroEmpresa = await this.empresaRepository.save(empresa);
-    return {
+    const registroEmpresa = await this.empresaRepository.save(empresa); // 8
+    return { // 9
       message: 'Empresa registrada con éxito',
       empresa: registroEmpresa,
     };

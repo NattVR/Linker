@@ -9,31 +9,33 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class UserService {
   constructor(
+    // 1
     @InjectRepository(User)
     private usuarioRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) { }
 
   async createUser(dto: UserDto) {
+    // 2
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(dto.password, salt);
 
     try {
-      const userEntity = this.usuarioRepository.create({
+      const userEntity = this.usuarioRepository.create({ // 3
         ...dto,
         password: hash,
       });
 
-      await this.usuarioRepository.save(userEntity);
+      await this.usuarioRepository.save(userEntity); // 4
 
-      return {
+      return { // 6
         success: true,
         message: 'Postulante registrado correctamente',
         user: { id: userEntity.id },
       };
     } catch (error) {
-      console.error(error);
-      throw new BadRequestException('No se pudo crear');
+      console.error(error); // 7
+      throw new BadRequestException('No se pudo crear'); // 8
     }
   }
 

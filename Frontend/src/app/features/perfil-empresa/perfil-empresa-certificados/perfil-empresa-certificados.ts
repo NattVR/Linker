@@ -99,24 +99,24 @@ export class PerfilEmpresaCertificados implements OnInit {
   }
 
   guardarEdicion() {
-    if (this.certificadoForm.invalid) {
-      this.alert.error('Completa las fechas');
-      return;
+    if (this.certificadoForm.invalid) { // 4
+      this.alert.error('Completa las fechas'); // 5
+      return; // 13
     }
 
-    const datos = {
+    const datos = { // 6
       fecha_emision: this.certificadoForm.value.fechaEmision,
       fecha_caducidad: this.certificadoForm.value.fechaCaducidad,
     };
 
-    this.perfil.updateCertificado(this.idEditando!, datos).subscribe({
+    this.perfil.updateCertificado(this.idEditando!, datos).subscribe({ // 7
       next: () => {
-        this.alert.success('Certificado actualizado');
-        this.resetForm();
-        this.cargarCertificados();
-        this.activeTab = 'list';
+        this.alert.success('Certificado actualizado'); // 8
+        this.resetForm(); // 9
+        this.cargarCertificados(); // 10
+        this.activeTab = 'list'; // 11
       },
-      error: () => this.alert.error('Error al actualizar certificado'),
+      error: () => this.alert.error('Error al actualizar certificado'), // 12
     });
   }
 
