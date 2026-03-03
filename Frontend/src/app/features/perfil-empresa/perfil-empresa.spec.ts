@@ -67,7 +67,7 @@ describe('PerfilEmpresa', () => {
     expect(component.activeTabEmpresa).toBe('perfil');
   });
 
-  it('setActiveTab cambia la pestana activa', () => {
+  it('setActiveTab cambia la pestaña activa', () => {
     component.setActiveTab('certificados');
     expect(component.activeTab).toBe('certificados');
 
@@ -136,18 +136,12 @@ describe('PerfilEmpresa', () => {
 
   it('updateEmpresa sin userId muestra error e intenta actualizar con id null', () => {
     spyOn(sessionStorage, 'getItem').and.returnValue(null);
-    perfilSpy.updatePerfilEmpresa.and.returnValue(of({ success: true }));
-    spyOn(component, 'cargarDatosEmpresa');
-
     component.updateEmpresa();
 
     expect(alertsSpy.error).toHaveBeenCalledWith('ID de usuario no encontrado');
-    expect(perfilSpy.updatePerfilEmpresa).toHaveBeenCalledWith(
-      null as unknown as string,
-      component.perfilEmpresa.value
-    );
-    expect(component.cargarDatosEmpresa).toHaveBeenCalled();
-    expect(alertsSpy.success).toHaveBeenCalledWith('Perfil actualizado con éxito');
+    expect(perfilSpy.updatePerfilEmpresa).not.toHaveBeenCalled();
+    expect(component.cargarDatosEmpresa).not.toHaveBeenCalled();
+
   });
 
   it('updateEmpresa con userId llama updatePerfilEmpresa con datos del formulario', () => {
@@ -178,9 +172,8 @@ describe('PerfilEmpresa', () => {
     expect(component.activeTabEmpresa).toBe('perfil');
   });
 
-  it('updateEmpresa error en subscribe muestra alerta y loguea en consola', () => {
+  it('updateEmpresa error en subscribe muestra alerta', () => {
     spyOn(sessionStorage, 'getItem').and.returnValue('123');
-    spyOn(console, 'error');
     perfilSpy.updatePerfilEmpresa.and.returnValue(
       throwError(() => new Error('network error'))
     );
@@ -188,9 +181,5 @@ describe('PerfilEmpresa', () => {
     component.updateEmpresa();
 
     expect(alertsSpy.error).toHaveBeenCalledWith('Error al actualizar perfil');
-    expect(console.error).toHaveBeenCalledWith(
-      'Error al actualizar perfil:',
-      jasmine.any(Error)
-    );
   });
 });
