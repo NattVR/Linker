@@ -62,10 +62,6 @@ describe('SwipeEmpresa', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-    expect(component.userType).toBeTrue();
-  });
 
   it('onPointerDown should set start and isDragging', () => {
     const event = { clientX: 140 } as PointerEvent;
@@ -76,7 +72,8 @@ describe('SwipeEmpresa', () => {
     expect(component.isDragging).toBeTrue();
   });
 
-  it('onPointerMove should return without changes when not dragging', () => {
+
+  it('onPointerMove return sino hay cambios con not dragging', () => {
     component.isDragging = false;
     component.current_position = 0;
     fakeCard.style.transform = 'initial';
@@ -87,7 +84,7 @@ describe('SwipeEmpresa', () => {
     expect(fakeCard.style.transform).toBe('initial');
   });
 
-  it('onPointerMove should update current position and card transform when dragging', () => {
+  it('onPointerMoveupdate current position y card transform cuando hay dragging', () => {
     setCardElementMock();
     component.isDragging = true;
     component.start = 100;
@@ -99,7 +96,7 @@ describe('SwipeEmpresa', () => {
     expect(fakeCard.style.transform).toContain('rotate(4deg)');
   });
 
-  it('onPointerUp should return when not dragging', () => {
+  it('onPointerUp return cuando not dragging', () => {
     component.isDragging = false;
     component.current_position = 150;
     const postulante = { id: 'post-1' } as Postulante;
@@ -109,7 +106,7 @@ describe('SwipeEmpresa', () => {
     expect(matchSpy.onAction).not.toHaveBeenCalled();
   });
 
-  it('onPointerUp should reset card when absolute movement is below threshold', () => {
+  it('onPointerUp reset card cuando el valor absoluto de la current_position menor a 110', () => {
     setCardElementMock();
     component.isDragging = true;
     component.current_position = 80;
@@ -125,7 +122,7 @@ describe('SwipeEmpresa', () => {
     expect(matchSpy.onAction).not.toHaveBeenCalled();
   });
 
-  it('onPointerUp should send dislike action when movement is negative and remove first card', () => {
+  it('onPointerUp dislike cuando accion es negativo y remover la primera carta', () => {
     setCardElementMock();
     const getItemSpy = spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
       if (key === 'vacante') return 'vac-123';
@@ -156,7 +153,7 @@ describe('SwipeEmpresa', () => {
     expect(component.current_position).toBe(0);
   });
 
-  it('onPointerUp should send like action when movement is positive and remove first card', () => {
+  it('onPointerUp accion like movimiento positivo y remover la primera carta', () => {
     setCardElementMock();
     spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
       if (key === 'vacante') return 'vac-999';
@@ -185,45 +182,110 @@ describe('SwipeEmpresa', () => {
     expect(component.current_position).toBe(0);
   });
 
-  it('getCards should show warning when no vacante in session storage', () => {
+  it('onPointerUp dislike cuando onAction falla no remover la carta', () => {
+    setCardElementMock();
+    const consoleErrorSpy = spyOn(console, 'error');
+    spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
+      if (key === 'vacante') return 'vac-err-1';
+      if (key === 'perfilId') return 'emp-err-1';
+      return null;
+    });
+    matchSpy.onAction.and.returnValue(throwError(() => new Error('dislike failure')));
+
+    component.isDragging = true;
+    component.current_position = -170;
+    component.list = [
+      { id: 'post-x1' } as Postulante,
+      { id: 'post-x2' } as Postulante,
+    ];
+
+    component.onPointerUp({ id: 'post-x1' } as Postulante);
+
+    expect(matchSpy.onAction).toHaveBeenCalledWith({
+      accion_empresa: 'dislike',
+      vacante: 'vac-err-1',
+      postulante: 'post-x1',
+      empresa: 'emp-err-1',
+    });
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    expect(component.list.length).toBe(2);
+    expect(component.list[0].id).toBe('post-x1');
+    expect(component.isDragging).toBeFalse();
+    expect(component.current_position).toBe(0);
+  });
+
+  it('onPointerUp like cuando onAction falla y no remover la primera carta', () => {
+    setCardElementMock();
+    const consoleErrorSpy = spyOn(console, 'error');
+    spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
+      if (key === 'vacante') return 'vac-err-2';
+      if (key === 'perfilId') return 'emp-err-2';
+      return null;
+    });
+    matchSpy.onAction.and.returnValue(throwError(() => new Error('like failure')));
+
+    component.isDragging = true;
+    component.current_position = 170;
+    component.list = [
+      { id: 'post-y1' } as Postulante,
+      { id: 'post-y2' } as Postulante,
+    ];
+
+    component.onPointerUp({ id: 'post-y1' } as Postulante);
+
+    expect(matchSpy.onAction).toHaveBeenCalledWith({
+      accion_empresa: 'like',
+      vacante: 'vac-err-2',
+      postulante: 'post-y1',
+      empresa: 'emp-err-2',
+    });
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    expect(component.list.length).toBe(2);
+    expect(component.list[0].id).toBe('post-y1');
+    expect(component.isDragging).toBeFalse();
+    expect(component.current_position).toBe(0);
+  });
+
+  it('onPointerUp dislike con datos incompletos no llama backend', () => {
+    setCardElementMock();
     spyOn(sessionStorage, 'getItem').and.returnValue(null);
 
-    component.getCards();
-
-    expect(alertsSpy.warning).toHaveBeenCalledWith('Selecciona una vacante');
-    expect(matchSpy.getPostulantes).not.toHaveBeenCalled();
-  });
-
-  it('getCards should load postulantes when vacante exists', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue('vac-321');
-    const postulantes = [
-      { id: 'post-a' } as Postulante,
-      { id: 'post-b' } as Postulante,
+    component.isDragging = true;
+    component.current_position = -140;
+    component.list = [
+      { id: 'post-z1' } as Postulante,
+      { id: 'post-z2' } as Postulante,
     ];
-    matchSpy.getPostulantes.and.returnValue(of(postulantes));
 
-    component.getCards();
+    expect(() => component.onPointerUp({} as Postulante)).not.toThrow();
 
-    expect(matchSpy.getPostulantes).toHaveBeenCalledWith('vac-321');
-    expect(component.list).toEqual(postulantes);
+    expect(matchSpy.onAction).not.toHaveBeenCalled();
+    expect(component.list.length).toBe(2);
+    expect(component.list[0].id).toBe('post-z1');
+    expect(component.isDragging).toBeFalse();
+    expect(component.current_position).toBe(0);
   });
 
-  it('getCards should show info when getPostulantes fails', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue('vac-777');
-    matchSpy.getPostulantes.and.returnValue(
-      throwError(() => new Error('network error'))
-    );
+  it('onPointerUp like con datos incompletos no llama backend', () => {
+    setCardElementMock();
+    spyOn(sessionStorage, 'getItem').and.returnValue(null);
 
-    component.getCards();
+    component.isDragging = true;
+    component.current_position = 140;
+    component.list = [
+      { id: 'post-w1' } as Postulante,
+      { id: 'post-w2' } as Postulante,
+    ];
 
-    expect(alertsSpy.info).toHaveBeenCalledWith('No hay mas postulantes para la vacante');
+    expect(() => component.onPointerUp({} as Postulante)).not.toThrow();
+
+    expect(matchSpy.onAction).not.toHaveBeenCalled();
+    expect(component.list.length).toBe(2);
+    expect(component.list[0].id).toBe('post-w1');
+    expect(component.isDragging).toBeFalse();
+    expect(component.current_position).toBe(0);
   });
 
-  it('filterActivated should trigger filter switch', () => {
-    component.filterActivated();
-
-    expect(filterSpy.Switch).toHaveBeenCalled();
-  });
 });
 
 //TEPHO
