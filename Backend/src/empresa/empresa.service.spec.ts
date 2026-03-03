@@ -8,7 +8,7 @@
 
 import { UserService } from "src/user/user.service";
 import { EmpresaService } from "./empresa.service";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { TypeOrmModule, getRepositoryToken } from "@nestjs/typeorm";
 import { JwtModule } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
 import { DataSource } from "typeorm";
@@ -23,14 +23,14 @@ import { NotFoundException } from "@nestjs/common";
 //   → soporta timestamp y todos los tipos usados en las entidades del proyecto
 //   → carga todas las entidades con glob para resolver la cadena de relaciones
 // ─────────────────────────────────────────────────────────────────────────────
-const SQLITE_CONFIG = {
-  type:        'sqlite' as const,
-  database:    ':memory:',
-  entities:    [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: true,
-  dropSchema:  true,
-  logging:     false,
-};
+//const SQLITE_CONFIG = {
+  //type:        'sqlite' as const,
+  //database:    ':memory:',
+  //entities:    [__dirname + '/../**/*.entity{.ts,.js}'],
+  //synchronize: true,
+  //dropSchema:  true,
+  //logging:     false,
+//};
 
 describe('EmpresaService — createEmpresa()', () => {
   let empresaService:  EmpresaService;
@@ -42,12 +42,12 @@ describe('EmpresaService — createEmpresa()', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot(SQLITE_CONFIG),
-        TypeOrmModule.forFeature([User, Empresa]),
-        JwtModule.register({
-          secret:      'test-secret',
-          signOptions: { expiresIn: '1h' },
-        }),
+        //TypeOrmModule.forRoot(SQLITE_CONFIG),
+        //ypeOrmModule.forFeature([User, Empresa]),
+        //JwtModule.register({
+         // secret:      'test-secret',
+          //signOptions: { expiresIn: '1h' },
+       // }),
       ],
       providers: [EmpresaService, UserService],
     }).compile();
@@ -147,5 +147,133 @@ describe('EmpresaService — createEmpresa()', () => {
         id_perfil: 'no-existe-este-id', name_empresa: 'X', NIT: '0',
       } as any)
     ).rejects.toThrow(NotFoundException);
+  });
+
+
+
+
+  //Nat update 
+});
+describe('EmpresaService update()', () => {
+  let empresaService: EmpresaService;
+  let empresaRepository: {
+    findOne: jest.Mock;
+    merge: jest.Mock;
+    save: jest.Mock;
+  };
+  let usuarioRepository: {
+    findOne: jest.Mock;
+  };
+
+  beforeEach(async () => {
+    empresaRepository = {
+      findOne: jest.fn(),
+      merge: jest.fn(),
+      save: jest.fn(),
+    };
+    usuarioRepository = {
+      findOne: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        EmpresaService,
+        { provide: getRepositoryToken(Empresa), useValue: empresaRepository },
+        { provide: getRepositoryToken(User), useValue: usuarioRepository },
+      ],
+    }).compile();
+
+    empresaService = module.get<EmpresaService>(EmpresaService);
+  });
+
+  it(' empresa no encontrada NotFoundException', async () => {
+    empresaRepository.findOne.mockResolvedValue(null);
+
+    await expect(
+      empresaService.update('id-inexistente', { name_empresa: 'Nuevo Nombre' } as any),
+    ).rejects.toThrow(NotFoundException);
+    await expect(
+      empresaService.update('id-inexistente', { name_empresa: 'Nuevo Nombre' } as any),
+    ).rejects.toThrow('Empresa no encontrada');
+
+    expect(empresaRepository.findOne).toHaveBeenCalledWith({
+      where: { user: { id: 'null' } },
+    });
+    expect(empresaRepository.merge).not.toHaveBeenCalled();
+    expect(empresaRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('[update con dto completo merge y save', async () => {
+    const empresaBase = {
+      id: 'emp-1',
+      name_empresa: 'Base',
+      descripcion: 'desc',
+      ubicacion: 'Bogota',
+      sector: 'Tech',
+      foto: 'a.png',
+      NIT: '111',
+    } as any;
+    const dto = {
+      name_empresa: 'Empresa Actualizada S.A.S',
+      descripcion: 'Nueva descripcion',
+      ubicacion: 'Medellin',
+      sector: 'Finanzas',
+      foto: 'foto-nueva.png',
+      NIT: '999888777',
+    };
+    const merged = { ...empresaBase, ...dto };
+
+    empresaRepository.findOne.mockResolvedValue(empresaBase);
+    empresaRepository.merge.mockReturnValue(merged);
+    empresaRepository.save.mockResolvedValue(merged);
+
+    const result = await empresaService.update('user-1', dto as any);
+
+    expect(empresaRepository.merge).toHaveBeenCalledWith(empresaBase, dto);
+    expect(empresaRepository.save).toHaveBeenCalledWith(merged);
+    expect(result).toEqual(merged);
+  });
+
+  it(' update parcial preserva campos no enviados', async () => {
+    const empresaBase = {
+      id: 'emp-2',
+      name_empresa: 'Empresa Base',
+      descripcion: 'Descripcion base',
+      ubicacion: 'Bogota',
+      sector: 'Tecnologia',
+      foto: 'base.png',
+      NIT: '555555555',
+    } as any;
+    const dto = { ubicacion: 'Cali' };
+    const merged = { ...empresaBase, ...dto };
+
+    empresaRepository.findOne.mockResolvedValue(empresaBase);
+    empresaRepository.merge.mockImplementation((entidad, cambios) => ({ ...entidad, ...cambios }));
+    empresaRepository.save.mockResolvedValue(merged);
+
+    const result = await empresaService.update('emp-2', dto as any);
+
+    expect(result.ubicacion).toBe('Cali');
+    expect(result.name_empresa).toBe('Empresa Base');
+    expect(result.NIT).toBe('555555555');
+    expect(result.descripcion).toBe('Descripcion base');
+    expect(result.sector).toBe('Tecnologia');
+    expect(result.foto).toBe('base.png');
+  });
+
+  it('[update() llama merge() y save() una vez cuando existe empresa', async () => {
+    const empresaBase = { id: 'emp-3', descripcion: 'anterior' } as any;
+    const dto = { descripcion: 'Descripcion por merge/save' };
+    const merged = { ...empresaBase, ...dto };
+
+    empresaRepository.findOne.mockResolvedValue(empresaBase);
+    empresaRepository.merge.mockReturnValue(merged);
+    empresaRepository.save.mockResolvedValue(merged);
+
+    const result = await empresaService.update('user-3', dto as any);
+
+    expect(empresaRepository.merge).toHaveBeenCalledTimes(1);
+    expect(empresaRepository.save).toHaveBeenCalledTimes(1);
+    expect(result.descripcion).toBe('Descripcion por merge/save');
   });
 });

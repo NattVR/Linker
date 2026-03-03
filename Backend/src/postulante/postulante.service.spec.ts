@@ -8,7 +8,7 @@ import { User } from 'src/user/entities/user.entity';
 import { InteraccionesService } from 'src/interacciones/interacciones.service';
 import { CreatePostulanteDto } from './dto/create-postulante.dto';
 
-describe('PostulanteService', () => {
+describe('PostulanteService — createPostulante()', () => {
   let service: PostulanteService;
   let postulanteRepository: {
     create: jest.Mock;
@@ -49,7 +49,7 @@ describe('PostulanteService', () => {
     service = module.get<PostulanteService>(PostulanteService);
   });
 
-  it('createPostulante should throw NotFoundException when user profile does not exist', async () => {
+  it('createPostulante  throw NotFoundException user no existe', async () => {
     const dto: CreatePostulanteDto = {
       name: 'Ana',
       lastname: 'Perez',
@@ -64,7 +64,7 @@ describe('PostulanteService', () => {
     expect(postulanteRepository.save).not.toHaveBeenCalled();
   });
 
-  it('createPostulante should create and save postulante when user profile exists', async () => {
+  it('createPostulante create y save postulante  cuando user existe', async () => {
     const dto: CreatePostulanteDto = {
       name: 'Carlos',
       lastname: 'Gomez',
@@ -98,7 +98,54 @@ describe('PostulanteService', () => {
       postulante: createdPostulante,
     });
   });
+
+
+  it('createPostulante()  el nombre se guarda exactamente como se envió', async () => {
+    const dto: CreatePostulanteDto = {
+      name: 'Nombre Exacto',
+      lastname: 'Apellido Base',
+      id_perfil: 'user-3',
+    };
+    const user = { id: 'user-3' } as User;
+    const createdPostulante = { id: 'post-3', ...dto, user } as Postulante;
+
+    usuarioRepository.findOne.mockResolvedValue(user);
+    postulanteRepository.create.mockReturnValue(createdPostulante);
+    postulanteRepository.save.mockResolvedValue(createdPostulante);
+
+    const result = await service.createPostulante(dto);
+
+    expect(result.postulante.name).toBe('Nombre Exacto');
+    expect(postulanteRepository.create).toHaveBeenCalledWith({
+      ...dto,
+      user,
+    });
+  });
+
+  it('createPostulante()  el apellido se guarda exactamente como se envió', async () => {
+    const dto: CreatePostulanteDto = {
+      name: 'Nombre Base',
+      lastname: 'Apellido Exacto',
+      id_perfil: 'user-4',
+    };
+    const user = { id: 'user-4' } as User;
+    const createdPostulante = { id: 'post-4', ...dto, user } as Postulante;
+
+    usuarioRepository.findOne.mockResolvedValue(user);
+    postulanteRepository.create.mockReturnValue(createdPostulante);
+    postulanteRepository.save.mockResolvedValue(createdPostulante);
+
+    const result = await service.createPostulante(dto);
+
+    expect(result.postulante.lastname).toBe('Apellido Exacto');
+    expect(postulanteRepository.create).toHaveBeenCalledWith({
+      ...dto,
+      user,
+    });
+  });
+
 });
+
 
 describe('PostulanteService — updatePostulante()', () => {
   let service: PostulanteService;

@@ -417,7 +417,7 @@ describe('VacantesService', () => {
         service = module.get<VacantesService>(VacantesService);
     });
 
-    it('findAllVacantesofEmpresa should query by empresa id and format idiomas/habilidades', async () => {
+    it('findAllVacantesofEmpresa empresa id y formatear idiomas/habilidades', async () => {
         const empresaId = 'empresa-1';
         const repoResult = [
             {
@@ -476,12 +476,141 @@ describe('VacantesService', () => {
         ]);
     });
 
-    it('findAllVacantesofEmpresa should return empty array when repository returns no vacantes', async () => {
+    it('findAllVacantesofEmpresa retonar [] cuando no hay vacantes', async () => {
         vacanteRepository.find.mockResolvedValue([]);
 
         const result = await service.findAllVacantesofEmpresa('empresa-2');
-
         expect(result).toEqual([]);
+    });
+
+    it('findAllVacantesofEmpresa preserva los campos base en la salida formateada', async () => {
+        const empresaId = 'empresa-base';
+        vacanteRepository.find.mockResolvedValue([
+            {
+                id_vacante: 'vac-base-1',
+                titulo: 'QA Engineer',
+                salario: '4500000',
+                empresa: { id: empresaId },
+                vacantesIdiomas: [{ idioma: { nombre: 'Frances' } }],
+                vacanteHabilidades: [{ habilidades: { nombre_habilidad: 'Selenium' } }],
+            },
+        ]);
+
+        const result = await service.findAllVacantesofEmpresa(empresaId);
+
+        expect(result[0].id_vacante).toBe('vac-base-1');
+        expect(result[0].titulo).toBe('QA Engineer');
+        expect(result[0].salario).toBe('4500000');
+        expect(result[0].empresa).toEqual({ id: empresaId });
+        expect(result[0].idiomas).toEqual(['Frances']);
+        expect(result[0].habilidades).toEqual(['Selenium']);
+    });
+
+    it('findAllVacantesofEmpresa retorna [] cuando vacantesIdiomas y vacanteHabilidades son null', async () => {
+        vacanteRepository.find.mockResolvedValue([
+            {
+                id_vacante: 'vac-null',
+                titulo: 'Data Analyst',
+                empresa: { id: 'empresa-null' },
+                vacantesIdiomas: null,
+                vacanteHabilidades: null,
+            },
+        ]);
+
+        const result = await service.findAllVacantesofEmpresa('empresa-null');
+
+        expect(result).toEqual([
+            {
+                id_vacante: 'vac-null',
+                titulo: 'Data Analyst',
+                empresa: { id: 'empresa-null' },
+                idiomas: [],
+                habilidades: [],
+            },
+        ]);
+    });
+
+    it('findAllVacantesofEmpresa retorna [] cuando vacantesIdiomas y vacanteHabilidades son arrays vacios explicitos', async () => {
+        vacanteRepository.find.mockResolvedValue([
+            {
+                id_vacante: 'vac-empty',
+                titulo: 'UX Designer',
+                empresa: { id: 'empresa-empty' },
+                vacantesIdiomas: [],
+                vacanteHabilidades: [],
+            },
+        ]);
+
+        const result = await service.findAllVacantesofEmpresa('empresa-empty');
+
+        expect(result).toEqual([
+            {
+                id_vacante: 'vac-empty',
+                titulo: 'UX Designer',
+                empresa: { id: 'empresa-empty' },
+                idiomas: [],
+                habilidades: [],
+            },
+        ]);
+    });
+
+    it('findAllVacantesofEmpresa maneja multiples vacantes con datos mixtos en la misma respuesta', async () => {
+        const empresaId = 'empresa-mixta';
+        vacanteRepository.find.mockResolvedValue([
+            {
+                id_vacante: 'vac-completa',
+                titulo: 'Fullstack',
+                empresa: { id: empresaId },
+                vacantesIdiomas: [{ idioma: { nombre: 'Ingles' } }],
+                vacanteHabilidades: [{ habilidades: { nombre_habilidad: 'Node.js' } }],
+            },
+            {
+                id_vacante: 'vac-parcial',
+                titulo: 'Soporte',
+                empresa: { id: empresaId },
+                vacantesIdiomas: null,
+                vacanteHabilidades: null,
+            },
+        ]);
+
+        const result = await service.findAllVacantesofEmpresa(empresaId);
+
+        expect(result).toEqual([
+            {
+                id_vacante: 'vac-completa',
+                titulo: 'Fullstack',
+                empresa: { id: empresaId },
+                idiomas: ['Ingles'],
+                habilidades: ['Node.js'],
+            },
+            {
+                id_vacante: 'vac-parcial',
+                titulo: 'Soporte',
+                empresa: { id: empresaId },
+                idiomas: [],
+                habilidades: [],
+            },
+        ]);
+    });
+
+
+    it('findAllVacantesofEmpresa propaga errores del repositorio', async () => {
+        vacanteRepository.find.mockRejectedValue(new Error('db down'));
+
+        await expect(service.findAllVacantesofEmpresa('empresa-err')).rejects.toThrow('db down');
+    });
+ it('findAllVacantesofEmpresa lanza TypeError cuando el objeto [{}] es invalido ', async () => {
+        vacanteRepository.find.mockResolvedValue([
+            {
+                id_vacante: 'vac-malformada',
+                titulo: 'Backend',
+                empresa: { id: 'empresa-bad' },
+                vacantesIdiomas: [{}],
+                vacanteHabilidades: [{}],
+            },
+        ]);
+
+        await expect(service.findAllVacantesofEmpresa('empresa-bad')).rejects.toThrow(TypeError);
     });
 });
 

@@ -79,6 +79,106 @@ describe('DetallesCertificadosService', () => {
     expect(repository.save).toHaveBeenCalledWith(entity);
   });
 
+  it('create .create error', async () => {
+    const dto: CreateDetallesCertificadoDto = {
+      empresa: { id: 'empresa-3' } as any,
+      certificado: { id_certificado: 'cert-3' } as any,
+      fecha_emision: new Date('2026-03-01'),
+      fecha_caducidad: new Date('2028-03-01'),
+    };
+
+    repository.create.mockImplementation(() => {
+      throw new Error('create error');
+    });
+
+    await expect(service.create(dto)).rejects.toThrow('create error');
+    expect(repository.save).not.toHaveBeenCalled();
+  });
+
+  it('create retorna exactamente lo que devuelve save', async () => {
+    const dto: CreateDetallesCertificadoDto = {
+      empresa: { id: 'empresa-4' } as any,
+      certificado: { id_certificado: 'cert-4' } as any,
+      fecha_emision: new Date('2026-04-01'),
+      fecha_caducidad: new Date('2028-04-01'),
+    };
+
+    const createdEntity = { ...dto } as DetallesCertificado;
+    const savedEntity = {
+      id_detalles_certificados: 'det-4',
+      ...dto,
+      extra: 'from-save',
+    } as any;
+
+    repository.create.mockReturnValue(createdEntity);
+    repository.save.mockResolvedValue(savedEntity);
+
+    const result = await service.create(dto);
+
+    expect(result).toBe(savedEntity);
+  });
+
+  it('create llama primero a repository.create y luego a repository.save', async () => {
+    const dto: CreateDetallesCertificadoDto = {
+      empresa: { id: 'empresa-5' } as any,
+      certificado: { id_certificado: 'cert-5' } as any,
+      fecha_emision: new Date('2026-05-01'),
+      fecha_caducidad: new Date('2028-05-01'),
+    };
+    const entity = { ...dto } as DetallesCertificado;
+
+    repository.create.mockReturnValue(entity);
+    repository.save.mockResolvedValue(entity);
+
+    await service.create(dto);
+
+    expect(repository.create).toHaveBeenCalledWith(dto);
+    expect(repository.save).toHaveBeenCalledWith(entity);
+    expect(repository.create.mock.invocationCallOrder[0]).toBeLessThan(
+      repository.save.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('create no muta el dto de entrada', async () => {
+    const dto: CreateDetallesCertificadoDto = {
+      empresa: { id: 'empresa-6' } as any,
+      certificado: { id_certificado: 'cert-6' } as any,
+      fecha_emision: new Date('2026-06-01'),
+      fecha_caducidad: new Date('2028-06-01'),
+    };
+    const snapshot = JSON.parse(JSON.stringify(dto));
+    const entity = { ...dto } as DetallesCertificado;
+
+    repository.create.mockReturnValue(entity);
+    repository.save.mockResolvedValue(entity);
+
+    await service.create(dto);
+
+    expect(JSON.parse(JSON.stringify(dto))).toEqual(snapshot);
+  });
+
+  it('create con relaciones minimas por id las envia intactas a repository.create', async () => {
+    const dto: CreateDetallesCertificadoDto = {
+      empresa: { id: 'empresa-min' } as any,
+      certificado: { id_certificado: 'cert-min' } as any,
+      fecha_emision: new Date('2026-07-01'),
+      fecha_caducidad: new Date('2028-07-01'),
+    };
+    const entity = { ...dto } as DetallesCertificado;
+
+    repository.create.mockReturnValue(entity);
+    repository.save.mockResolvedValue(entity);
+
+    await service.create(dto);
+
+    expect(repository.create).toHaveBeenCalledWith({
+      empresa: { id: 'empresa-min' },
+      certificado: { id_certificado: 'cert-min' },
+      fecha_emision: new Date('2026-07-01'),
+      fecha_caducidad: new Date('2028-07-01'),
+    });
+  });
+
   //TEPHO
 
    it('[CB1] Camino 1,2,3,4,F — findOne retorna null → throw NotFoundException', async () => {

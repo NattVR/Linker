@@ -33,7 +33,7 @@ describe('InteraccionesService', () => {
     service = module.get<InteraccionesService>(InteraccionesService);
   });
 
-  it('findOne should query repository by vacante and postulante ids with loadRelationIds', async () => {
+  it('findOne query repository con vacante and postulante ids con loadRelationIds', async () => {
     const vacanteId = 'vac-1';
     const postulanteId = 'post-1';
     const interaccion = {
@@ -55,16 +55,31 @@ describe('InteraccionesService', () => {
       },
       loadRelationIds: true,
     });
+    expect(repository.findOne).toHaveBeenCalledTimes(1);
     expect(result).toEqual(interaccion);
   });
 
-  it('findOne should return null when interaction does not exist', async () => {
+  it('findOne return null cuando interaccion no existe', async () => {
     repository.findOne.mockResolvedValue(null);
 
     const result = await service.findOne('vac-2', 'post-2');
 
+    expect(repository.findOne).toHaveBeenCalledWith({
+      where: {
+        vacante: { id_vacante: 'vac-2' },
+        postulante: { id: 'post-2' },
+      },
+      loadRelationIds: true,
+    });
     expect(repository.findOne).toHaveBeenCalledTimes(1);
     expect(result).toBeNull();
+  });
+
+  it('findOne propaga el error cuando falla el repositorio', async () => {
+    repository.findOne.mockRejectedValue(new Error('fallo repo findOne'));
+
+    await expect(service.findOne('vac-error', 'post-error')).rejects.toThrow('fallo repo findOne');
+    expect(repository.findOne).toHaveBeenCalledTimes(1);
   });
 });
 
