@@ -591,3 +591,191 @@ describe('HU8RF9 — Publicar Vacante | PerfilVacantes.publicarVacante()', () =>
         );
     });
 });
+
+// =============================================================================
+// HU — Editar Vacante | Frontend — editarVacante()
+// Archivo: src/perfil-vacantes/perfil-vacantes/perfil-vacantes-editar.spec.ts
+// =============================================================================
+
+// ─── Datos de apoyo ──────────────────────────────────────────────────────────
+
+function makeVacante(overrides: Partial<{
+  id_vacante: string;
+  titulo: string;
+  salario: string;
+  ubicacion: string;
+  modalidad: string;
+  tipo_trabajo: string;
+  habilidades: string[];
+  idiomas: string[];
+}> = {}): any {
+  return {
+    id_vacante:   overrides.id_vacante   ?? 'v-uuid-1',
+    titulo:       overrides.titulo       ?? 'Dev Angular',
+    salario:      overrides.salario      ?? '3000000',
+    ubicacion:    overrides.ubicacion    ?? 'Bogotá',
+    modalidad:    overrides.modalidad    ?? 'Remoto',
+    tipo_trabajo: overrides.tipo_trabajo ?? 'Full-time',
+    habilidades:  overrides.habilidades  ?? [],
+    idiomas:      overrides.idiomas      ?? [],
+  };
+}
+
+// Catálogo fake con habilidades e idiomas conocidos
+const CATALOGO_MOCK = {
+  habilidades: [
+    { id_habilidad: 'hab-1', nombre_habilidad: 'Angular' },
+    { id_habilidad: 'hab-2', nombre_habilidad: 'TypeScript' },
+  ],
+  idiomas: [
+    { id_idioma: 'id-1', nombre: 'Español' },
+    { id_idioma: 'id-2', nombre: 'Inglés' },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('PerfilVacantes — editarVacante()', () => {
+  let component: PerfilVacantes;
+  let fixture: ComponentFixture<PerfilVacantes>;
+  let perfilSpy: jasmine.SpyObj<Perfil>;
+  let matchSpy: jasmine.SpyObj<Match>;
+
+  beforeEach(async () => {
+    perfilSpy = jasmine.createSpyObj<Perfil>('Perfil', [
+      'createVacante', 'updateVacante', 'getHabilidades',
+      'getIdiomas', 'getCatalogosPostulante',
+    ]);
+    matchSpy = jasmine.createSpyObj<Match>('Match', ['getVacantesForEmpresa']);
+
+    // Defaults seguros
+    matchSpy.getVacantesForEmpresa.and.returnValue(of([]));
+    perfilSpy.getCatalogosPostulante.and.returnValue(of(CATALOGO_MOCK) as any);
+
+    await TestBed.configureTestingModule({
+      imports: [PerfilVacantes, ReactiveFormsModule, HttpClientTestingModule],
+      providers: [
+        FormBuilder,
+        { provide: Perfil, useValue: perfilSpy },
+        { provide: Match,  useValue: matchSpy  },
+      ],
+    }).compileComponents();
+
+    fixture   = TestBed.createComponent(PerfilVacantes);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  afterEach(() => sessionStorage.clear());
+
+  // ===========================================================================
+  // CAJA BLANCA — caminos del diagrama de flujo
+  // ===========================================================================
+
+  // Camino: 1,2,3,4,5,6,7,8,9,10,11,12,9,13,14,15,16,13,F
+  // v con habilidades e idiomas válidos → push en ambos FormArrays
+  it('[C1] Camino ...12,9,13,14,15,16,13,F — habilidades e idiomas válidos → push en ambos FormArrays', () => {
+    const v = makeVacante({ habilidades: ['Angular'], idiomas: ['Español'] });
+
+    component.editarVacante(v);
+
+    expect(component.modoEdicion).toBeTrue();
+    expect(component.vacanteEditandoId).toBe('v-uuid-1');
+    expect(component.habilidades.length).toBe(1);
+    expect(component.habilidades.at(0).value).toBe('hab-1');
+    expect(component.idiomas.length).toBe(1);
+    expect(component.idiomas.at(0).value).toBe('id-1');
+  });
+
+  // Camino: 1,2,3,4,5,6,7,8,9,10,11,12,9,13,14,15,13,F
+  // Habilidades encontradas, idiomas cargados pero nombre no coincide → no push idioma
+  it('[C2] Camino ...15,13,F — habilidades válidas, idioma no encontrado → solo push habilidad', () => {
+    const v = makeVacante({ habilidades: ['Angular'], idiomas: ['Klingon'] });
+
+    component.editarVacante(v);
+
+    expect(component.habilidades.length).toBe(1);
+    expect(component.habilidades.at(0).value).toBe('hab-1');
+    expect(component.idiomas.length).toBe(0);   // no encontrado → no push
+  });
+
+  // Camino: 1,2,3,4,5,6,7,8,9,10,11,9,13,14,15,16,13,F
+  // Habilidad no encontrada en catálogo, idioma válido → solo push idioma
+  it('[C3] Camino ...11,9,13,14,15,16,13,F — habilidad no encontrada, idioma válido → solo push idioma', () => {
+    const v = makeVacante({ habilidades: ['Cobol'], idiomas: ['Español'] });
+
+    component.editarVacante(v);
+
+    expect(component.habilidades.length).toBe(0);  // no encontrada → no push
+    expect(component.idiomas.length).toBe(1);
+    expect(component.idiomas.at(0).value).toBe('id-1');
+  });
+
+  // Camino: 1,2,3,4,5,6,7,8,9,10,11,9,13,14,15,13,F
+  // Habilidad no encontrada, idioma no encontrado → no push en ninguno
+  it('[C4] Camino ...11,9,13,14,15,13,F — ni habilidad ni idioma encontrados → FormArrays vacíos', () => {
+    const v = makeVacante({ habilidades: ['Cobol'], idiomas: ['Klingon'] });
+
+    component.editarVacante(v);
+
+    expect(component.habilidades.length).toBe(0);
+    expect(component.idiomas.length).toBe(0);
+  });
+
+  // Camino: 1,2,3,4,5,6,7,8,9,13,14,15,16,13,F
+  // Habilidades vacías, idioma válido → solo push idioma
+  it('[C5] Camino ...9,13,14,15,16,13,F — habilidades vacías, idioma válido → solo push idioma', () => {
+    const v = makeVacante({ habilidades: [], idiomas: ['Español'] });
+
+    component.editarVacante(v);
+
+    expect(component.habilidades.length).toBe(0);
+    expect(component.idiomas.length).toBe(1);
+    expect(component.idiomas.at(0).value).toBe('id-1');
+  });
+
+  // Camino: 1,2,3,4,5,6,7,8,9,13,14,15,13,F
+  // Habilidades vacías, idioma no encontrado → no push en ninguno
+  it('[C6] Camino ...9,13,14,15,13,F — habilidades vacías, idioma no encontrado → FormArrays vacíos', () => {
+    const v = makeVacante({ habilidades: [], idiomas: ['Klingon'] });
+
+    component.editarVacante(v);
+
+    expect(component.habilidades.length).toBe(0);
+    expect(component.idiomas.length).toBe(0);
+  });
+
+  // Camino: 1,2,3,4,5,6,7,8,9,10,11,12,9,13,F
+  // Habilidades válidas, idiomas vacíos → solo push habilidad
+  it('[C7] Camino ...12,9,13,F — habilidad válida, idiomas vacíos → solo push habilidad', () => {
+    const v = makeVacante({ habilidades: ['Angular'], idiomas: [] });
+
+    component.editarVacante(v);
+
+    expect(component.habilidades.length).toBe(1);
+    expect(component.habilidades.at(0).value).toBe('hab-1');
+    expect(component.idiomas.length).toBe(0);
+  });
+
+  // Camino: 1,2,3,4,5,6,7,8,9,10,11,9,13,F
+  // Habilidad no encontrada, idiomas vacíos → FormArrays vacíos
+  it('[C8] Camino ...11,9,13,F — habilidad no encontrada, idiomas vacíos → FormArrays vacíos', () => {
+    const v = makeVacante({ habilidades: ['Cobol'], idiomas: [] });
+
+    component.editarVacante(v);
+
+    expect(component.habilidades.length).toBe(0);
+    expect(component.idiomas.length).toBe(0);
+  });
+
+  // Camino: 1,2,3,4,5,6,7,8,9,13,F
+  // Habilidades vacías, idiomas vacíos → no push en ninguno
+  it('[C9] Camino ...9,13,F — habilidades e idiomas vacíos → FormArrays vacíos', () => {
+    const v = makeVacante({ habilidades: [], idiomas: [] });
+
+    component.editarVacante(v);
+
+    expect(component.habilidades.length).toBe(0);
+    expect(component.idiomas.length).toBe(0);
+  });
+});

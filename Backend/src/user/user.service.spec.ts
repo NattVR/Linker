@@ -152,3 +152,86 @@ describe('UserService', () => {
     expect(result.user.id).toBeTruthy();
   });
 });
+
+//Casos de pruebas inicio sesión
+
+describe('UserService — loginUser()', () => {
+  let service: UserService;
+  let repository: {
+    findOneBy: jest.Mock;
+  };
+  let jwtService: { sign: jest.Mock };
+
+  const VALID_HASH = bcrypt.hashSync('123456789', 10);
+
+  const VALID_USER = {
+    id:       'user-id-login',
+    email:    'm@gmail.com',
+    password: VALID_HASH,
+  } as User;
+
+  beforeEach(async () => {
+    repository = {
+      findOneBy: jest.fn(),
+    };
+    jwtService = {
+      sign: jest.fn().mockReturnValue('mocked-jwt-token'),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserService,
+        {
+          provide: getRepositoryToken(User),
+          useValue: repository,
+        },
+        {
+          provide: JwtService,
+          useValue: jwtService,
+        },
+      ],
+    }).compile();
+
+    service = module.get<UserService>(UserService);
+  });
+
+  it('[C-001] Camino 1,2,3,4,F — email no registrado → BadRequestException("Credenciales inválidas")', async () => {
+    repository.findOneBy.mockResolvedValue(null);
+
+    await expect(
+      service.loginUser({ email: 'prueba@gmail.com', password: 'cualquiera' } as any)
+    ).rejects.toThrow(new BadRequestException('Credenciales inválidas'));
+
+    expect(repository.findOneBy).toHaveBeenCalledWith({ email: 'prueba@gmail.com' });
+    expect(jwtService.sign).not.toHaveBeenCalled();
+  });
+
+  it('[C-002] Camino 1,2,3,5,6,7,F — password incorrecta → BadRequestException("Credenciales inválidas")', async () => {
+    repository.findOneBy.mockResolvedValue(VALID_USER);
+
+    await expect(
+      service.loginUser({ email: 'm@gmail.com', password: '12345' } as any)
+    ).rejects.toThrow(new BadRequestException('Credenciales inválidas'));
+
+    expect(repository.findOneBy).toHaveBeenCalledWith({ email: 'm@gmail.com' });
+    expect(jwtService.sign).not.toHaveBeenCalled();
+  });
+
+  it('[C-003] Camino 1,2,3,5,6,8,9,F — credenciales correctas → retorna success:true + token', async () => {
+    repository.findOneBy.mockResolvedValue(VALID_USER);
+
+    const result = await service.loginUser({
+      email:    'm@gmail.com',
+      password: '123456789',
+    } as any);
+
+    expect(result.success).toBe(true);
+    expect(result.message).toBe('Inicio de sesión exitoso');
+    expect(result.user.id).toBeTruthy();
+    expect(result.token).toBeTruthy();
+    expect(jwtService.sign).toHaveBeenCalledWith({
+      sub:   'user-id-login',
+      email: 'm@gmail.com',
+    });
+  });
+});

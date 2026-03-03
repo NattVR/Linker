@@ -99,3 +99,92 @@ describe('PostulanteService', () => {
     });
   });
 });
+
+describe('PostulanteService — updatePostulante()', () => {
+  let service: PostulanteService;
+  let postulanteRepo: { findOne: jest.Mock; save: jest.Mock };
+  let usuarioRepo:    { findOne: jest.Mock };
+
+  const POSTULANTE_BASE = {
+    id:               'post-1',
+    años_experiencia: 0,
+    curriculum:       '',
+  } as Postulante;
+
+  beforeEach(async () => {
+    postulanteRepo = { findOne: jest.fn(), save: jest.fn() };
+    usuarioRepo    = { findOne: jest.fn() };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PostulanteService,
+        { provide: getRepositoryToken(Postulante), useValue: postulanteRepo },
+        { provide: getRepositoryToken(User),       useValue: usuarioRepo    },
+        { provide: InteraccionesService,           useValue: {}             },
+      ],
+    }).compile();
+
+    service = module.get<PostulanteService>(PostulanteService);
+  });
+
+
+//Casos de prueba editar perfil postulante
+
+  it('[C-001] Camino 1,2,3,9,F — postulante no encontrado → NotFoundException("Postulante no encontrado")', async () => {
+    postulanteRepo.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.updatePostulante('id-inexistente', { experiencia: 5, cv: 'cv.pdf' })
+    ).rejects.toThrow(new NotFoundException('Postulante no encontrado'));
+
+    expect(postulanteRepo.save).not.toHaveBeenCalled();
+  });
+
+  it('[C-002] Camino 1,2,3,4,5,6,7,8,F — dto completo → save con experiencia y curriculum', async () => {
+    const postulante = { ...POSTULANTE_BASE };
+    postulanteRepo.findOne.mockResolvedValue(postulante);
+    postulanteRepo.save.mockResolvedValue({ ...postulante, años_experiencia: 5, curriculum: 'cv.pdf' });
+
+    await service.updatePostulante('post-1', { experiencia: 5, cv: 'cv.pdf' });
+
+    expect(postulanteRepo.save).toHaveBeenCalledWith(
+      jasmine.objectContaining({ años_experiencia: 5, curriculum: 'cv.pdf' })
+    );
+  });
+
+  it('[C-003] Camino 1,2,3,4,5,6,8,F — solo experiencia → save actualiza solo años_experiencia', async () => {
+    const postulante = { ...POSTULANTE_BASE, curriculum: 'anterior.pdf' };
+    postulanteRepo.findOne.mockResolvedValue(postulante);
+    postulanteRepo.save.mockResolvedValue({ ...postulante, años_experiencia: 3 });
+
+    await service.updatePostulante('post-1', { experiencia: 3 });
+
+    expect(postulanteRepo.save).toHaveBeenCalledWith(
+      jasmine.objectContaining({ años_experiencia: 3, curriculum: 'anterior.pdf' })
+    );
+  });
+
+  it('[C-004] Camino 1,2,3,4,6,7,8,F — solo cv → save actualiza solo curriculum', async () => {
+    const postulante = { ...POSTULANTE_BASE, años_experiencia: 2 };
+    postulanteRepo.findOne.mockResolvedValue(postulante);
+    postulanteRepo.save.mockResolvedValue({ ...postulante, curriculum: 'nuevo.pdf' });
+
+    await service.updatePostulante('post-1', { cv: 'nuevo.pdf' });
+
+    expect(postulanteRepo.save).toHaveBeenCalledWith(
+      jasmine.objectContaining({ años_experiencia: 2, curriculum: 'nuevo.pdf' })
+    );
+  });
+
+  it('[C-005] Camino 1,2,3,4,6,8,F — dto vacío → save sin cambios en entidad', async () => {
+    const postulante = { ...POSTULANTE_BASE, años_experiencia: 1, curriculum: 'viejo.pdf' };
+    postulanteRepo.findOne.mockResolvedValue(postulante);
+    postulanteRepo.save.mockResolvedValue(postulante);
+
+    await service.updatePostulante('post-1', {});
+
+    expect(postulanteRepo.save).toHaveBeenCalledWith(
+      jasmine.objectContaining({ años_experiencia: 1, curriculum: 'viejo.pdf' })
+    );
+  });
+});

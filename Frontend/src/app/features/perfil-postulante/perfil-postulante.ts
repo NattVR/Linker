@@ -109,12 +109,12 @@ export class PerfilPostulante implements OnInit {
   cargarCatalogos() {
     this.postulante.getCatalogosPostulante().subscribe({
       next: (data: any) => {
-        console.log('📚 Catálogos cargados:', data);
+        console.log('Catálogos cargados:', data);
         this.catalogoEstudios = data.niveles || [];
         this.catalogoHabilidades = data.habilidades || [];
         this.catalogoIdiomas = data.idiomas || [];
-        console.log('💡 Habilidades disponibles:', this.catalogoHabilidades);
-        console.log('🗣️ Idiomas disponibles:', this.catalogoIdiomas);
+        console.log('Habilidades disponibles:', this.catalogoHabilidades);
+        console.log('Idiomas disponibles:', this.catalogoIdiomas);
         this.isLoading = false;
       },
       error: (err) => {
