@@ -1,8 +1,3 @@
-// =============================================================================
-// HU — Editar Certificado | Frontend
-// Archivo: src/app/features/perfil-empresa-certificados/perfil-empresa-certificados.spec.ts
-// =============================================================================
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
@@ -69,6 +64,14 @@ describe('PerfilEmpresaCertificados', () => {
     component.cargarCatalogoCertificados();
 
     expect(alertsSpy.error).toHaveBeenCalledWith('Error al cargar el catálogo de certificados');
+  });
+
+  it('cargarCertificados success pero []', () => {
+    perfilSpy.getCertificadosOfEmpresa.and.returnValue(of([]));
+
+    component.cargarCertificados();
+    expect(alertsSpy.error).toHaveBeenCalledWith('No hay certificados');
+    expect(component.certificados).toEqual([]);
   });
 
   it('seleccionarCertificado  set certificadoSeleccionado y cerrar dropdown', () => {
