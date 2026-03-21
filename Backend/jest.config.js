@@ -1,16 +1,24 @@
-/** @type {import('jest').Config} */
 module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
-  rootDir: '.',
+  rootDir: 'src',
   testRegex: '.*\\.spec\\.ts$',
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['src/**/*.(t|j)s'],
-  coverageDirectory: './coverage',
-  testEnvironment: 'node',
-
   moduleNameMapper: {
-    '^src/(.*)$': '<rootDir>/src/$1',
+    '^src/(.*)$': '<rootDir>/$1',
   },
+  collectCoverageFrom: [
+    '**/*.ts',
+    '!**/*.spec.ts',
+    '!**/*.module.ts',
+    '!**/main.ts',
+    '!**/*.dto.ts',
+    '!**/*.entity.ts',
+    '!**/dto/**',
+    '!**/entities/**',
+  ],
+  coverageDirectory: '../coverage',
+  coverageReporters: ['lcov', 'text-summary'],
+  testEnvironment: 'node',
 };
