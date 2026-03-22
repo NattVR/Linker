@@ -34,6 +34,7 @@
     "swiper": "^12.0.2",
     "tslib": "^2.3.0",
     "uuid": "^13.0.0",
+    "winston": "^3.19.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
