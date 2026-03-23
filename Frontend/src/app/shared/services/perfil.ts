@@ -56,7 +56,6 @@ export class Perfil {
   }
 
   createVacante(vacante: CrearVacante): Observable<any> {
-    console.log(vacante, 'desde service')
     return this.http.post('http://localhost:3000/vacantes', vacante);
   }
 

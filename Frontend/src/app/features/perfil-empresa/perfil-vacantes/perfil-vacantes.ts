@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ɵinternalProvideZoneChangeDetection } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { Perfil } from '../../../shared/services/perfil';
 import { Match } from '../../../shared/services/match';
+import { LoggerService } from '../../../shared/services/logger';
 
 @Component({
   selector: 'app-perfil-vacantes',
@@ -22,6 +23,8 @@ export class PerfilVacantes {
   perfil = inject(Perfil);
   match = inject(Match)
   activeTab: 'form' | 'list' = 'form';
+  logger = inject(LoggerService);
+
 
   tiposTrabajo = ['Full-time', 'Part-time', 'Contrato', 'Prácticas'];
   modalidades = ['Presencial', 'Remoto', 'Híbrido'];
@@ -78,9 +81,9 @@ export class PerfilVacantes {
       next: (res: Habilidad[]) => {
         this.habilidadesDisponibles = res;
       },
-      error: () => console.error('Error al cargar habilidades'),
+      error: () => this.logger.error('Error al cargar habilidades'),
     });
-    console.log(this.habilidadesDisponibles, 'habilidades')
+    this.logger.log(JSON.stringify(this.habilidadesDisponibles) + ' habilidades disponibles');
 
     this.mostrarListaHabilidad[index] = !this.mostrarListaHabilidad[index];
   }
@@ -106,9 +109,9 @@ export class PerfilVacantes {
       next: (res: Idioma[]) => {
         this.idiomasDisponibles = res;
       },
-      error: () => console.error('Error al cargar idiomas'),
+      error: () => this.logger.error('Error al cargar idiomas'),
     });
-    console.log(this.idiomasDisponibles,'idiomas')
+    this.logger.log(JSON.stringify(this.idiomasDisponibles) + 'idiomas')
 
     this.mostrarListaIdioma[index] = !this.mostrarListaIdioma[index];
   }
@@ -118,50 +121,58 @@ export class PerfilVacantes {
     this.mostrarListaIdioma[index] = false;
   }
 
-  // ========= GUARDAR VACANTE =========
-  publicarVacante() {
-  //const vacante: Vacante = this.nuevaVacante.value;
+  // REFACTORIZADA
 
-   let idEmpresa: string | null = sessionStorage.getItem('perfilId'); //  2
-
-    // 1. Manejar el caso de null (previniendo el error de TypeScript ts(2322))
-    if (!idEmpresa) { //  3
-        console.error("No se pudo obtener el perfilId de sessionStorage."); //  4
-        // Podrías mostrar un mensaje al usuario o retornar
-        return; //  5
+  public publicarVacante(): void {
+    const idEmpresa = this.obtenerIdEmpresa(); //2
+    if (!idEmpresa) { // 3
+      return; // 4
     }
-    this.nuevaVacante.get('empresa')?.setValue(idEmpresa); // 6
-    const vacante: CrearVacante= this.nuevaVacante.value; //  7
 
-    if (!vacante.vacanteHabilidades?.length) vacante.vacanteHabilidades = []; //  8 y 9
-    if (!vacante.vacantesIdiomas?.length) vacante.vacantesIdiomas = []; //  10 y 11
+    const vacante = this.prepararVacante(idEmpresa); // 5
+    let operacion$; // 6
 
-
-    if (this.modoEdicion && this.vacanteEditandoId) { //  12
-
-      this.perfil.updateVacante(this.vacanteEditandoId, vacante).subscribe({ //  13
-        next: (res) => { 
-          console.log('Vacante actualizada:', res); //  14
-          this.resetFormulario(); //  15
-        },
-        error: (err) => console.error(err) //  16
-      });
-
+    if (this.modoEdicion && this.vacanteEditandoId) { // 7
+      operacion$ = this.perfil.updateVacante(this.vacanteEditandoId, vacante); // 8
     } else {
-
-      this.perfil.createVacante(vacante).subscribe({ // 17
-        next: (res) => {
-          console.log('Vacante guardada correctamente:', res); //18
-          this.resetFormulario();// 19
-        },
-        error: (err) => console.error(err) // 20
-      });
-
+      operacion$ = this.perfil.createVacante(vacante); // 9
     }
+
+    operacion$.subscribe({ //10
+      next: res => {
+        this.logger.log('Vacante procesada: ' + JSON.stringify(res)); // 11
+        this.resetFormulario(); // 12
+      },
+      error: err => this.logger.error(err) // 13
+    });
   }
 
+  private obtenerIdEmpresa(): string | null {
+    const id = sessionStorage.getItem('perfilId'); // 1
+    if (!id) { // 2
+      this.logger.error('No se pudo obtener el perfilId de sessionStorage.'); // 3
+    }
+    return id; // 4
+  }
+
+  private prepararVacante(idEmpresa: string): CrearVacante {
+    this.nuevaVacante.get('empresa')?.setValue(idEmpresa); // 1
+    const vacante: CrearVacante = this.nuevaVacante.value; // 2
+
+    if (!vacante.vacanteHabilidades?.length) { // 3
+      vacante.vacanteHabilidades = []; // 4
+    }
+    if (!vacante.vacantesIdiomas?.length) { // 5
+      vacante.vacantesIdiomas = []; // 6
+    }
+
+    return vacante; // 7
+  }
+
+  // FIN REFACTORIZADA
+
   // ========= EDITAR VACANTE =========
-  editarVacante(v: any) {
+  editarVacante(v: Vacante) {
     this.setActiveTab('form');
 
     this.modoEdicion = true;
@@ -182,7 +193,7 @@ export class PerfilVacantes {
 
       v.habilidades?.forEach((nombreHab: string) => {
         const encontrada = habilidades.find(
-          (h: any) => h.nombre_habilidad === nombreHab
+          (h: Habilidad) => h.nombre_habilidad === nombreHab
         );
 
         if (encontrada) {
@@ -192,7 +203,7 @@ export class PerfilVacantes {
 
       v.idiomas?.forEach((nombreIdioma: string) => {
         const encontrado = idiomas.find(
-          (i: any) => i.nombre === nombreIdioma
+          (i: Idioma) => i.nombre === nombreIdioma
         );
 
         if (encontrado) {
@@ -218,20 +229,20 @@ export class PerfilVacantes {
   // ========= ELIMINAR VACANTE =========
   eliminarVacante(id_vacante: string) {
     if (confirm('¿Seguro que deseas eliminar esta vacante?')) {
-      this.vacantes = this.vacantes.filter((v) => v.id_vacante !== id_vacante);
+      this.vacantes = this.vacantes.filter(v => v.id_vacante !== id_vacante);
     }
   }
 
-  cargarVacantes(){
+  cargarVacantes() {
     this.match.getVacantesForEmpresa().subscribe({
-      next: (data:Vacante[])=>{
-        this.vacantes=data;
+      next: (data: Vacante[]) => {
+        this.vacantes = data;
       },
-      error: (err)=>{
+      error: err => {
         alert('Error al cargar vacantes');
-        console.log('error al cargar vacantes',err)
+        this.logger.log('error al cargar vacantes' + JSON.stringify(err))
       }
     });
-    console.log(this.vacantes)
+    this.logger.log(JSON.stringify(this.vacantes))
   }
 }

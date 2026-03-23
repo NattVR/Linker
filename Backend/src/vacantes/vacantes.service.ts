@@ -5,54 +5,44 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Vacante } from './entities/vacante.entity';
 import { In, Not, Repository } from 'typeorm';
 import { InteraccionesService } from 'src/interacciones/interacciones.service';
+import { VacantesIdioma } from 'src/vacantes_idiomas/entities/vacantes_idioma.entity';
+import { VacanteHabilidade } from 'src/vacante_habilidades/entities/vacante_habilidade.entity';
 
 @Injectable()
 export class VacantesService {
   constructor(
     @InjectRepository(Vacante)
-    private vacanteRepository: Repository<Vacante>,
+    private readonly vacanteRepository: Repository<Vacante>,
 
-    private interaccionService: InteraccionesService,
-  ) {}
+    private readonly interaccionService: InteraccionesService,
+  ) { }
 
-  /*async create(createVacanteDto: CreateVacanteDto) {
-    const vacanteEntity = this.vacanteRepository.create({
-      ...createVacanteDto,
-      empresa: { id: createVacanteDto.empresa.id },
-    });
-    await this.vacanteRepository.save(vacanteEntity);
-    return vacanteEntity;
-  }*/
+  async create(createVacanteDto: CreateVacanteDto): Promise<Vacante> {
+    const { vacantesIdiomas, vacanteHabilidades, empresa, ...vacanteData } = createVacanteDto; // 2
 
-  async create(createVacanteDto: CreateVacanteDto) {
-    const { vacantesIdiomas, vacanteHabilidades, empresa, ...vacanteData } =
-      createVacanteDto; //  2
-    console.log('habilidades',vacanteHabilidades,'idiomas',vacantesIdiomas,'data',vacanteData); // 3
-
-    const nuevaVacante = this.vacanteRepository.create({
+    const nuevaVacante = this.vacanteRepository.create({ // 3
       ...vacanteData,
       empresa: { id: empresa },
-    }); // 4
+    });
 
-    if (vacantesIdiomas && vacantesIdiomas.length > 0) { // 5
-      nuevaVacante.vacantesIdiomas = vacantesIdiomas.map( // 6
-        (id_idioma) =>
-          ({
-            idioma: { id_idioma },
-          }) as any,
-      );
+    nuevaVacante.vacantesIdiomas = this.mapearIdiomas(vacantesIdiomas); // 4
+    nuevaVacante.vacanteHabilidades = this.mapearHabilidades(vacanteHabilidades); // 5
+
+    return this.vacanteRepository.save(nuevaVacante); // 6
+  }
+
+  private mapearIdiomas(ids: string[] | undefined): VacantesIdioma[] {
+    if (!ids || ids.length === 0) {
+      return [];
     }
+    return ids.map(id_idioma => ({ idioma: { id_idioma } } as VacantesIdioma));
+  }
 
-    if (vacanteHabilidades && vacanteHabilidades.length > 0) { // 7
-      nuevaVacante.vacanteHabilidades = vacanteHabilidades.map( // 8
-        (id_habilidad) =>
-          ({
-            habilidades: { id_habilidad },
-          }) as any,
-      );
+  private mapearHabilidades(ids: string[] | undefined): VacanteHabilidade[] {
+    if (!ids || ids.length === 0) {
+      return [];
     }
-
-    return await this.vacanteRepository.save(nuevaVacante); // 9
+    return ids.map(id_habilidad => ({ habilidades: { id_habilidad } } as VacanteHabilidade));
   }
 
   findAll() {
@@ -74,21 +64,21 @@ export class VacantesService {
         'vacantesIdiomas.idioma',
       ],
     });
-    const vacantesFormateadas = vacantesReslt.map(
+    return vacantesReslt.map(
       ({ vacantesIdiomas, vacanteHabilidades, ...v }) => ({
         ...v,
-        idiomas: vacantesIdiomas?.map((vi) => vi.idioma.nombre) ?? [],
+        idiomas: vacantesIdiomas?.map(vi => vi.idioma.nombre) ?? [],
         habilidades:
-          vacanteHabilidades?.map((vh) => vh.habilidades.nombre_habilidad) ??[],
+          vacanteHabilidades?.map(vh => vh.habilidades.nombre_habilidad) ?? [],
       }),
     );
-    return vacantesFormateadas;
+
   }
 
   async getVacantes(postulanteId: string) {
     const vacantesExcluidas =
       await this.interaccionService.isFilteredVacantes(postulanteId);
-    console.log('desde vacante', vacantesExcluidas);
+    const LIMITE = 5;
     const vacantes = this.vacanteRepository
       .createQueryBuilder('vacante')
       .leftJoinAndSelect('vacante.empresa', 'empresa')
@@ -96,7 +86,7 @@ export class VacantesService {
       .leftJoinAndSelect('vacanteHabilidades.habilidades', 'habilidades')
       .leftJoinAndSelect('vacante.vacantesIdiomas', 'vacantesIdiomas')
       .leftJoinAndSelect('vacantesIdiomas.idioma', 'idioma')
-      .limit(5);
+      .limit(LIMITE);
     if (vacantesExcluidas?.length > 0) {
       vacantes.andWhere('vacante.id_vacante NOT IN (:...excluidas)', {
         excluidas: vacantesExcluidas,
@@ -105,34 +95,16 @@ export class VacantesService {
 
     const vacantesResult = await vacantes.getMany();
 
-    const vacantesFormateadas = vacantesResult.map(
+    return vacantesResult.map(
       ({ vacantesIdiomas, vacanteHabilidades, ...v }) => ({
         ...v,
-        idiomas: vacantesIdiomas?.map((vi) => vi.idioma.nombre) ?? [],
+        idiomas: vacantesIdiomas?.map(vi => vi.idioma.nombre) ?? [],
         habilidades:
-          vacanteHabilidades?.map((vh) => vh.habilidades.nombre_habilidad) ??
+          vacanteHabilidades?.map(vh => vh.habilidades.nombre_habilidad) ??
           [],
       }),
     );
-
-    console.log(
-      'Vacantes obtenidas:',
-      vacantesResult,
-      'Vacantes formateadas:',
-      vacantesFormateadas,
-    );
-    return vacantesFormateadas;
   }
-
-  /*sync getEmpresaOfVacante(vacanteId: string){
-    return this.vacanteRepository.findOne({
-      select:{empresa:{id:true}},
-      where:{
-        id_vacante:vacanteId
-      },
-      relations: ['empresa'],
-    })
-  }*/
 
   async update(id: string, updateVacanteDto: UpdateVacanteDto) {
 
@@ -149,7 +121,7 @@ export class VacantesService {
     Object.assign(vacante, vacanteData);
     if (vacanteHabilidades) {
       vacante.vacanteHabilidades = vacanteHabilidades.map(
-        (id_habilidad) =>
+        id_habilidad =>
           ({
             habilidades: { id_habilidad },
           }) as any
@@ -157,14 +129,14 @@ export class VacantesService {
     }
     if (vacantesIdiomas) {
       vacante.vacantesIdiomas = vacantesIdiomas.map(
-        (id_idioma) =>
+        id_idioma =>
           ({
             idioma: { id_idioma },
           }) as any
       );
     }
 
-    return await this.vacanteRepository.save(vacante);
+    return this.vacanteRepository.save(vacante);
   }
 
   remove(id: number) {

@@ -1,13 +1,12 @@
 <section class="card-options">
   <div class="options">
-    <div class="optionButton" (click)="sidebarActivated()">
+    <button class="optionButton" type="button" (click)="sidebarActivated()" (keydown.enter)="sidebarActivated()"
+      (keydown.space)="sidebarActivated()">
       <i class="fa-solid fa-message icons"></i>
-    </div>
-
+    </button>
     <div class="optionButton">
       <i class="fa-solid fa-user icons"></i>
     </div>
-
     <div class="optionButton">
       <i class="fa-solid fa-gear icons"></i>
     </div>

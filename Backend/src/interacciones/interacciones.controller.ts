@@ -3,14 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
-  NotFoundException,
+  Param
 } from '@nestjs/common';
 import { InteraccionesService } from './interacciones.service';
 import { CreateInteraccioneDto } from './dto/create-interaccione.dto';
-import { UpdateInteraccioneDto } from './dto/update-interaccione.dto';
 
 @Controller('interacciones')
 export class InteraccionesController {
@@ -32,32 +28,14 @@ export class InteraccionesController {
   }
 
   @Get('check-match/:postulanteId/:vacanteId') 
-  async checkMatch(
+  checkMatch(
     @Param('postulanteId') postulanteId: string,
     @Param('vacanteId') vacanteId: string, 
   ) {
     
-    const interaccion = await this.interaccionesService.findOne(
-      postulanteId,
+    return this.interaccionesService.findOne(
       vacanteId,
+      postulanteId,
     );
-
-    return interaccion;
   }
-
-
-  /*@Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.interaccionesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInteraccioneDto: UpdateInteraccioneDto) {
-    return this.interaccionesService.update(+id, updateInteraccioneDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.interaccionesService.remove(+id);
-  }*/
 }

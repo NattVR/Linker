@@ -69,12 +69,12 @@ a:hover {
 
 .step.active .step-number {
   background: #fdfdfd;
-  color: #6366f1;
+  color: #4345c8;
   box-shadow: 0 4px 12px rgba(37, 38, 39, 0.4);
 }
 
 .step.completed .step-number {
-  background: #20b440;
+  background: #177a2e;
   color: white;
 }
 

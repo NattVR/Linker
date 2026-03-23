@@ -1,94 +1,130 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { CreateInteraccioneDto } from './dto/create-interaccione.dto';
 import { Interaccion, TipoInteraccion } from './entities/interacciones.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MatchesService } from 'src/matches/matches.service';
 import { CreateMatchDto } from 'src/matches/dto/create-match.dto';
+import { Logger } from 'winston';
 
 @Injectable()
 export class InteraccionesService {
+  /* istanbul ignore next */
   constructor(
     @InjectRepository(Interaccion)
     private readonly interaccionRepository: Repository<Interaccion>,
-    //private readonly vacantesService : VacantesService,
     private readonly matchService: MatchesService,
+    @Inject(WINSTON_MODULE_PROVIDER)
+    private readonly logger: Logger,
   ) {}
 
-  async createInteraction(createInteraccioneDto: CreateInteraccioneDto) {
+  async createInteraction(
+    createInteraccioneDto: CreateInteraccioneDto,
+  ): Promise<Interaccion> {
     const { postulante, vacante, accion_empresa, accion_postulante, empresa } =
-      createInteraccioneDto;
+      createInteraccioneDto; // 1
 
-    const interaccionExistente = await this.findOne(vacante, postulante);
+    const interaccionExistente = await this.findOne(vacante, postulante); //2 
 
-    if (!interaccionExistente) {
-      const interaccion = this.interaccionRepository.create({
-        accionEmpresa: accion_empresa,
-        accionPostulante: accion_postulante,
-        vacante: { id_vacante: vacante },
-        postulante: { id: postulante },
-      });
+    if (!interaccionExistente) { // 3
+      return this.crearNuevaInteraccion( // 4
+        vacante,
+        postulante,
+        accion_empresa,
+        accion_postulante,
+      );
+    }
 
-      await this.interaccionRepository.save(interaccion);
-      //await this.isMatch(empresa, vacante, postulante);
-      return interaccion;
+    return this.actualizarInteraccionExistente( // 5
+      interaccionExistente,
+      accion_empresa,
+      accion_postulante,
+      empresa,
+      vacante,
+      postulante,
+    );
+  }
 
-    } else {
-      // 2. Aplicar la nueva acción SOLO si está definida en el DTO (es decir, fue enviada)
-      if (accion_empresa !== null) {
-        interaccionExistente.accionEmpresa = accion_empresa;
-      }
+  private async crearNuevaInteraccion(
+    vacanteId: string,
+    postulanteId: string,
+    accionEmpresa: TipoInteraccion,
+    accionPostulante: TipoInteraccion,
+  ): Promise<Interaccion> {
+    const interaccion = this.interaccionRepository.create({ // 1
+      accionEmpresa,
+      accionPostulante,
+      vacante: { id_vacante: vacanteId },
+      postulante: { id: postulanteId },
+    });
 
-      if (accion_postulante !== null) {
-        interaccionExistente.accionPostulante = accion_postulante;
-      }
+    await this.interaccionRepository.save(interaccion); // 2
+    return interaccion; // 3
+  }
 
-      await this.interaccionRepository.save(interaccionExistente);
-      await this.isMatch(empresa, vacante, postulante);
-      return;
+  private async actualizarInteraccionExistente(
+    interaccion: Interaccion,
+    accionEmpresa: TipoInteraccion | undefined,
+    accionPostulante: TipoInteraccion | undefined,
+    empresaId: string,
+    vacanteId: string,
+    postulanteId: string,
+  ): Promise<Interaccion> {
+    this.aplicarAcciones(interaccion, accionEmpresa, accionPostulante); // 1
+
+    await this.interaccionRepository.save(interaccion); // 2
+    await this.isMatch(vacanteId, postulanteId); // 3
+
+    return interaccion; // 4
+  }
+
+  private aplicarAcciones(
+    interaccion: Interaccion,
+    accionEmpresa: TipoInteraccion | undefined,
+    accionPostulante: TipoInteraccion | undefined,
+  ): void {
+    if (accionEmpresa != null) { // 1
+      interaccion.accionEmpresa = accionEmpresa; // 2
+    }
+    if (accionPostulante != null) { // 3
+      interaccion.accionPostulante = accionPostulante; // 4
     }
   }
 
-  async isMatch(empresaId: string, vacanteId: string, postulanteId: string) {
+  async isMatch(vacanteId: string, postulanteId: string): Promise<void> {
     const interaccionExistente = await this.findOne(vacanteId, postulanteId);
 
     if (interaccionExistente) {
       if (
-        interaccionExistente.accionEmpresa === 'like' &&
-        interaccionExistente.accionPostulante === 'like'
+        interaccionExistente.accionEmpresa === TipoInteraccion.LIKE &&
+        interaccionExistente.accionPostulante === TipoInteraccion.LIKE
       ) {
         const match: CreateMatchDto = {
-          //empresa: { id: empresaId },
           vacante: { id_vacante: vacanteId },
           postulante: { id: postulanteId },
         };
         await this.matchService.create(match);
-        console.log('es un match', match);
+        this.logger.info('Se ha creado un match');
       }
-    }else{
-    console.log('no hay match');
+    } else {
+      this.logger.info('No se ha creado un match');
     }
   }
 
-  async findOne(vacanteId: string, postulanteId: string) {
+  async findOne(vacanteId: string, postulanteId: string): Promise<Interaccion | null> {
     const interaccion = await this.interaccionRepository.findOne({
-      //select:{postulante:{id:true}, vacante:{id_vacante:true}},
       where: {
         vacante: { id_vacante: vacanteId },
         postulante: { id: postulanteId },
       },
-      //relations:['vacante', 'postulante']
       loadRelationIds: true,
     });
-    console.log(interaccion);
-    //if (!interaccion) {
-      //console.log('no existe');
-    //} else {
-      //console.log('hay relacion');}
+    this.logger.info(`Buscando interacción para vacante ${vacanteId} y postulante ${postulanteId}`);
     return interaccion;
   }
 
-  async isFilteredVacantes(postulanteId: string) {
+  async isFilteredVacantes(postulanteId: string): Promise<string[]> {
     const filter = await this.interaccionRepository.find({
       where: [
         {
@@ -125,13 +161,13 @@ export class InteraccionesService {
       relations: ['vacante', 'postulante'],
     });
     const vacantesExcluidas = Array.from(
-      new Set(filter.map((i) => i.vacante.id_vacante)),
+      new Set(filter.map(i => i.vacante.id_vacante)),
     );
-    console.log(vacantesExcluidas);
+    this.logger.info(`Vacantes excluidas para postulante ${postulanteId}: ${vacantesExcluidas.join(', ')}`);
     return vacantesExcluidas;
   }
 
-  async isFilteredPostulantes(vacanteId: string) {
+  async isFilteredPostulantes(vacanteId: string): Promise<string[]> {
     const filter = await this.interaccionRepository.find({
       where: [
         {
@@ -168,9 +204,8 @@ export class InteraccionesService {
       relations: ['vacante', 'postulante'],
     });
 
-    const postulantesExcluidos = Array.from(
-      new Set(filter.map((i) => i.postulante.id)),
+    return Array.from(
+      new Set(filter.map(i => i.postulante.id)),
     );
-    return postulantesExcluidos;
   }
 }

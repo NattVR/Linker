@@ -2,5 +2,5 @@ projectKey=linker-front
 serverUrl=http://localhost:9000
 serverVersion=26.3.0.120487
 dashboardUrl=http://localhost:9000/dashboard?id=linker-frontend
-ceTaskId=ffb0716f-286e-4e56-8bdc-7c787cd1e360
-ceTaskUrl=http://localhost:9000/api/ce/task?id=ffb0716f-286e-4e56-8bdc-7c787cd1e360
+ceTaskId=764ca89e-e5f7-46a7-a96f-59a198654ce5
+ceTaskUrl=http://localhost:9000/api/ce/task?id=764ca89e-e5f7-46a7-a96f-59a198654ce5
