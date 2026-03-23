@@ -11,10 +11,10 @@ export class EmpresaService {
   // 1
   constructor(
     @InjectRepository(Empresa)
-    private empresaRepository: Repository<Empresa>,
+    private readonly empresaRepository: Repository<Empresa>,
 
     @InjectRepository(User)
-    private usuarioRepository: Repository<User>,
+    private readonly usuarioRepository: Repository<User>,
   ) {}
 
   findAll() {
@@ -53,30 +53,29 @@ export class EmpresaService {
     const empresa = await this.empresaRepository.findOne({
       where: { user: { id } },
     });
-    if (!empresa) {
+    if (empresa) {
+    return empresa}
+    else{
       return null;
     }
-    else{
-    return empresa}
-    
   }
 
   async isEmpresa(id: string) {
     const empresa = await this.empresaRepository.findOne({
       where: { user: { id } },
     });
-    return empresa ? true : false;
+    return !!empresa;
   }
 
 
   async update(id: string, updateEmpresaDto: UpdateEmpresaDto) {
     const empresa = await this.getEmpresaById(id);
-    if (!empresa) {
-      throw new NotFoundException('Empresa no encontrada');
-    } else {
+    if (empresa) {
       const updatedEmpresa = this.empresaRepository.merge(empresa, updateEmpresaDto);
       console.log('Empresa actualizada:', updatedEmpresa);
       return this.empresaRepository.save(updatedEmpresa);
+    } else {
+      throw new NotFoundException('Empresa no encontrada');
     }
 }
 }

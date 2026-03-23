@@ -1,6 +1,4 @@
-import { Component, ElementRef, inject, QueryList, ViewChildren } from '@angular/core';
-import { FilterService } from '../../../services/filter/filter-service';
-import { Perfil } from '../../../shared/services/perfil';
+import { Component, ElementRef, inject, QueryList, ViewChildren} from '@angular/core';
 import { Match } from '../../../shared/services/match';
 import { Auth } from '../../../shared/services/auth';
 import { Alerts } from '../../../shared/services/alerts';
@@ -12,13 +10,10 @@ import { Alerts } from '../../../shared/services/alerts';
   styleUrl: './swipe-empresa.css'
 })
 export class SwipeEmpresa {
-  filter = inject(FilterService);
-  profile = inject(Perfil);
-  match = inject(Match);
-  auth = inject(Auth);
-  alerts = inject(Alerts)
-
-  userType = this.auth.getUserType();
+  private readonly match = inject(Match);
+  private readonly auth = inject(Auth);
+  private readonly alerts = inject(Alerts);
+  readonly userType = this.auth.getUserType();
 
   list: Postulante[] =[
       /*{id: '1',
@@ -35,111 +30,111 @@ export class SwipeEmpresa {
   start = 0;
   current_position = 0;
   isDragging = false;
-
-  ngOnInit(): void {
-    console.log('Swipe Component Initialized');
-    // 1. Llamada a getCards al inicio del componente
-    //this.getCards();
-    console.log(this.list)
-  }
-
+  private isProcessing    = false; 
 
   @ViewChildren('card') cardElement!: QueryList<ElementRef<HTMLDivElement>>;
 
-  onPointerDown(event: PointerEvent) {
+  private get firstCard(): HTMLDivElement {
+    return this.cardElement.first.nativeElement;
+  }
+
+  onPointerDown(event: PointerEvent):void {
+    if (this.isProcessing) return;
     this.start = event.clientX;
     this.isDragging = true;
-    //console.log('se ha tocaod ', this.start);
+    this.firstCard.style.transition = 'none'; // evita delay al arrastrar
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
   }
 
-  onPointerMove(event: PointerEvent) {
-    //console.log('point_move');
-    if (!this.isDragging) return;
-    //console.log('inicio', this.start);
+  onPointerMove(event: PointerEvent) : void{
+    if (!this.isDragging || this.isProcessing) return;
     this.current_position = event.clientX - this.start;
-    //console.log('Evento', event.clientX);
-    //console.log('currentposition', this.current_position);
-
-    const card = this.cardElement.first.nativeElement;
-    card.style.transform = `translateX(${this.current_position}px) rotate(${
-      this.current_position / 20
-    }deg)`;
+    this.applyCardTransform(this.current_position);
   }
 
-
-
-
-
-  onPointerUp(postulante:Postulante) {
-    if (!this.isDragging) return;
-    const card = this.cardElement.first.nativeElement;
+  onPointerUp(event:PointerEvent,postulante:Postulante){
+    if (!this.isDragging || this.isProcessing) return;
+    
+    (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
     //console.log(card)
     if (Math.abs(this.current_position) < 110) {
-      card.style.transition = 'transform 0.4s cubic-bezier(0.25, 1.25, 0.5, 1)';
-      card.style.transform = 'translateX(0px) rotate(0deg)';
-      card.classList.remove('grabbing');
-      this.isDragging = false;
-      this.current_position = 0;
-      return;
+      this.resetCard();
+
     } else if (this.current_position < 0) {
-      const interaccion: Interaccion = {
-      accion_empresa: 'dislike',
-      vacante: sessionStorage.getItem('vacante') || '',
-      postulante: postulante.id,
-      empresa: sessionStorage.getItem('perfilId') || ''
-      };
-      console.log(interaccion)
-      this.match.onAction(interaccion).subscribe({
-      next: () => console.log('Dislike enviado:', interaccion),
-      error: (err) => console.error('Error al enviar dislike:', err)
-      });
-    
+      this.isProcessing = true
+      this.enviarInteraccion(postulante.id,'dislike')
+
     } else {
-      const interaccion: Interaccion = {
-      accion_empresa: 'like',
-      vacante: sessionStorage.getItem('vacante') || '',
-      postulante: postulante.id,
-      empresa: sessionStorage.getItem('perfilId') || ''
-      };
-      console.log(interaccion)
-      this.match.onAction(interaccion).subscribe({
-      next: () => console.log('like enviado:', interaccion),
-      error: (err) => console.error('Error al enviar like:', err)
-      });
+      this.isProcessing = true
+      this.enviarInteraccion(postulante.id, 'like')
     }
-
-    this.list.shift(); // Elimina la carta en la  que estoy parada
-
-    this.isDragging = false;
-    this.current_position = 0;
   }
 
+   private applyCardTransform(x: number): void {
+    const opacity = Math.max(0.6, 1 - Math.abs(x) / 500);
+    this.firstCard.style.transform = `translateX(${x}px) rotate(${x / 20}deg)`;
+    this.firstCard.style.opacity   = `${opacity}`;
+   }
 
+  private resetCard(): void {
+    this.firstCard.style.transition = 'transform 0.4s cubic-bezier(0.25, 1.25, 0.5, 1)';
+    this.firstCard.style.transform  = 'translateX(0px) rotate(0deg)';
+    this.firstCard.style.opacity    = '1';
+    this.resetDragState();
+  }
 
+  private nextCard(): void {
+    this.list.shift()
+    this.resetDragState();
+  }
 
+  private resetDragState(): void {
+    this.isDragging       = false;
+    this.current_position = 0;
+    this.isProcessing= false
+  }
 
+    private enviarInteraccion(postulanteId: string, accion: 'like' | 'dislike'): void {
+    const vacanteId = sessionStorage.getItem('vacante'); // ← leer aquí, no del readonly
+    const empresaId = sessionStorage.getItem('perfilId');
+  
+    console.log('vacanteId:', vacanteId);
+    console.log('empresaId:', empresaId);
+    console.log('postulanteId:', postulanteId);
+    console.log('accion',accion)
+
+    const interaccion: Interaccion = {
+      accion_empresa:accion,
+      vacante:vacanteId!,
+      postulante:postulanteId,
+      empresa:empresaId!,
+    };
+
+    console.log('interaccio', interaccion)
+    this.match.onAction(interaccion).subscribe({
+      next:(response:any)=>{
+        this.alerts.info(response);
+        this.nextCard()
+      },
+      error: () => {
+        this.alerts.error(`Error al enviar ${accion}`);
+        this.isProcessing =false;
+      } 
+    });
+  }
 
   getCards() {
     let vacante = sessionStorage.getItem('vacante') // 3
-    if(vacante){ // 4
+    console.log('vacante en getCards:', sessionStorage.getItem('vacante'))
+    if(vacante){
       this.match.getPostulantes(vacante).subscribe({ // 5
         next: (data: Postulante[]) => {
-          this.list = data; // 6
-          console.log('empresa',data) // 7
-          console.log(this.list); // 8
+          this.list = data; 
         },
-        error: (err: any) => {
-          console.log(err); // 9
+        error: () => {
           this.alerts.info('No hay mas postulantes para la vacante') // 10
         },
       });
     }
-    else{
-      this.alerts.warning('Selecciona una vacante') // 11
-    }
-  }
-
-  filterActivated() {
-    this.filter.Switch();
   }
 }

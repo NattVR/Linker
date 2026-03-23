@@ -1,4 +1,4 @@
-projectKey=linker-frontend
+projectKey=linker-front
 serverUrl=http://localhost:9000
 serverVersion=26.3.0.120487
 dashboardUrl=http://localhost:9000/dashboard?id=linker-frontend

@@ -7,12 +7,14 @@
   }
   @else{
 
-  @for(p of list; track p.id) {
+  @for (p of list; track p.id; let index = $index) {
   <div class="cards"
        #card
+       [class.top-card]="index === 0"
+       [style.z-index]="list.length - index"
        (pointerdown)="onPointerDown($event)"
        (pointermove)="onPointerMove($event)"
-       (pointerup)="onPointerUp(p)"
+       (pointerup)="onPointerUp($event,p)"
        >
 
     <div class="card-content">

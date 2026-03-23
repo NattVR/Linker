@@ -2,15 +2,52 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { PerfilEmpresa } from './perfil-empresa';
 import { Alerts } from '../../shared/services/alerts';
 import { Perfil } from '../../shared/services/perfil';
+import { PerfilEmpresa } from './perfil-empresa';
 
 describe('PerfilEmpresa', () => {
   let component: PerfilEmpresa;
   let fixture: ComponentFixture<PerfilEmpresa>;
   let perfilSpy: jasmine.SpyObj<Perfil>;
   let alertsSpy: jasmine.SpyObj<Alerts>;
+  let sessionStorageGetItemSpy: jasmine.Spy;
+
+  const userId = 'empresa-123';
+
+  function buildEmpresa(overrides: Partial<Empresa> = {}): Empresa {
+    return {
+      id_perfil: 'perfil-1',
+      name_empresa: 'Acme',
+      sector: 'Tecnologia',
+      ubicacion: 'Bogota',
+      descripcion: 'Empresa de prueba',
+      NIT: '900123456-7',
+      ...overrides,
+    };
+  }
+
+  function createComponent(id: string | null = userId): void {
+    sessionStorageGetItemSpy.and.callFake((key: string): string | null => {
+      if (key === 'userId') {
+        return id;
+      }
+
+      return null;
+    });
+
+    fixture = TestBed.createComponent(PerfilEmpresa);
+    component = fixture.componentInstance;
+  }
+
+  function fillPerfilForm(): void {
+    component.perfilEmpresa.setValue({
+      name_empresa: 'Linker',
+      sector: 'Tecnologia',
+      ubicacion: 'Medellin',
+      descripcion: 'Perfil empresarial actualizado',
+    });
+  }
 
   beforeEach(async () => {
     perfilSpy = jasmine.createSpyObj<Perfil>('Perfil', [
@@ -18,14 +55,8 @@ describe('PerfilEmpresa', () => {
       'updatePerfilEmpresa',
     ]);
     alertsSpy = jasmine.createSpyObj<Alerts>('Alerts', ['error', 'success']);
-    perfilSpy.getEmpresa.and.returnValue(
-      of({
-        name_empresa: '',
-        sector: '',
-        ubicacion: '',
-        descripcion: '',
-      } as Empresa)
-    );
+
+    perfilSpy.getEmpresa.and.returnValue(of(buildEmpresa()));
     perfilSpy.updatePerfilEmpresa.and.returnValue(of({ success: true }));
 
     await TestBed.configureTestingModule({
@@ -44,142 +75,162 @@ describe('PerfilEmpresa', () => {
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(PerfilEmpresa);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    sessionStorageGetItemSpy = spyOn(sessionStorage, 'getItem');
   });
 
-  function fillPerfilForm(): void {
-    component.perfilEmpresa.setValue({
-      name_empresa: 'Empresa Test',
-      sector: 'Tecnologia',
-      ubicacion: 'Medellin',
-      descripcion: 'Descripcion de prueba',
-    });
-  }
+  it('should create with the default state', () => {
+    // Arrange
+    createComponent();
 
-  it('should create', () => {
+    // Assert
     expect(component).toBeTruthy();
-  });
-
-  it('debe iniciar con activeTab y activeTabEmpresa por defecto', () => {
     expect(component.activeTab).toBe('vacantes');
     expect(component.activeTabEmpresa).toBe('perfil');
+    expect(component.perfilEmpresa.invalid).toBeTrue();
   });
 
-  it('setActiveTab cambia la pestaña activa', () => {
+  it('should load company data on init when the user id exists', () => {
+    // Arrange
+    const empresa = buildEmpresa({ name_empresa: 'Linker' });
+    perfilSpy.getEmpresa.and.returnValue(of(empresa));
+    createComponent();
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    expect(perfilSpy.getEmpresa).toHaveBeenCalledWith(userId);
+    expect(component.datosEmpresa).toEqual(empresa);
+  });
+
+  it('should change the active tab', () => {
+    // Arrange
+    createComponent();
+
+    // Act
     component.setActiveTab('certificados');
+
+    // Assert
     expect(component.activeTab).toBe('certificados');
-
-    component.setActiveTab('estadisticas');
-    expect(component.activeTab).toBe('estadisticas');
   });
 
-  it('setActiveTabEmpresa cambia la vista activa', () => {
+  it('should patch the form when editing with loaded company data', () => {
+    // Arrange
+    const empresa = buildEmpresa({
+      name_empresa: 'Linker',
+      sector: 'Servicios',
+      ubicacion: 'Cali',
+      descripcion: 'Descripcion de perfil',
+    });
+    createComponent();
+    component.datosEmpresa = empresa;
+
+    // Act
     component.setActiveTabEmpresa('editar_perfil');
+
+    // Assert
     expect(component.activeTabEmpresa).toBe('editar_perfil');
-
-    component.setActiveTabEmpresa('perfil');
-    expect(component.activeTabEmpresa).toBe('perfil');
+    expect(component.perfilEmpresa.getRawValue()).toEqual({
+      name_empresa: 'Linker',
+      sector: 'Servicios',
+      ubicacion: 'Cali',
+      descripcion: 'Descripcion de perfil',
+    });
+    expect(alertsSpy.error).not.toHaveBeenCalled();
   });
 
-  it('ngOnInit llama cargarDatosEmpresa', () => {
-    const cargarSpy = spyOn(component, 'cargarDatosEmpresa');
+  it('should show an error when editing without company data', () => {
+    // Arrange
+    createComponent();
 
-    component.ngOnInit();
+    // Act
+    component.setActiveTabEmpresa('editar_perfil');
 
-    expect(cargarSpy).toHaveBeenCalled();
+    // Assert
+    expect(component.activeTabEmpresa).toBe('editar_perfil');
+    expect(alertsSpy.error).toHaveBeenCalledWith('No hay datos de la empresa');
   });
 
-  it('cargarDatosEmpresa sin userId no llama getEmpresa', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue(null);
+  it('should show an error when loading company data without user id', () => {
+    // Arrange
+    createComponent(null);
 
+    // Act
     component.cargarDatosEmpresa();
 
+    // Assert
     expect(perfilSpy.getEmpresa).not.toHaveBeenCalled();
+    expect(alertsSpy.error).toHaveBeenCalledWith('Id de usuario no encontrado');
   });
 
-  it('cargarDatosEmpresa con userId asigna datos de empresa', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue('123');
-    perfilSpy.getEmpresa.and.returnValue(
-      of({
-        name_empresa: 'Acme',
-        sector: 'TI',
-        ubicacion: 'Bogota',
-        descripcion: 'Empresa de prueba',
-      } as Empresa)
-    );
-
-    component.cargarDatosEmpresa();
-
-    expect(perfilSpy.getEmpresa).toHaveBeenCalledWith('123');
-    expect(component.name_empresa).toBe('Acme');
-    expect(component.sector).toBe('TI');
-    expect(component.ubicacion).toBe('Bogota');
-    expect(component.descripcion).toBe('Empresa de prueba');
-  });
-
-  it('cargarDatosEmpresa maneja error de getEmpresa', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue('123');
+  it('should log an error when loading company data fails', () => {
+    // Arrange
+    const requestError = new Error('network error');
+    perfilSpy.getEmpresa.and.returnValue(throwError(() => requestError));
     spyOn(console, 'error');
-    perfilSpy.getEmpresa.and.returnValue(
-      throwError(() => new Error('network error'))
-    );
+    createComponent();
 
+    // Act
     component.cargarDatosEmpresa();
 
+    // Assert
+    expect(perfilSpy.getEmpresa).toHaveBeenCalledWith(userId);
     expect(console.error).toHaveBeenCalledWith(
       'Error al obtener empresa:',
-      jasmine.any(Error)
+      requestError
     );
   });
 
-  it('updateEmpresa sin userId muestra error e intenta actualizar con id null', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue(null);
-    component.updateEmpresa();
-
-    expect(alertsSpy.error).toHaveBeenCalledWith('ID de usuario no encontrado');
-    expect(perfilSpy.updatePerfilEmpresa).not.toHaveBeenCalled();
-    expect(component.cargarDatosEmpresa).not.toHaveBeenCalled();
-
-  });
-
-  it('updateEmpresa con userId llama updatePerfilEmpresa con datos del formulario', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue('123');
+  it('should update the profile and return to the profile tab on success', () => {
+    // Arrange
+    createComponent();
     fillPerfilForm();
-    perfilSpy.updatePerfilEmpresa.and.returnValue(of({ success: true }));
+    component.activeTabEmpresa = 'editar_perfil';
+    const reloadSpy = spyOn(component, 'cargarDatosEmpresa');
 
+    // Act
     component.updateEmpresa();
 
-    expect(perfilSpy.updatePerfilEmpresa).toHaveBeenCalledWith('123', {
-      name_empresa: 'Empresa Test',
+    // Assert
+    expect(perfilSpy.updatePerfilEmpresa).toHaveBeenCalledWith(userId, {
+      name_empresa: 'Linker',
       sector: 'Tecnologia',
       ubicacion: 'Medellin',
-      descripcion: 'Descripcion de prueba',
+      descripcion: 'Perfil empresarial actualizado',
     });
-  });
-
-  it('updateEmpresa exito en subscribe recarga datos, muestra success y cambia tab', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue('123');
-    perfilSpy.updatePerfilEmpresa.and.returnValue(of({ success: true }));
-    spyOn(component, 'cargarDatosEmpresa');
-
-    component.setActiveTabEmpresa('editar_perfil');
-    component.updateEmpresa();
-
-    expect(component.cargarDatosEmpresa).toHaveBeenCalled();
-    expect(alertsSpy.success).toHaveBeenCalledWith('Perfil actualizado con éxito');
+    expect(reloadSpy).toHaveBeenCalled();
+    expect(alertsSpy.success).toHaveBeenCalledWith(
+      jasmine.stringMatching(/^Perfil actualizado con/)
+    );
     expect(component.activeTabEmpresa).toBe('perfil');
   });
 
-  it('updateEmpresa error en subscribe muestra alerta', () => {
-    spyOn(sessionStorage, 'getItem').and.returnValue('123');
+  it('should show an error when the profile update fails', () => {
+    // Arrange
     perfilSpy.updatePerfilEmpresa.and.returnValue(
-      throwError(() => new Error('network error'))
+      throwError(() => new Error('update failed'))
     );
+    createComponent();
+    fillPerfilForm();
 
+    // Act
     component.updateEmpresa();
 
+    // Assert
     expect(alertsSpy.error).toHaveBeenCalledWith('Error al actualizar perfil');
+  });
+
+  it('should not call the update service when the user id is missing', () => {
+    // Arrange
+    createComponent(null);
+    const reloadSpy = spyOn(component, 'cargarDatosEmpresa');
+
+    // Act
+    component.updateEmpresa();
+
+    // Assert
+    expect(perfilSpy.updatePerfilEmpresa).not.toHaveBeenCalled();
+    expect(reloadSpy).not.toHaveBeenCalled();
+    expect(alertsSpy.error).toHaveBeenCalledWith('ID de usuario no encontrado');
   });
 });

@@ -1,441 +1,390 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { SwipeEmpresa } from './swipe-empresa';
-import { FilterService } from '../../../services/filter/filter-service';
-import { Perfil } from '../../../shared/services/perfil';
 import { Match } from '../../../shared/services/match';
 import { Auth } from '../../../shared/services/auth';
 import { Alerts } from '../../../shared/services/alerts';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-//NAT
 describe('SwipeEmpresa', () => {
   let component: SwipeEmpresa;
   let fixture: ComponentFixture<SwipeEmpresa>;
-
-  let filterSpy: jasmine.SpyObj<FilterService>;
-  let perfilSpy: jasmine.SpyObj<Perfil>;
   let matchSpy: jasmine.SpyObj<Match>;
   let authSpy: jasmine.SpyObj<Auth>;
   let alertsSpy: jasmine.SpyObj<Alerts>;
+  let sessionStorageGetItemSpy: jasmine.Spy;
+  let sessionValues: Record<string, string | null>;
 
-  let fakeCard: {
-    style: { transform: string; transition: string };
-    classList: { remove: jasmine.Spy };
-  };
+  function buildPostulante(overrides: Partial<Postulante> = {}): Postulante {
+    return {
+      id: 'post-1',
+      name: 'Juan',
+      lastname: 'Perez',
+      anos_experiencia: 3,
+      curriculum: '#',
+      foto: 'https://example.com/foto.jpg',
+      ubicacion: 'Bogota',
+      habilidades: ['Angular'],
+      idiomas: ['Espanol'],
+      ...overrides,
+    };
+  }
 
-  function setCardElementMock(): void {
-    component.cardElement = {
-      first: { nativeElement: fakeCard },
-    } as any;
+  function renderCards(postulantes: Postulante[]): HTMLDivElement[] {
+    component.list = postulantes;
+    fixture.detectChanges();
+
+    return Array.from(
+      fixture.nativeElement.querySelectorAll('.cards')
+    ) as HTMLDivElement[];
+  }
+
+  function getTopCard(): HTMLDivElement {
+    return fixture.nativeElement.querySelector('.cards') as HTMLDivElement;
+  }
+
+  function createPointerTarget(): jasmine.SpyObj<HTMLElement> {
+    return jasmine.createSpyObj<HTMLElement>('pointerTarget', [
+      'setPointerCapture',
+      'releasePointerCapture',
+    ]);
+  }
+
+  function createPointerEvent(
+    clientX: number,
+    currentTarget: unknown
+  ): PointerEvent {
+    return {
+      clientX,
+      pointerId: 1,
+      currentTarget,
+    } as PointerEvent;
   }
 
   beforeEach(async () => {
-    filterSpy = jasmine.createSpyObj<FilterService>('FilterService', ['Switch']);
-    perfilSpy = jasmine.createSpyObj<Perfil>('Perfil', ['getEmpresa']);
     matchSpy = jasmine.createSpyObj<Match>('Match', ['onAction', 'getPostulantes']);
     authSpy = jasmine.createSpyObj<Auth>('Auth', ['getUserType']);
-    alertsSpy = jasmine.createSpyObj<Alerts>('Alerts', ['info', 'warning']);
+    alertsSpy = jasmine.createSpyObj<Alerts>('Alerts', ['info', 'error']);
 
     authSpy.getUserType.and.returnValue(true);
-    matchSpy.onAction.and.returnValue(of({ ok: true }));
+    matchSpy.onAction.and.returnValue(of('Interaccion registrada'));
+    matchSpy.getPostulantes.and.returnValue(of([]));
+
+    spyOn(console, 'log');
 
     await TestBed.configureTestingModule({
       imports: [SwipeEmpresa],
       providers: [
-        { provide: FilterService, useValue: filterSpy },
-        { provide: Perfil, useValue: perfilSpy },
         { provide: Match, useValue: matchSpy },
         { provide: Auth, useValue: authSpy },
         { provide: Alerts, useValue: alertsSpy },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SwipeEmpresa);
-    component = fixture.componentInstance;
-
-    fakeCard = {
-      style: { transform: '', transition: '' },
-      classList: { remove: jasmine.createSpy('remove') },
+    sessionValues = {
+      vacante: 'vac-1',
+      perfilId: 'emp-1',
     };
 
+    sessionStorageGetItemSpy = spyOn(sessionStorage, 'getItem').and.callFake(
+      (key: string): string | null => sessionValues[key] ?? null
+    );
+
+    fixture = TestBed.createComponent(SwipeEmpresa);
+    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
+  it('should expose the authenticated user type', () => {
+    // Arrange
 
-  it('onPointerDown should set start and isDragging', () => {
-    const event = { clientX: 140 } as PointerEvent;
+    // Act
 
-    component.onPointerDown(event);
+    // Assert
+    expect(component.userType).toBeTrue();
+    expect(authSpy.getUserType).toHaveBeenCalled();
+  });
 
+  it('should render the refresh button when there are no cards and load postulantes on click', () => {
+    // Arrange
+    const postulantes = [
+      buildPostulante({ id: 'post-1', name: 'Ana' }),
+      buildPostulante({ id: 'post-2', name: 'Luis' }),
+    ];
+    matchSpy.getPostulantes.and.returnValue(of(postulantes));
+    const refreshButton = fixture.nativeElement.querySelector('.btn-refresh') as HTMLButtonElement;
+
+    // Act
+    refreshButton.click();
+    fixture.detectChanges();
+
+    // Assert
+    expect(refreshButton).not.toBeNull();
+    expect(sessionStorageGetItemSpy).toHaveBeenCalledWith('vacante');
+    expect(matchSpy.getPostulantes).toHaveBeenCalledWith('vac-1');
+    expect(component.list).toEqual(postulantes);
+    expect(fixture.nativeElement.querySelectorAll('.cards').length).toBe(2);
+  });
+
+  it('should render stacked cards with the first one marked as the top card', () => {
+    // Arrange
+    const cards = renderCards([
+      buildPostulante({ id: 'post-1', name: 'Ana' }),
+      buildPostulante({ id: 'post-2', name: 'Luis' }),
+    ]);
+
+    // Act
+
+    // Assert
+    expect(cards.length).toBe(2);
+    expect(cards[0].classList.contains('top-card')).toBeTrue();
+    expect(cards[0].style.zIndex).toBe('2');
+    expect(cards[1].classList.contains('top-card')).toBeFalse();
+    expect(cards[1].style.zIndex).toBe('1');
+  });
+
+  it('should start dragging from the first card on pointer down', () => {
+    // Arrange
+    renderCards([buildPostulante()]);
+    const topCard = getTopCard();
+    const target = createPointerTarget();
+
+    // Act
+    component.onPointerDown(createPointerEvent(140, target));
+
+    // Assert
     expect(component.start).toBe(140);
     expect(component.isDragging).toBeTrue();
+    expect(topCard.style.transition).toBe('none');
+    expect(target.setPointerCapture).toHaveBeenCalledWith(1);
   });
 
+  it('should ignore pointer down while an interaction is being processed', () => {
+    // Arrange
+    renderCards([buildPostulante()]);
+    const topCard = getTopCard();
+    const target = createPointerTarget();
+    topCard.style.transition = 'initial';
+    (component as any).isProcessing = true;
 
-  it('onPointerMove return sino hay cambios con not dragging', () => {
-    component.isDragging = false;
-    component.current_position = 0;
-    fakeCard.style.transform = 'initial';
+    // Act
+    component.onPointerDown(createPointerEvent(140, target));
 
-    component.onPointerMove({ clientX: 180 } as PointerEvent);
+    // Assert
+    expect(component.start).toBe(0);
+    expect(component.isDragging).toBeFalse();
+    expect(topCard.style.transition).toBe('initial');
+    expect(target.setPointerCapture).not.toHaveBeenCalled();
+  });
 
+  it('should ignore pointer move when dragging has not started', () => {
+    // Arrange
+    renderCards([buildPostulante()]);
+    const topCard = getTopCard();
+    topCard.style.transform = 'initial';
+
+    // Act
+    component.onPointerMove(createPointerEvent(180, createPointerTarget()));
+
+    // Assert
     expect(component.current_position).toBe(0);
-    expect(fakeCard.style.transform).toBe('initial');
+    expect(topCard.style.transform).toBe('initial');
   });
 
-  it('onPointerMoveupdate current position y card transform cuando hay dragging', () => {
-    setCardElementMock();
+  it('should ignore pointer move while processing an interaction', () => {
+    // Arrange
+    renderCards([buildPostulante()]);
+    const topCard = getTopCard();
+    component.isDragging = true;
+    component.start = 100;
+    topCard.style.transform = 'initial';
+    (component as any).isProcessing = true;
+
+    // Act
+    component.onPointerMove(createPointerEvent(180, createPointerTarget()));
+
+    // Assert
+    expect(component.current_position).toBe(0);
+    expect(topCard.style.transform).toBe('initial');
+  });
+
+  it('should update the card transform and opacity while dragging', () => {
+    // Arrange
+    renderCards([buildPostulante()]);
+    const topCard = getTopCard();
     component.isDragging = true;
     component.start = 100;
 
-    component.onPointerMove({ clientX: 180 } as PointerEvent);
+    // Act
+    component.onPointerMove(createPointerEvent(180, createPointerTarget()));
 
+    // Assert
     expect(component.current_position).toBe(80);
-    expect(fakeCard.style.transform).toContain('translateX(80px)');
-    expect(fakeCard.style.transform).toContain('rotate(4deg)');
+    expect(topCard.style.transform).toContain('translateX(80px)');
+    expect(topCard.style.transform).toContain('rotate(4deg)');
+    expect(Number(topCard.style.opacity)).toBeCloseTo(0.84, 2);
   });
 
-  it('onPointerUp return cuando not dragging', () => {
-    component.isDragging = false;
-    component.current_position = 150;
-    const postulante = { id: 'post-1' } as Postulante;
-
-    component.onPointerUp(postulante);
-
-    expect(matchSpy.onAction).not.toHaveBeenCalled();
-  });
-
-  it('onPointerUp reset card cuando el valor absoluto de la current_position menor a 110', () => {
-    setCardElementMock();
+  it('should reset the card when the swipe threshold is not reached', () => {
+    // Arrange
+    const [postulanteCard] = renderCards([buildPostulante()]);
+    const target = createPointerTarget();
     component.isDragging = true;
     component.current_position = 80;
-    const postulante = { id: 'post-1' } as Postulante;
 
-    component.onPointerUp(postulante);
+    // Act
+    component.onPointerUp(createPointerEvent(180, target), buildPostulante());
 
-    expect(fakeCard.style.transition).toBe('transform 0.4s cubic-bezier(0.25, 1.25, 0.5, 1)');
-    expect(fakeCard.style.transform).toBe('translateX(0px) rotate(0deg)');
-    expect(fakeCard.classList.remove).toHaveBeenCalledWith('grabbing');
+    // Assert
+    expect(postulanteCard.style.transition).toBe(
+      'transform 0.4s cubic-bezier(0.25, 1.25, 0.5, 1)'
+    );
+    expect(postulanteCard.style.transform).toBe('translateX(0px) rotate(0deg)');
+    expect(postulanteCard.style.opacity).toBe('1');
+    expect(target.releasePointerCapture).toHaveBeenCalledWith(1);
     expect(component.isDragging).toBeFalse();
     expect(component.current_position).toBe(0);
+    expect((component as any).isProcessing).toBeFalse();
     expect(matchSpy.onAction).not.toHaveBeenCalled();
   });
 
-  it('onPointerUp dislike cuando accion es negativo y remover la primera carta', () => {
-    setCardElementMock();
-    const getItemSpy = spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
-      if (key === 'vacante') return 'vac-123';
-      if (key === 'perfilId') return 'emp-456';
-      return null;
-    });
+  it('should ignore pointer up when dragging has not started', () => {
+    // Arrange
+    renderCards([buildPostulante()]);
+    const target = createPointerTarget();
+    component.current_position = 160;
 
-    component.isDragging = true;
-    component.current_position = -150;
-    component.list = [
-      { id: 'post-1' } as Postulante,
-      { id: 'post-2' } as Postulante,
-    ];
+    // Act
+    component.onPointerUp(createPointerEvent(260, target), buildPostulante());
 
-    component.onPointerUp({ id: 'post-1' } as Postulante);
-
-    expect(getItemSpy).toHaveBeenCalledWith('vacante');
-    expect(getItemSpy).toHaveBeenCalledWith('perfilId');
-    expect(matchSpy.onAction).toHaveBeenCalledWith({
-      accion_empresa: 'dislike',
-      vacante: 'vac-123',
-      postulante: 'post-1',
-      empresa: 'emp-456',
-    });
-    expect(component.list.length).toBe(1);
-    expect(component.list[0].id).toBe('post-2');
-    expect(component.isDragging).toBeFalse();
-    expect(component.current_position).toBe(0);
+    // Assert
+    expect(target.releasePointerCapture).not.toHaveBeenCalled();
+    expect(matchSpy.onAction).not.toHaveBeenCalled();
   });
 
-  it('onPointerUp accion like movimiento positivo y remover la primera carta', () => {
-    setCardElementMock();
-    spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
-      if (key === 'vacante') return 'vac-999';
-      if (key === 'perfilId') return 'emp-111';
-      return null;
-    });
-
+  it('should ignore pointer up while an interaction is already being processed', () => {
+    // Arrange
+    renderCards([buildPostulante()]);
+    const target = createPointerTarget();
     component.isDragging = true;
     component.current_position = 160;
-    component.list = [
-      { id: 'post-10' } as Postulante,
-      { id: 'post-20' } as Postulante,
-    ];
+    (component as any).isProcessing = true;
 
-    component.onPointerUp({ id: 'post-10' } as Postulante);
+    // Act
+    component.onPointerUp(createPointerEvent(260, target), buildPostulante());
 
-    expect(matchSpy.onAction).toHaveBeenCalledWith({
-      accion_empresa: 'like',
-      vacante: 'vac-999',
-      postulante: 'post-10',
-      empresa: 'emp-111',
-    });
-    expect(component.list.length).toBe(1);
-    expect(component.list[0].id).toBe('post-20');
-    expect(component.isDragging).toBeFalse();
-    expect(component.current_position).toBe(0);
+    // Assert
+    expect(target.releasePointerCapture).not.toHaveBeenCalled();
+    expect(matchSpy.onAction).not.toHaveBeenCalled();
   });
 
-  it('onPointerUp dislike cuando onAction falla no remover la carta', () => {
-    setCardElementMock();
-    const consoleErrorSpy = spyOn(console, 'error');
-    spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
-      if (key === 'vacante') return 'vac-err-1';
-      if (key === 'perfilId') return 'emp-err-1';
-      return null;
-    });
-    matchSpy.onAction.and.returnValue(throwError(() => new Error('dislike failure')));
-
+  it('should send a like interaction and remove the current card on a right swipe', () => {
+    // Arrange
+    const postulante = buildPostulante({ id: 'post-like' });
+    const siguiente = buildPostulante({ id: 'post-next' });
+    renderCards([postulante, siguiente]);
+    const target = createPointerTarget();
     component.isDragging = true;
-    component.current_position = -170;
-    component.list = [
-      { id: 'post-x1' } as Postulante,
-      { id: 'post-x2' } as Postulante,
-    ];
+    component.current_position = 160;
+    sessionValues['vacante'] = 'vac-actualizada';
+    sessionValues['perfilId'] = 'emp-actualizada';
 
-    component.onPointerUp({ id: 'post-x1' } as Postulante);
+    // Act
+    component.onPointerUp(createPointerEvent(260, target), postulante);
 
+    // Assert
+    expect(target.releasePointerCapture).toHaveBeenCalledWith(1);
+    expect(matchSpy.onAction).toHaveBeenCalledWith({
+      accion_empresa: 'like',
+      vacante: 'vac-actualizada',
+      postulante: 'post-like',
+      empresa: 'emp-actualizada',
+    });
+    expect(alertsSpy.info).toHaveBeenCalledWith('Interaccion registrada');
+    expect(component.list).toEqual([siguiente]);
+    expect(component.isDragging).toBeFalse();
+    expect(component.current_position).toBe(0);
+    expect((component as any).isProcessing).toBeFalse();
+  });
+
+  it('should send a dislike interaction and remove the current card on a left swipe', () => {
+    // Arrange
+    const postulante = buildPostulante({ id: 'post-dislike' });
+    const siguiente = buildPostulante({ id: 'post-next' });
+    renderCards([postulante, siguiente]);
+    const target = createPointerTarget();
+    component.isDragging = true;
+    component.current_position = -160;
+
+    // Act
+    component.onPointerUp(createPointerEvent(40, target), postulante);
+
+    // Assert
+    expect(target.releasePointerCapture).toHaveBeenCalledWith(1);
     expect(matchSpy.onAction).toHaveBeenCalledWith({
       accion_empresa: 'dislike',
-      vacante: 'vac-err-1',
-      postulante: 'post-x1',
-      empresa: 'emp-err-1',
+      vacante: 'vac-1',
+      postulante: 'post-dislike',
+      empresa: 'emp-1',
     });
-    expect(consoleErrorSpy).toHaveBeenCalled();
-    expect(component.list.length).toBe(2);
-    expect(component.list[0].id).toBe('post-x1');
+    expect(alertsSpy.info).toHaveBeenCalledWith('Interaccion registrada');
+    expect(component.list).toEqual([siguiente]);
     expect(component.isDragging).toBeFalse();
     expect(component.current_position).toBe(0);
+    expect((component as any).isProcessing).toBeFalse();
   });
 
-  it('onPointerUp like cuando onAction falla y no remover la primera carta', () => {
-    setCardElementMock();
-    const consoleErrorSpy = spyOn(console, 'error');
-    spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
-      if (key === 'vacante') return 'vac-err-2';
-      if (key === 'perfilId') return 'emp-err-2';
-      return null;
-    });
-    matchSpy.onAction.and.returnValue(throwError(() => new Error('like failure')));
-
+  it('should show an error and keep the current card when sending the interaction fails', () => {
+    // Arrange
+    const postulante = buildPostulante({ id: 'post-error' });
+    const siguiente = buildPostulante({ id: 'post-next' });
+    renderCards([postulante, siguiente]);
+    const target = createPointerTarget();
     component.isDragging = true;
-    component.current_position = 170;
-    component.list = [
-      { id: 'post-y1' } as Postulante,
-      { id: 'post-y2' } as Postulante,
-    ];
+    component.current_position = -160;
+    matchSpy.onAction.and.returnValue(throwError(() => new Error('fallo de red')));
 
-    component.onPointerUp({ id: 'post-y1' } as Postulante);
+    // Act
+    component.onPointerUp(createPointerEvent(40, target), postulante);
 
+    // Assert
+    expect(target.releasePointerCapture).toHaveBeenCalledWith(1);
     expect(matchSpy.onAction).toHaveBeenCalledWith({
-      accion_empresa: 'like',
-      vacante: 'vac-err-2',
-      postulante: 'post-y1',
-      empresa: 'emp-err-2',
+      accion_empresa: 'dislike',
+      vacante: 'vac-1',
+      postulante: 'post-error',
+      empresa: 'emp-1',
     });
-    expect(consoleErrorSpy).toHaveBeenCalled();
-    expect(component.list.length).toBe(2);
-    expect(component.list[0].id).toBe('post-y1');
-    expect(component.isDragging).toBeFalse();
-    expect(component.current_position).toBe(0);
+    expect(alertsSpy.error).toHaveBeenCalledWith('Error al enviar dislike');
+    expect(component.list).toEqual([postulante, siguiente]);
+    expect((component as any).isProcessing).toBeFalse();
   });
 
-  it('onPointerUp dislike con datos incompletos no llama backend', () => {
-    setCardElementMock();
-    spyOn(sessionStorage, 'getItem').and.returnValue(null);
+  it('should show an info alert when loading postulantes fails', () => {
+    // Arrange
+    matchSpy.getPostulantes.and.returnValue(
+      throwError(() => new Error('fallo de red'))
+    );
 
-    component.isDragging = true;
-    component.current_position = -140;
-    component.list = [
-      { id: 'post-z1' } as Postulante,
-      { id: 'post-z2' } as Postulante,
-    ];
+    // Act
+    component.getCards();
 
-    expect(() => component.onPointerUp({} as Postulante)).not.toThrow();
-
-    expect(matchSpy.onAction).not.toHaveBeenCalled();
-    expect(component.list.length).toBe(2);
-    expect(component.list[0].id).toBe('post-z1');
-    expect(component.isDragging).toBeFalse();
-    expect(component.current_position).toBe(0);
+    // Assert
+    expect(matchSpy.getPostulantes).toHaveBeenCalledWith('vac-1');
+    expect(alertsSpy.info).toHaveBeenCalledWith('No hay mas postulantes para la vacante');
+    expect(component.list).toEqual([]);
   });
 
-  it('onPointerUp like con datos incompletos no llama backend', () => {
-    setCardElementMock();
-    spyOn(sessionStorage, 'getItem').and.returnValue(null);
+  it('should not request postulantes when there is no vacante in session', () => {
+    // Arrange
+    const postulante = buildPostulante({ id: 'post-existente' });
+    sessionValues['vacante'] = null;
+    component.list = [postulante];
 
-    component.isDragging = true;
-    component.current_position = 140;
-    component.list = [
-      { id: 'post-w1' } as Postulante,
-      { id: 'post-w2' } as Postulante,
-    ];
+    // Act
+    component.getCards();
 
-    expect(() => component.onPointerUp({} as Postulante)).not.toThrow();
-
-    expect(matchSpy.onAction).not.toHaveBeenCalled();
-    expect(component.list.length).toBe(2);
-    expect(component.list[0].id).toBe('post-w1');
-    expect(component.isDragging).toBeFalse();
-    expect(component.current_position).toBe(0);
+    // Assert
+    expect(matchSpy.getPostulantes).not.toHaveBeenCalled();
+    expect(component.list).toEqual([postulante]);
   });
-
-});
-
-//TEPHO
-
-// =============================================================================
-// Seleccionar Vacante | Frontend — getVacantes() → getCards()
-// =============================================================================
-
-describe('Seleccionar Vacante | SwipeEmpresa.getCards()', () => {
-    let component: SwipeEmpresa;
-    let fixture: ComponentFixture<SwipeEmpresa>;
-    let matchSpy: jasmine.SpyObj<Match>;
-    let alertsEmitted: { type: string; message: string }[];
-    let consoleSpy: jasmine.Spy;
-
-    beforeEach(async () => {
-        alertsEmitted = [];
-
-        matchSpy = jasmine.createSpyObj('Match', ['getPostulantes', 'getVacantesForEmpresa', 'onAction']);
-        matchSpy.getVacantesForEmpresa.and.returnValue(of([]));
-
-        await TestBed.configureTestingModule({
-            imports: [SwipeEmpresa, HttpClientTestingModule],
-            providers: [
-                { provide: Match, useValue: matchSpy },
-                { provide: Auth, useValue: { getUserType: () => 'empresa' } },
-                { provide: Perfil, useValue: {} },
-                { provide: FilterService, useValue: { Switch: () => { } } },
-                {
-                    provide: Alerts,
-                    useValue: {
-                        info: (msg: string) => alertsEmitted.push({ type: 'info', message: msg }),
-                        warning: (msg: string) => alertsEmitted.push({ type: 'warning', message: msg }),
-                        error: (msg: string) => alertsEmitted.push({ type: 'error', message: msg }),
-                    },
-                },
-            ],
-        }).compileComponents();
-
-        fixture = TestBed.createComponent(SwipeEmpresa);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-
-        consoleSpy = spyOn(console, 'log').and.callThrough();
-        sessionStorage.clear();
-    });
-
-    afterEach(() => sessionStorage.clear());
-
-    // ---------------------------------------------------------------------------
-    // [C1] Camino 1,2,3,4,F — getCards() con vacante en sessionStorage
-    // API responde exitosamente → list = data, console.log datos
-    // ---------------------------------------------------------------------------
-    it('[C1] Camino 1,2,3,4,F — vacante en sessionStorage + API next() → list=[data], console.log datos', () => {
-        sessionStorage.setItem('vacante', 'vacante-uuid');
-        const postulantes: Postulante[] = [
-            { id: 'p-1', name: 'Juan', lastname: 'Pérez' } as Postulante,
-            { id: 'p-2', name: 'Ana', lastname: 'Gómez' } as Postulante,
-        ];
-        matchSpy.getPostulantes.and.returnValue(of(postulantes));
-
-        component.getCards();
-
-        expect(matchSpy.getPostulantes).toHaveBeenCalledWith('vacante-uuid');
-
-        expect(component.list).toEqual(postulantes);
-
-        expect(consoleSpy).toHaveBeenCalledWith('empresa', postulantes);
-
-        expect(consoleSpy).toHaveBeenCalledWith(component.list);
-
-        expect(alertsEmitted.length).toBe(0);
-    });
-
-    // ---------------------------------------------------------------------------
-    // Camino 1,2,3,4,11,F
-    // sessionStorage SIN 'vacante' → vacante = null → alerts.warning + return
-    // ---------------------------------------------------------------------------
-    it('[C1] Camino 1,2,3,4,11,F — sessionStorage sin vacante → alerts.warning("Selecciona una vacante") sin llamada HTTP', () => {
-        // sessionStorage vacío → getItem('vacante') = null
-        component.getCards();
-
-        expect(matchSpy.getPostulantes).not.toHaveBeenCalled();
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('warning');
-        expect(alertsEmitted[0].message).toBe('Selecciona una vacante');
-    });
-
-
-    // ---------------------------------------------------------------------------
-    // [C2] Camino 1,5,F — vacante en sessionStorage pero API retorna error
-    // → console.log(err) + alerts.info('No hay más postulantes para la vacante')
-    // ---------------------------------------------------------------------------
-    it('[C2] Camino 1,5,F — vacante en sessionStorage + API error() → console.log(err) + alerts.info', () => {
-        sessionStorage.setItem('vacante', 'vacante-uuid');
-        const error = new Error('fallo de red');
-        matchSpy.getPostulantes.and.returnValue(throwError(() => error));
-
-        component.getCards();
-
-        expect(consoleSpy).toHaveBeenCalledWith(error);
-
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('info');
-        expect(alertsEmitted[0].message).toBe('No hay mas postulantes para la vacante');
-
-        expect(component.list).toEqual([]);
-    });
-
-    // ---------------------------------------------------------------------------
-    // [C3] Camino sin vacante — sessionStorage vacío
-    // → alerts.warning('Selecciona una vacante'), sin llamada HTTP
-    // ---------------------------------------------------------------------------
-    it('[C3] Camino sin vacante — sessionStorage vacío → alerts.warning("Selecciona una vacante"), sin HTTP', () => {
-        component.getCards();
-
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('warning');
-        expect(alertsEmitted[0].message).toBe('Selecciona una vacante');
-
-        expect(matchSpy.getPostulantes).not.toHaveBeenCalled();
-
-        expect(component.list).toEqual([]);
-    });
-
-    it('getCards() — list queda vacía cuando la API retorna array vacío', () => {
-        sessionStorage.setItem('vacante', 'vacante-uuid');
-        matchSpy.getPostulantes.and.returnValue(of([]));
-
-        component.getCards();
-
-        expect(component.list).toEqual([]);
-        expect(alertsEmitted.length).toBe(0);
-    });
-
-    it('getCards() — el id de vacante pasado a getPostulantes es exactamente el almacenado en sessionStorage', () => {
-        sessionStorage.setItem('vacante', 'mi-vacante-especifica-uuid');
-        matchSpy.getPostulantes.and.returnValue(of([]));
-
-        component.getCards();
-
-        const idUsado = matchSpy.getPostulantes.calls.mostRecent().args[0];
-        expect(idUsado).toBe('mi-vacante-especifica-uuid');
-    });
-
-    it('getCards() — list no se modifica cuando no hay vacante en sessionStorage', () => {
-        component.list = [{ id: 'p-existente' } as Postulante];
-
-        component.getCards();
-
-        expect(component.list).toEqual([{ id: 'p-existente' } as Postulante]);
-    });
 });
