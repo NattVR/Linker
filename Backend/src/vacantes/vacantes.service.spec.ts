@@ -77,7 +77,7 @@ describe('HU8RF9 — Publicar Vacante | VacantesService.create()', () => {
         service = module.get<VacantesService>(VacantesService);
     });
 
-    it('[CB1] Camino 1,2,3,4,5,7,9,F — sin idiomas ni habilidades → save() sin asignar relaciones', async () => {
+    it('[CB1] Sin idiomas ni habilidades → save() con arrays vacíos', async () => {
         const dto = makeDto();
         const entity = { titulo: dto.titulo, empresa: { id: dto.empresa } } as any;
         repoMock.create.mockReturnValue(entity);
@@ -88,10 +88,26 @@ describe('HU8RF9 — Publicar Vacante | VacantesService.create()', () => {
         expect(repoMock.create).toHaveBeenCalledWith(
             expect.objectContaining({ empresa: { id: 'uuid-emp' } }),
         );
-        expect(entity.vacantesIdiomas).toBeUndefined();
-        expect(entity.vacanteHabilidades).toBeUndefined();
+        expect(entity.vacantesIdiomas).toEqual([]);
+        expect(entity.vacanteHabilidades).toEqual([]);
         expect(repoMock.save).toHaveBeenCalledWith(entity);
         expect(result).toEqual(expect.objectContaining({ id_vacante: 'uuid-1' }));
+    });
+
+    it('[CB-undefined] ids undefined → mapearIdiomas y mapearHabilidades retornan []', async () => {
+        const dto = {
+            ...makeDto(),
+            vacantesIdiomas: undefined,
+            vacanteHabilidades: undefined,
+        };
+        const entity = {} as any;
+        repoMock.create.mockReturnValue(entity);
+        repoMock.save.mockResolvedValue(entity);
+
+        await service.create(dto as any);
+
+        expect(entity.vacantesIdiomas).toEqual([]);
+        expect(entity.vacanteHabilidades).toEqual([]);
     });
 
     it('[CB2] Camino 1,2,3,4,5,6,7,9,F — con idiomas, sin habilidades → idiomas mapeados', async () => {
@@ -103,7 +119,7 @@ describe('HU8RF9 — Publicar Vacante | VacantesService.create()', () => {
         await service.create(dto as any);
 
         expect(entity.vacantesIdiomas).toEqual([{ idioma: { id_idioma: 'id-1' } }]);
-        expect(entity.vacanteHabilidades).toBeUndefined();
+        expect(entity.vacanteHabilidades).toEqual([]);
         expect(repoMock.save).toHaveBeenCalledWith(entity);
     });
 
@@ -115,7 +131,7 @@ describe('HU8RF9 — Publicar Vacante | VacantesService.create()', () => {
 
         await service.create(dto as any);
 
-        expect(entity.vacantesIdiomas).toBeUndefined();
+        expect(entity.vacantesIdiomas).toEqual([]);
         expect(entity.vacanteHabilidades).toEqual([
             { habilidades: { id_habilidad: 'hab-1' } },
         ]);
@@ -201,6 +217,7 @@ describe('HU8RF9 — Publicar Vacante | VacantesService.create()', () => {
 
         expect(result).toBe(savedValue);
     });
+
 });
 
 // =============================================================================
@@ -599,7 +616,7 @@ describe('VacantesService', () => {
 
         await expect(service.findAllVacantesofEmpresa('empresa-err')).rejects.toThrow('db down');
     });
- it('findAllVacantesofEmpresa lanza TypeError cuando el objeto [{}] es invalido ', async () => {
+    it('findAllVacantesofEmpresa lanza TypeError cuando el objeto [{}] es invalido ', async () => {
         vacanteRepository.find.mockResolvedValue([
             {
                 id_vacante: 'vac-malformada',
@@ -617,115 +634,115 @@ describe('VacantesService', () => {
 //Casos de pruebas editar vacante
 
 describe('VacantesService — update()', () => {
-  let service: VacantesService;
-  let repoMock: jest.Mocked<Repository<Vacante>>;
+    let service: VacantesService;
+    let repoMock: jest.Mocked<Repository<Vacante>>;
 
-  const VACANTE_BASE = {
-    id_vacante:          'v-1',
-    titulo:              'Dev Angular',
-    salario:             '3000000',
-    ubicacion:           'Bogotá',
-    modalidad:           'Remoto',
-    tipo_trabajo:        'Full-time',
-    vacanteHabilidades:  [],
-    vacantesIdiomas:     [],
-    empresa:             { id: 'emp-1' },
-  } as any;
-
-  beforeEach(async () => {
-    repoMock = {
-      create:              jest.fn(),
-      save:                jest.fn(),
-      find:                jest.fn(),
-      findOne:             jest.fn(),
-      createQueryBuilder:  jest.fn().mockReturnValue(makeQbMock()),
+    const VACANTE_BASE = {
+        id_vacante: 'v-1',
+        titulo: 'Dev Angular',
+        salario: '3000000',
+        ubicacion: 'Bogotá',
+        modalidad: 'Remoto',
+        tipo_trabajo: 'Full-time',
+        vacanteHabilidades: [],
+        vacantesIdiomas: [],
+        empresa: { id: 'emp-1' },
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        VacantesService,
-        { provide: getRepositoryToken(Vacante), useValue: repoMock },
-        {
-          provide: InteraccionesService,
-          useValue: { isFilteredVacantes: jest.fn().mockResolvedValue([]) },
-        },
-      ],
-    }).compile();
+    beforeEach(async () => {
+        repoMock = {
+            create: jest.fn(),
+            save: jest.fn(),
+            find: jest.fn(),
+            findOne: jest.fn(),
+            createQueryBuilder: jest.fn().mockReturnValue(makeQbMock()),
+        } as any;
 
-    service = module.get<VacantesService>(VacantesService);
-  });
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                VacantesService,
+                { provide: getRepositoryToken(Vacante), useValue: repoMock },
+                {
+                    provide: InteraccionesService,
+                    useValue: { isFilteredVacantes: jest.fn().mockResolvedValue([]) },
+                },
+            ],
+        }).compile();
 
-  it('[C-001] Camino 1,2,3,11,F — vacante no encontrada → throw Error("Vacante no encontrada")', async () => {
-    repoMock.findOne.mockResolvedValue(null);
+        service = module.get<VacantesService>(VacantesService);
+    });
 
-    await expect(
-      service.update('id-inexistente', {} as any)
-    ).rejects.toThrow('Vacante no encontrada');
+    it('[C-001] Camino 1,2,3,11,F — vacante no encontrada → throw Error("Vacante no encontrada")', async () => {
+        repoMock.findOne.mockResolvedValue(null);
 
-    expect(repoMock.save).not.toHaveBeenCalled();
-  });
+        await expect(
+            service.update('id-inexistente', {} as any)
+        ).rejects.toThrow('Vacante no encontrada');
 
-  it('[C-002] Camino 1,2,3,4,5,6,7,8,9,10,F — dto completo → save con habilidades e idiomas mapeados', async () => {
-    const vacante = { ...VACANTE_BASE };
-    repoMock.findOne.mockResolvedValue(vacante);
-    repoMock.save.mockResolvedValue(vacante);
+        expect(repoMock.save).not.toHaveBeenCalled();
+    });
 
-    await service.update('v-1', {
-      titulo:             'Dev NestJS',
-      vacanteHabilidades: ['habilidad_1'],
-      vacantesIdiomas:    ['español'],
-    } as any);
+    it('[C-002] Camino 1,2,3,4,5,6,7,8,9,10,F — dto completo → save con habilidades e idiomas mapeados', async () => {
+        const vacante = { ...VACANTE_BASE };
+        repoMock.findOne.mockResolvedValue(vacante);
+        repoMock.save.mockResolvedValue(vacante);
 
-    expect(vacante.vacanteHabilidades).toEqual([
-      { habilidades: { id_habilidad: 'habilidad_1' } },
-    ]);
-    expect(vacante.vacantesIdiomas).toEqual([
-      { idioma: { id_idioma: 'español' } },
-    ]);
-    expect(repoMock.save).toHaveBeenCalledWith(vacante);
-  });
+        await service.update('v-1', {
+            titulo: 'Dev NestJS',
+            vacanteHabilidades: ['habilidad_1'],
+            vacantesIdiomas: ['español'],
+        } as any);
 
-  it('[C-003] Camino 1,2,3,4,5,6,7,8,10,F — habilidad definida, idioma undefined → save solo habilidades', async () => {
-    const vacante = { ...VACANTE_BASE };
-    repoMock.findOne.mockResolvedValue(vacante);
-    repoMock.save.mockResolvedValue(vacante);
+        expect(vacante.vacanteHabilidades).toEqual([
+            { habilidades: { id_habilidad: 'habilidad_1' } },
+        ]);
+        expect(vacante.vacantesIdiomas).toEqual([
+            { idioma: { id_idioma: 'español' } },
+        ]);
+        expect(repoMock.save).toHaveBeenCalledWith(vacante);
+    });
 
-    await service.update('v-1', {
-      vacanteHabilidades: ['habilidad_1'],
-    } as any);
+    it('[C-003] Camino 1,2,3,4,5,6,7,8,10,F — habilidad definida, idioma undefined → save solo habilidades', async () => {
+        const vacante = { ...VACANTE_BASE };
+        repoMock.findOne.mockResolvedValue(vacante);
+        repoMock.save.mockResolvedValue(vacante);
 
-    expect(vacante.vacanteHabilidades).toEqual([
-      { habilidades: { id_habilidad: 'habilidad_1' } },
-    ]);
-    expect(vacante.vacantesIdiomas).toEqual([]);
-    expect(repoMock.save).toHaveBeenCalledWith(vacante);
-  });
+        await service.update('v-1', {
+            vacanteHabilidades: ['habilidad_1'],
+        } as any);
 
-  it('[C-004] Camino 1,2,3,4,5,6,8,9,10,F — idioma definido, habilidad undefined → save solo idiomas', async () => {
-    const vacante = { ...VACANTE_BASE };
-    repoMock.findOne.mockResolvedValue(vacante);
-    repoMock.save.mockResolvedValue(vacante);
+        expect(vacante.vacanteHabilidades).toEqual([
+            { habilidades: { id_habilidad: 'habilidad_1' } },
+        ]);
+        expect(vacante.vacantesIdiomas).toEqual([]);
+        expect(repoMock.save).toHaveBeenCalledWith(vacante);
+    });
 
-    await service.update('v-1', {
-      vacantesIdiomas: ['español'],
-    } as any);
+    it('[C-004] Camino 1,2,3,4,5,6,8,9,10,F — idioma definido, habilidad undefined → save solo idiomas', async () => {
+        const vacante = { ...VACANTE_BASE };
+        repoMock.findOne.mockResolvedValue(vacante);
+        repoMock.save.mockResolvedValue(vacante);
 
-    expect(vacante.vacantesIdiomas).toEqual([
-      { idioma: { id_idioma: 'español' } },
-    ]);
-    expect(vacante.vacanteHabilidades).toEqual([]);
-    expect(repoMock.save).toHaveBeenCalledWith(vacante);
-  });
+        await service.update('v-1', {
+            vacantesIdiomas: ['español'],
+        } as any);
 
-  it('[C-005] Camino 1,2,3,4,5,6,8,10,F — dto vacío → save sin cambios en relaciones', async () => {
-    const vacante = { ...VACANTE_BASE };
-    repoMock.findOne.mockResolvedValue(vacante);
-    repoMock.save.mockResolvedValue(vacante);
+        expect(vacante.vacantesIdiomas).toEqual([
+            { idioma: { id_idioma: 'español' } },
+        ]);
+        expect(vacante.vacanteHabilidades).toEqual([]);
+        expect(repoMock.save).toHaveBeenCalledWith(vacante);
+    });
 
-    await service.update('v-1', {} as any);
+    it('[C-005] Camino 1,2,3,4,5,6,8,10,F — dto vacío → save sin cambios en relaciones', async () => {
+        const vacante = { ...VACANTE_BASE };
+        repoMock.findOne.mockResolvedValue(vacante);
+        repoMock.save.mockResolvedValue(vacante);
 
-    expect(vacante.vacanteHabilidades).toEqual([]);
-    expect(vacante.vacantesIdiomas).toEqual([]);
-    expect(repoMock.save).toHaveBeenCalledWith(vacante);
-  });
+        await service.update('v-1', {} as any);
+
+        expect(vacante.vacanteHabilidades).toEqual([]);
+        expect(vacante.vacantesIdiomas).toEqual([]);
+        expect(repoMock.save).toHaveBeenCalledWith(vacante);
+    });
 });

@@ -28,7 +28,7 @@ button:focus {
   border: none;
   padding: 10px 8px;
   border-radius: 8px;
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: linear-gradient(145deg, #4f52d4, #d4318a); /* era #6366f1 y #ec4899 — oscurecidos para contraste con #fff */
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -37,7 +37,7 @@ button:focus {
 }
 
 .vacantes-count {
-  background-color: #6366f1;
+  background-color: #4f52d4; /* era #6366f1 — oscurecido para contraste con #fff */
   color: white;
   border-radius: 50%;
   width: 24px;
@@ -92,7 +92,7 @@ button:focus {
 }
 
 .form-input::placeholder {
-  color: #9ca3af;
+  color: #6b7280; /* era #9ca3af — oscurecido para contraste mínimo 4.5:1 sobre #fff */
 }
 
 .form-input:focus,
@@ -108,7 +108,7 @@ button:focus {
 }
 
 .habilidades-container h3 {
-  color: #6b7280;
+  color: #4b5563; /* era #6b7280 — oscurecido para contraste mínimo sobre fondo claro */
   margin: 0 0 1.5rem 0;
   font-size: 12px;
   font-weight: 600;
@@ -144,7 +144,6 @@ button:focus {
   min-height: 44px;
 }
 
-
 .dropdown-list {
   position: absolute;
   top: calc(100% + 8px);
@@ -173,6 +172,14 @@ button:focus {
   font-family: inherit;
   font-weight: 400;
   font-size: 0.95rem;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  outline: none;
+  appearance: none;
 }
 
 .dropdown-item:last-child {
@@ -186,10 +193,9 @@ button:focus {
 
 .dropdown-item.selected {
   background-color: #eef2ff;
-  color: #6366f1;
+  color: #2d2f8f; /* oscurecido aún más para ratio 4.5:1 sobre #eef2ff */
   font-weight: 600;
 }
-
 
 .btn {
   border: none;
@@ -208,7 +214,7 @@ button:focus {
 
 .btn-success {
   text-align: center;
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: linear-gradient(145deg, #4f52d4, #d4318a); /* era #6366f1 y #ec4899 — oscurecidos para contraste con #fff */
   color: white;
   width: 50%;
   margin-top: 1rem;
@@ -216,7 +222,7 @@ button:focus {
 }
 
 .btn-danger {
-  background: #ef4444;
+  background: #b91c1c;
   color: white;
   width: auto;
   box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
@@ -228,9 +234,8 @@ button:focus {
   box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
 }
 
-
 .publish-button {
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: linear-gradient(145deg, #4f52d4, #d4318a); /* era #6366f1 y #ec4899 — oscurecidos para contraste con #fff */
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -246,7 +251,7 @@ button:focus {
 }
 
 .edit-button {
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: linear-gradient(145deg, #4f52d4, #d4318a); /* era #6366f1 y #ec4899 — oscurecidos para contraste con #fff */
   border: none;
   width: 36px;
   height: 36px;
@@ -297,13 +302,13 @@ button:focus {
 }
 
 .no-vacantes-message p {
-  color: #6b7280;
+  color: #4b5563; /* era #6b7280 — oscurecido para contraste mínimo sobre fondo blanco */
   margin: 0;
   font-size: 0.95rem;
 }
 
 .create-first-button {
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: linear-gradient(145deg, #4f52d4, #d4318a); /* era #6366f1 y #ec4899 — oscurecidos para contraste con #fff */
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -322,12 +327,8 @@ button:focus {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .vacante-card {
@@ -362,7 +363,7 @@ button:focus {
 }
 
 .delete-button {
-  background-color: #ef4444;
+  background-color: #b91c1c;
   color: white;
   border: none;
   width: 32px;
@@ -403,35 +404,17 @@ button:focus {
 }
 
 .tag:hover {
-  background: #6366f1;
-  color: #fff;
-  border-color: #6366f1;
+  background: #4f52d4;
+  color: #eef2ff; /* más cálido que #fff puro — mejor ratio sobre #4f52d4 */
+  border-color: #4f52d4;
 }
 
-.tag-salario {
-  border-left: 3px solid #fbbf24;
-}
-
-.tag-ubicacion {
-  border-left: 3px solid #60a5fa;
-}
-
-.tag-modalidad {
-  border-left: 3px solid #ec4899;
-}
-
-.tag-tipoTrabajo {
-  border-left: 3px solid #a78bfa;
-}
-
-.tag-habilidad {
-  border-left: 3px solid #10b981;
-}
-
-.tag-idioma {
-  border-left: 3px solid #f472b6;
-}
-
+.tag-salario   { border-left: 3px solid #fbbf24; }
+.tag-ubicacion { border-left: 3px solid #60a5fa; }
+.tag-modalidad { border-left: 3px solid #ec4899; }
+.tag-tipoTrabajo { border-left: 3px solid #a78bfa; }
+.tag-habilidad { border-left: 3px solid #10b981; }
+.tag-idioma    { border-left: 3px solid #f472b6; }
 
 @media (max-width: 768px) {
   .main-panel {
@@ -461,7 +444,7 @@ button:focus {
 
   .tab-button.tab-active {
     background-color: #f3f4f6;
-    border-left: 3px solid #6366f1;
+    border-left: 3px solid #4f52d4; /* era #6366f1 — oscurecido */
     border-bottom: none;
     padding-left: calc(1rem - 3px);
   }
@@ -538,7 +521,7 @@ button:focus {
 
   .form-input,
   .form-select {
-    font-size: 16px; /* Previene zoom en iOS */
+    font-size: 16px;
   }
 
   .tag-container {

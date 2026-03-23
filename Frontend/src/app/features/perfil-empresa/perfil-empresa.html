@@ -10,21 +10,21 @@
 
         <div class="perfil-header">
           <img src="assets/img/match-user-icon.webp" class="foto" />
-          <span class="nombre"> {{ name_empresa }}</span>
+          <span class="nombre"> {{ datosEmpresa?.name_empresa }}</span>
         </div>
 
-        <p class="company-type"><i class="fa-regular fa-building"></i><span>{{sector}}</span></p>
+        <p class="company-type"><i class="fa-regular fa-building"></i><span>{{datosEmpresa?.sector}}</span></p>
 
         <div class="contact-info">
           <div class="contact-item">
-            <i class="fa-solid fa-map-pin" style="color: #a30212"></i>{{ubicacion}}</div>
+            <i class="fa-solid fa-map-pin" style="color: #a30212"></i>{{datosEmpresa?.ubicacion}}</div>
           <div class="contact-item">
             <i class="fa-solid fa-user-group" style="color: #470bf8"></i>50-300 empleados
           </div>
         </div>
 
         <p class="description">
-          {{descripcion}}
+          {{datosEmpresa?.descripcion}}
         </p>
       </div>
     }

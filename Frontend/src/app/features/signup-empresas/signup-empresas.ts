@@ -25,7 +25,7 @@ export class SignupEmpresas {
 
   passwordMinLength = 6;
   currentStep = 1;
-  
+
   nextStep(): void {
     const nameControl = this.empresaForm.get('name_empresa');
     const nitControl = this.empresaForm.get('NIT');
@@ -67,34 +67,43 @@ export class SignupEmpresas {
     return true;
   }
 
-  onSignupEmpresa() {
+  onSignupEmpresa(): void {
+    // 3
     const user = this.signupEmpresasForm.value as User;
     const empresa = this.empresaForm.value as Empresa;
 
-    if (!this.formsValidated(user, empresa)) {
-      return;
-    }
+    if (!this.formsValidated(user, empresa)) {// 4
+      return; // 5
+    };
 
-    this.auth.signUp(user).subscribe({ //10
+    this.registrarUsuario(user, empresa); // 6
+  }
+
+  private registrarUsuario(user: User, empresa: Empresa): void {
+    this.auth.signUp(user).subscribe({ // 3
       next: response => {
-        if (response.success) { // 11
-          empresa.id_perfil = response.user.id; // 12
-
-          this.auth.signUpEmpresa(empresa).subscribe({ // 13
-            next: postresponse => {
-              if (postresponse) { // 14
-                this.alert.success('Registro exitoso. Por favor, inicie sesión.'); // 15
-                this.router.navigate(['login']); // 16
-              }
-            },
-          });
+        if (response.success) { // 4
+          this.registrarEmpresa(response.user.id, empresa); // 5
         } else {
-          this.alert.error(response.message); // 17
+          this.alert.error(response.message); // 6
         }
       },
-      error: error => {
-        this.logger.error('Error en el registro de empresa', error); // 18
+      error: error => this.logger.error('Error en el registro de usuario', error) // 7
+    });
+  }
+
+  private registrarEmpresa(idPerfil: string, empresa: Empresa): void {
+    empresa.id_perfil = idPerfil; // 3
+    this.auth.signUpEmpresa(empresa).subscribe({ // 4
+      next: postresponse => {
+        if (postresponse) { // 5
+          this.alert.success('Registro exitoso. Por favor, inicie sesión.'); // 6
+          this.router.navigate(['login']); // 7
+        } else {
+          this.alert.error('No se pudo completar el registro de la empresa.'); // 8
+        }
       },
+      error: error => this.logger.error('Error en el registro de empresa', error) // 9
     });
   }
 }

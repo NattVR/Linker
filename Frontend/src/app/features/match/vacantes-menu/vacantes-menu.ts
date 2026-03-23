@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Match } from '../../../shared/services/match';
 import { Auth } from '../../../shared/services/auth';
+import { LoggerService } from '../../../shared/services/logger';
 
 @Component({
   selector: 'app-vacantes-menu',
@@ -10,39 +11,40 @@ import { Auth } from '../../../shared/services/auth';
 })
 export class VacantesMenu {
 
-  match=inject(Match)
-  auth=inject(Auth)
-  vacantes: Vacante[]= [];
-  
-  mostrarLista = false;
-  vacanteSeleccionada: Vacante|null = null;
+  match = inject(Match)
+  auth = inject(Auth)
+  vacantes: Vacante[] = [];
+  logger = inject(LoggerService);
 
-  getVacantes(){
-    console.log(sessionStorage.getItem('perfilId'))
+  mostrarLista = false;
+  vacanteSeleccionada: Vacante | null = null;
+
+  getVacantes() {
+    this.logger.log(sessionStorage.getItem('perfilId') || '')
     this.match.getVacantesForEmpresa().subscribe({
-      next: (data: Vacante[])=>{
-        console.log(sessionStorage.getItem('perfilId'))
-        this.vacantes= data
-        console.log(data)
+      next: (data: Vacante[]) => {
+        this.logger.log(sessionStorage.getItem('perfilId') || '')
+        this.vacantes = data
+        this.logger.log(JSON.stringify(data))
       },
-      error:(err)=>{
-        console.log('no hay vacantes')
+      error: err => {
+        this.logger.log('no hay vacantes')
       }
     });
   }
 
   toggleLista() {
     this.mostrarLista = !this.mostrarLista;
-    if(this.vacantes.length===0){
-     this.getVacantes()
+    if (this.vacantes.length === 0) {
+      this.getVacantes()
     }
   }
 
-  seleccionarVacante(vacante: any) {    
+  seleccionarVacante(vacante: any) {
     this.vacanteSeleccionada = vacante;
     sessionStorage.setItem('vacante', this.vacanteSeleccionada?.id_vacante || '');
 
     this.mostrarLista = false;
-    console.log('Vacante seleccionada:', vacante);
-  } 
+    this.logger.log('Vacante seleccionada:' + JSON.stringify(vacante));
+  }
 }

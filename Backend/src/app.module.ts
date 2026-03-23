@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { WinstonModule } from 'nest-winston';
 import { EmpresaModule } from './empresa/empresa.module';
 import { PostulanteModule } from './postulante/postulante.module';
 import { EstudiosModule } from './estudios/estudios.module';
@@ -20,25 +21,26 @@ import { VacantesIdiomasModule } from './vacantes_idiomas/vacantes_idiomas.modul
 import { VacanteHabilidadesModule } from './vacante_habilidades/vacante_habilidades.module';
 import { MatchesModule } from './matches/matches.module';
 import { InteraccionesModule } from './interacciones/interacciones.module';
+import { winstonTransports } from './logger/winston.config';
 
 @Module({
   imports: [
-    AuthModule,
-    UserModule,
-    ConfigModule.forRoot({isGlobal: true,}),
+    ConfigModule.forRoot({ isGlobal: true }),
+    WinstonModule.forRoot({ transports: winstonTransports }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
-      port: +process.env.DB_PORT!,
+      port: Number.parseInt(process.env.DB_PORT ?? '5432', 10),
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       autoLoadEntities: true,
       synchronize: true,
     }),
+    AuthModule,
+    UserModule,
     EmpresaModule,
     PostulanteModule,
-    UserModule,
     EstudiosModule,
     DetalleEstudiosModule,
     HabilidadesModule,

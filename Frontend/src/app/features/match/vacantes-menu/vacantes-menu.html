@@ -1,17 +1,22 @@
 <div class="dropdown-container">
   <div class="dropdown-wrapper">
     <button class="dropdown-button" (click)="toggleLista()">
-      <span class="button-text">{{ vacanteSeleccionada?.titulo|| 'Selecciona una vacante' }}</span>
+      <span class="button-text">{{ vacanteSeleccionada?.titulo || 'Selecciona una vacante' }}</span>
     </button>
-
     @if(mostrarLista){
-    <div class="dropdown-list">
-      @for(i of vacantes; track i.id_vacante){
-      <div (click)="seleccionarVacante(i)" class="dropdown-item">
-        {{ i.titulo }}
+      <div class="dropdown-list">
+        @for(i of vacantes; track i.id_vacante){
+          <button
+            (click)="seleccionarVacante(i)"
+            (keydown.enter)="seleccionarVacante(i)"
+            (keydown.space)="seleccionarVacante(i)"
+            class="dropdown-item"
+            type="button"
+          >
+            {{ i.titulo }}
+          </button>
+        }
       </div>
-      }
-    </div>
     }
   </div>
 </div>

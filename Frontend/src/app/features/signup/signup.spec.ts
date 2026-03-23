@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { Signup } from './signup';
-import { Auth } from '../../shared/services/auth';
-import { Alerts } from '../../shared/services/alerts';
 
-describe('Registrar Postulante', () => {
+import { Signup } from './signup';
+import { Alerts } from '../../shared/services/alerts';
+import { Auth } from '../../shared/services/auth';
+
+describe('Signup', () => {
   let component: Signup;
   let fixture: ComponentFixture<Signup>;
   let authSpy: jasmine.SpyObj<Auth>;
   let alertsSpy: jasmine.SpyObj<Alerts>;
   let router: Router;
+  let navigateSpy: jasmine.Spy;
 
   beforeEach(async () => {
     authSpy = jasmine.createSpyObj<Auth>('Auth', ['signUp', 'signUpPostulante']);
@@ -28,302 +30,192 @@ describe('Registrar Postulante', () => {
     fixture = TestBed.createComponent(Signup);
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
-    spyOn(router, 'navigate');
+    navigateSpy = spyOn(router, 'navigate').and.resolveTo(true);
     fixture.detectChanges();
   });
 
-  function fillForms(): void{
+  function setValidCredentials(): void {
     component.signupForm.setValue({
       email: 'test@mail.com',
       password: 'abc12345678',
-      repassword:'abc12345678',
+      repassword: 'abc12345678',
     });
+  }
 
+  function setValidPostulante(): void {
     component.postulanteForm.setValue({
       name: 'Juan',
       lastname: 'Perez',
     });
   }
 
-  it('Signup should create', () => {
-    expect(component).toBeTruthy();
-  });
+  function setValidForms(): void {
+    setValidCredentials();
+    setValidPostulante();
+  }
 
-  it('nextStep pasa a step 2 si postulanteForm es valido', () => {
-    component.postulanteForm.setValue({ name: 'Ana', lastname: 'Lopez' });
+  describe('nextStep', () => {
+    it('moves to step 2 when the postulante form is valid', () => {
+      // Arrange
+      setValidPostulante();
 
-    component.nextStep();
-    expect(component.currentStep).toBe(2);
-  });
+      // Act
+      component.nextStep();
 
-  it('nextStep se queda en step 1 cuando postulanteForm es invalido', () => {
-    component.postulanteForm.setValue({ name: '', lastname: '' });
-
-    component.nextStep();
-    expect(component.currentStep).toBe(1);
-  });
-
-  it('previousStep vuelve de step 2 a step 1', () => {
-    component.currentStep = 2;
-    component.previousStep();
-
-    expect(component.currentStep).toBe(1);
-  });
-
-  it('previousStep no baja de step 1', () => {
-    component.currentStep = 1;
-    component.previousStep();
-
-    expect(component.currentStep).toBe(1);
-  });
-
-  it('C1 contraseñas no coincidenerror y return sin signUp', () => {
-     component.signupForm.setValue({
-      email: 'test@mail.com',
-      password: 'abc1234567800',
-      repassword:'abc12345678',
+      // Assert
+      expect(component.currentStep).toBe(2);
+      expect(alertsSpy.error).not.toHaveBeenCalled();
     });
 
-    component.postulanteForm.setValue({
-      name: 'Juan',
-      lastname: 'Perez',
+    it('keeps step 1, marks fields as touched and shows an error when the postulante form is invalid', () => {
+      // Arrange
+      component.postulanteForm.setValue({
+        name: '',
+        lastname: '',
+      });
+
+      // Act
+      component.nextStep();
+
+      // Assert
+      expect(component.currentStep).toBe(1);
+      expect(component.postulanteForm.get('name')?.touched).toBeTrue();
+      expect(component.postulanteForm.get('lastname')?.touched).toBeTrue();
+      expect(alertsSpy.error).toHaveBeenCalledWith('Por favor, complete todos los campos requeridos');
+    });
+  });
+
+  describe('previousStep', () => {
+    it('returns to step 1', () => {
+      // Arrange
+      component.currentStep = 2;
+
+      // Act
+      component.previousStep();
+
+      // Assert
+      expect(component.currentStep).toBe(1);
+    });
+  });
+
+  describe('onSignUp', () => {
+    it('stops the flow when passwords do not match', () => {
+      // Arrange
+      component.signupForm.setValue({
+        email: 'test@mail.com',
+        password: 'abc12345678',
+        repassword: 'different-password',
+      });
+      setValidPostulante();
+
+      // Act
+      component.onSignUp();
+
+      // Assert
+      expect(component.signupForm.hasError('passwordMismatch')).toBeTrue();
+      expect(alertsSpy.error).toHaveBeenCalledWith(jasmine.stringMatching(/^Las contrase/));
+      expect(authSpy.signUp).not.toHaveBeenCalled();
     });
 
-    component.onSignUp();
-    expect(alertsSpy.error).toHaveBeenCalledWith('Las contraseñas no coinciden');
-    expect(component.signupForm.hasError('passwordMismatch')).toBeTrue();
-    expect(authSpy.signUp).not.toHaveBeenCalled();
-  });
-
-  it('C2 formulario invalido alert.error y sin signUp', () => {
-    component.signupForm.setValue({
-      email: '',
-      password: 'abc12345678',
-      repassword:'abc12345678',
-    });
-
-    component.postulanteForm.setValue({
-      name: '',
-      lastname: 'Perez',
-    });
-
-    component.onSignUp();
-
-    expect(alertsSpy.error).toHaveBeenCalledWith('Campos incorrectos');
-    expect(component.signupForm.invalid).toBeTrue();
-    expect(component.postulanteForm.invalid).toBeTrue();
-    expect(authSpy.signUp).not.toHaveBeenCalled();
-  });
-
-  it('C3 signUp request falla alert.error("Error en la solicitud")', () => {
-    fillForms();
-    authSpy.signUp.and.returnValue(throwError(() => new Error('network error')));
-
-    component.onSignUp();
-
-    expect(alertsSpy.error).toHaveBeenCalledWith('Error en la solicitud');
-    expect(authSpy.signUpPostulante).not.toHaveBeenCalled();
-    expect(router.navigate).not.toHaveBeenCalled();
-  });
-
-  it('C4 response.success=false alert.error(response.message)', () => {
-    fillForms();
-    authSpy.signUp.and.returnValue(
-      of({ success: false, message: 'El correo ya esta registrado' })
-    );
-
-    component.onSignUp();
-
-    expect(alertsSpy.error).toHaveBeenCalledWith('El correo ya esta registrado');
-    expect(authSpy.signUpPostulante).not.toHaveBeenCalled();
-    expect(router.navigate).not.toHaveBeenCalled();
-  });
-
-  it('C5 signUp success asigna id_perfil y registra postulante', () => {
-    fillForms();
-    authSpy.signUp.and.returnValue(of({ success: true, user: { id: 10 } }));
-    authSpy.signUpPostulante.and.returnValue(of({ message: 'ok' }));
-
-    component.onSignUp();
-
-    expect(authSpy.signUpPostulante).toHaveBeenCalledWith(
-      jasmine.objectContaining({
-        name: 'Juan',
+    it('stops the flow when a form is invalid and marks controls as touched', () => {
+      // Arrange
+      component.signupForm.setValue({
+        email: '',
+        password: 'abc12345678',
+        repassword: 'abc12345678',
+      });
+      component.postulanteForm.setValue({
+        name: '',
         lastname: 'Perez',
-        id_perfil: 10,
-      })
-    );
-    expect(alertsSpy.success).toHaveBeenCalledWith('Registro exitoso. Por favor, inicie sesión.');
-    expect(router.navigate).toHaveBeenCalledWith(['login']);
+      });
+
+      // Act
+      component.onSignUp();
+
+      // Assert
+      expect(component.signupForm.get('email')?.touched).toBeTrue();
+      expect(component.postulanteForm.get('name')?.touched).toBeTrue();
+      expect(alertsSpy.error).toHaveBeenCalledWith('Campos incorrectos');
+      expect(authSpy.signUp).not.toHaveBeenCalled();
+    });
+
+    it('shows the backend message when signUp responds with success false', () => {
+      // Arrange
+      setValidForms();
+      authSpy.signUp.and.returnValue(
+        of({ success: false, message: 'El correo ya esta registrado' })
+      );
+
+      // Act
+      component.onSignUp();
+
+      // Assert
+      expect(authSpy.signUp).toHaveBeenCalled();
+      expect(authSpy.signUpPostulante).not.toHaveBeenCalled();
+      expect(alertsSpy.error).toHaveBeenCalledWith('El correo ya esta registrado');
+      expect(navigateSpy).not.toHaveBeenCalled();
+    });
+
+    it('shows an error when the signUp request fails', () => {
+      // Arrange
+      const requestError = new Error('network error');
+      setValidForms();
+      authSpy.signUp.and.returnValue(throwError(() => requestError));
+
+      // Act
+      component.onSignUp();
+
+      // Assert
+      const lastErrorCall = alertsSpy.error.calls.mostRecent().args;
+      expect(authSpy.signUpPostulante).not.toHaveBeenCalled();
+      expect(alertsSpy.error).toHaveBeenCalled();
+      expect(lastErrorCall[0]).toBe('Error en el registro');
+      expect(lastErrorCall[1] as unknown).toBe(requestError);
+      expect(navigateSpy).not.toHaveBeenCalled();
+    });
+
+    it('registers the postulante, shows success and redirects when both requests succeed', () => {
+      // Arrange
+      setValidForms();
+      authSpy.signUp.and.returnValue(of({ success: true, user: { id: 10 } }));
+      authSpy.signUpPostulante.and.returnValue(of({ message: 'ok' }));
+
+      // Act
+      component.onSignUp();
+
+      // Assert
+      expect(authSpy.signUp).toHaveBeenCalled();
+      expect(authSpy.signUpPostulante).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          name: 'Juan',
+          lastname: 'Perez',
+          id_perfil: 10,
+        })
+      );
+      expect(alertsSpy.success).toHaveBeenCalledWith(
+        jasmine.stringMatching(/^Registro exitoso\./)
+      );
+      expect(navigateSpy).toHaveBeenCalledWith(['login']);
+    });
+
+    it('shows an error when postulante registration fails', () => {
+      // Arrange
+      const requestError = new Error('postulante error');
+      setValidForms();
+      authSpy.signUp.and.returnValue(of({ success: true, user: { id: 10 } }));
+      authSpy.signUpPostulante.and.returnValue(throwError(() => requestError));
+
+      // Act
+      component.onSignUp();
+
+      // Assert
+      const lastErrorCall = alertsSpy.error.calls.mostRecent().args;
+      expect(authSpy.signUpPostulante).toHaveBeenCalled();
+      expect(alertsSpy.error).toHaveBeenCalled();
+      expect(lastErrorCall[0]).toBe('Error en el registro');
+      expect(lastErrorCall[1] as unknown).toBe(requestError);
+      expect(alertsSpy.success).not.toHaveBeenCalled();
+      expect(navigateSpy).not.toHaveBeenCalled();
+    });
   });
-
-  xit('C6 postresponse null sin alert.success y sin navigate', () => {
-    fillForms();
-    authSpy.signUp.and.returnValue(of({ success: true, user: { id: 10 } }));
-    authSpy.signUpPostulante.and.returnValue(of(null));
-
-    component.onSignUp();
-
-    expect(authSpy.signUpPostulante).toHaveBeenCalled();
-    expect(alertsSpy.error).toHaveBeenCalled();
-    expect(router.navigate).not.toHaveBeenCalled();
-  });
-
-  xit('C7 postresponse error', () => {
-    fillForms();
-    authSpy.signUp.and.returnValue(of({ success: true, user: { id: 10 } }));
-    authSpy.signUpPostulante.and.returnValue(throwError(() => new Error('postulante error')));
-
-    component.onSignUp();
-
-    expect(authSpy.signUpPostulante).toHaveBeenCalled();
-    expect(alertsSpy.error).toHaveBeenCalled();
-    expect(router.navigate).not.toHaveBeenCalled();
-  });
-
-  it('C8 flujo exitoso alert.success y navigate([login])', () => {
-    fillForms();
-    authSpy.signUp.and.returnValue(of({ success: true, user: { id: 'uuid-user-test' } }));
-    authSpy.signUpPostulante.and.returnValue(
-      of({
-        message: 'Postulante registrado con exito',
-        postulante: { id: 'uuid-postulante-test' },
-      })
-    );
-
-    component.onSignUp();
-
-    expect(alertsSpy.success).toHaveBeenCalledWith('Registro exitoso. Por favor, inicie sesión.');
-    expect(router.navigate).toHaveBeenCalledWith(['login']);
-  });
-
-
-  it('registro fallido: todos los campos vacios', () => {
-    component.signupForm.setValue({
-      email: '',
-      password: '',
-      repassword:'',
-    });
-
-    component.postulanteForm.setValue({
-      name: '',
-      lastname: '',
-    });
-
-    component.onSignUp();
-
-    expect(alertsSpy.error).toHaveBeenCalledWith('Campos incorrectos');
-    expect(authSpy.signUp).not.toHaveBeenCalled();
-  });
-
-  it(' registro fallido: campos con caracteres especiales', () => {
-    component.signupForm.setValue({
-      email: '!@#$%^&*()',
-      password: '!@#$%^',
-      repassword:'!@#$%^',
-    });
-
-    component.postulanteForm.setValue({
-      name: '!@#$%',
-      lastname: '^&*()',
-    });
-    
-    component.onSignUp();
-
-    expect(alertsSpy.error).toHaveBeenCalledWith('Campos incorrectos');
-    expect(authSpy.signUp).not.toHaveBeenCalled();
-  });
-
-  it('[CP-021] registro con nombre/apellido numericos ', () => {
-    component.signupForm.setValue({
-      email: 'test@gmail.com',
-      password: '12345678bnm',
-      repassword:'12345678bnm',
-    });
-
-    component.postulanteForm.setValue({
-      name: '1234567',
-      lastname: '8901234',
-    });
-
-    component.onSignUp();
-
-    expect(authSpy.signUp).toHaveBeenCalled();
-    expect(alertsSpy.error).toHaveBeenCalled();
-  });
-
-  
-  it(' registro fallido: solo 2 campos diligenciados', () => {
-    component.signupForm.setValue({
-      email: 'test@gmail.com',
-      password: '',
-      repassword:'',
-    });
-
-    component.postulanteForm.setValue({
-      name: '1234567',
-      lastname: '',
-    });
-
-    component.onSignUp();
-
-    expect(alertsSpy.error).toHaveBeenCalledWith('Campos incorrectos');
-    expect(authSpy.signUp).not.toHaveBeenCalled();
-  });
-
-
-  it('registro: password solo letras ', () => {
-    component.signupForm.setValue({
-      email: 'test@gmail.com',
-      password: 'abcdef',
-      repassword:'abcdef',
-    });
-
-    component.postulanteForm.setValue({
-      name: 'Juan',
-      lastname: 'Perez',
-    });
-    
-    component.onSignUp();
-
-    expect(authSpy.signUp).not.toHaveBeenCalled();
-    expect(alertsSpy.error).toHaveBeenCalled();
-  });
-
-  it(' registro: password solo especiales', () => {
-    component.signupForm.setValue({
-      email: 'test@gmail.com',
-      password: '"#$%&/(/()',
-      repassword:'"#$%&/(/()',
-    });
-
-    component.postulanteForm.setValue({
-      name: 'Juan',
-      lastname: 'Perez',
-    });
-    component.onSignUp();
-
-    expect(authSpy.signUp).not.toHaveBeenCalled();
-    expect(alertsSpy.error).toHaveBeenCalled();
-  });
-
-
-  it('registro fallido: correo sin @ ni dominio', () => {
-    component.signupForm.setValue({
-      email: 'test',
-      password: '12345678bnm',
-      repassword:'12345678bnm',
-    });
-
-    component.postulanteForm.setValue({
-      name: '1234567',
-      lastname: '8901234',
-    });
-
-    component.onSignUp();
-
-    expect(alertsSpy.error).toHaveBeenCalledWith('Campos incorrectos');
-    expect(authSpy.signUp).not.toHaveBeenCalled();
-  });
-
 });

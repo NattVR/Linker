@@ -1,15 +1,41 @@
+/*
+ * Linker - Proyecto Universitario
+ * Copyright (C) 2024 Linker. All rights reserved.
+ */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-    HttpClientTestingModule,
-    HttpTestingController,
-} from '@angular/common/http/testing';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, Router } from '@angular/router';
+import { of, throwError } from 'rxjs';
+
 import { SignupEmpresas } from './signup-empresas';
 import { Alerts } from '../../shared/services/alerts';
 import { Auth } from '../../shared/services/auth';
+import { LoggerService } from '../../shared/services/logger';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Mocks
+// ─────────────────────────────────────────────────────────────────────────────
+
+const mockAlerts = {
+    error: jasmine.createSpy('error'),
+    success: jasmine.createSpy('success'),
+};
+
+const mockAuth = {
+    signUp: jasmine.createSpy('signUp'),
+    signUpEmpresa: jasmine.createSpy('signUpEmpresa'),
+};
+
+let mockNavigate: jasmine.Spy;
+
+const mockLogger = {
+    log: jasmine.createSpy('log'),
+    error: jasmine.createSpy('error'),
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper — rellena ambos formularios con datos por defecto o personalizados
+// ─────────────────────────────────────────────────────────────────────────────
 
 function fillForms(
     component: SignupEmpresas,
@@ -20,15 +46,15 @@ function fillForms(
         name_empresa?: string;
         NIT?: string;
     } = {}
-) {
+): void {
     component.signupEmpresasForm.setValue({
-        email: opts.email ?? 'test@mail.com',
+        email: opts.email ?? 'empresa@correo.com',
         password: opts.password ?? 'abc123',
         repassword: opts.repassword ?? 'abc123',
     });
     component.empresaForm.setValue({
-        name_empresa: opts.name_empresa ?? 'Empresa SA',
-        NIT: opts.NIT ?? '123456789',
+        name_empresa: opts.name_empresa ?? 'Mi Empresa SA',
+        NIT: opts.NIT ?? '900123456',
     });
 }
 
@@ -36,452 +62,597 @@ function fillForms(
 // Suite principal — HU4RF02: Registrar Reclutador
 // Pruebas de caja blanca sobre onSignupEmpresa()
 // ─────────────────────────────────────────────────────────────────────────────
-describe('HU4RF02 — Registrar Reclutador | onSignupEmpresa()', () => {
+
+describe('HU4RF02 — Registrar Reclutador | SignupEmpresas', () => {
+
     let component: SignupEmpresas;
     let fixture: ComponentFixture<SignupEmpresas>;
-    let httpController: HttpTestingController;
-    let router: Router;
 
-    const alertsEmitted: { type: string; message: string }[] = [];
+    // ── Configuración del módulo de pruebas ────────────────────────────────────
 
     beforeEach(async () => {
-        alertsEmitted.length = 0;
+        // Reinicia todos los spies antes de cada prueba (principio I — Independent)
+        mockAlerts.error.calls.reset();
+        mockAlerts.success.calls.reset();
+        mockAuth.signUp.calls.reset();
+        mockAuth.signUpEmpresa.calls.reset();
+        mockLogger.error.calls.reset();
+        mockLogger.log.calls.reset();
 
         await TestBed.configureTestingModule({
-            imports: [
-                SignupEmpresas,
-                ReactiveFormsModule,
-                HttpClientTestingModule,
-                RouterTestingModule.withRoutes([]),
+            imports: [SignupEmpresas, ReactiveFormsModule],
+            providers: [
+                FormBuilder,
+                provideRouter([]),
+                { provide: Alerts, useValue: mockAlerts },
+                { provide: Auth, useValue: mockAuth },
+                { provide: LoggerService, useValue: mockLogger },
             ],
-            providers: [FormBuilder, Auth, Alerts],
         }).compileComponents();
 
         fixture = TestBed.createComponent(SignupEmpresas);
         component = fixture.componentInstance;
-        httpController = TestBed.inject(HttpTestingController);
-        router = TestBed.inject(Router);
 
-        const alerts = TestBed.inject(Alerts);
-        spyOn(alerts, 'error').and.callFake((msg: string) =>
-            alertsEmitted.push({ type: 'error', message: msg })
-        );
-        spyOn(alerts, 'success').and.callFake((msg: string) =>
-            alertsEmitted.push({ type: 'success', message: msg })
-        );
+        // Spy sobre el Router real provisto por provideRouter([])
+        const router = TestBed.inject(Router);
+        mockNavigate = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
 
         fixture.detectChanges();
     });
 
-    afterEach(() => {
-        try {
-            httpController.verify();
-        } catch (_) {
-            httpController.match(() => true);
-        }
-    });
+    // ══════════════════════════════════════════════════════════════════════════
+    // Bloque 1 — Validaciones de formulario (sin llamadas HTTP)
+    // Caminos: C1, C2 y casos CP-019 a CP-028
+    // ══════════════════════════════════════════════════════════════════════════
 
-    it('[C1] Camino 1,2,3,4,5,6,F — contraseñas no coinciden → alert.error sin llamada HTTP', () => {
-        fillForms(component, { password: 'abc123', repassword: 'xyz999' });
+    describe('Validaciones de formulario', () => {
 
-        component.onSignupEmpresa();
+        it('[C1] Contraseñas no coinciden → alert.error sin llamar a signUp', () => {
+            // Arrange
+            fillForms(component, { password: 'abc123', repassword: 'xyz999' });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Las contraseñas no coinciden');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[C2] Camino 1,2,3,4,7,8,9,F — formulario inválido → alert.error sin llamada HTTP', () => {
-        fillForms(component, {
-            email: '',
-            password: 'abc123',
-            repassword: 'abc123',
-            name_empresa: '',
-            NIT: '',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Las contraseñas no coinciden');
+            expect(mockAlerts.success).not.toHaveBeenCalled();
         });
 
-        component.onSignupEmpresa();
+        it('[C2] Formulario inválido (campos vacíos) → alert.error sin llamar a signUp', () => {
+            // Arrange
+            fillForms(component, {
+                email: '', password: 'abc123', repassword: 'abc123',
+                name_empresa: '', NIT: '',
+            });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[C3] Camino 1,2,3,4,7,10,18,19,F — HTTP 500 → alert.error("Error en la solicitud")', () => {
-        fillForms(component);
-
-        component.onSignupEmpresa();
-
-        const req = httpController.expectOne('http://localhost:3000/user/registro');
-        expect(req.request.method).toBe('POST');
-        expect(req.request.body).toEqual(jasmine.objectContaining({ email: 'test@mail.com' }));
-        req.flush('Internal Server Error', { status: 500, statusText: 'Server Error' });
-
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Error en la solicitud');
-    });
-
-    it('[C4] Camino 1,2,3,4,7,10,11,17,F — response.success=false → alert.error(response.message)', () => {
-        fillForms(component);
-
-        component.onSignupEmpresa();
-
-        const req = httpController.expectOne('http://localhost:3000/user/registro');
-        req.flush({ success: false, message: 'El correo ya está registrado' });
-
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('El correo ya está registrado');
-        httpController.expectNone('http://localhost:3000/empresa/registro');
-    });
-
-    it('[C5] Camino 1,2,3,4,7,10,11,12,13,F — [BUG] signUpEmpresa sin callback error: POST llega con id_perfil correcto', () => {
-        fillForms(component);
-        const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
-
-        component.onSignupEmpresa();
-
-        const reqUser = httpController.expectOne('http://localhost:3000/user/registro');
-        reqUser.flush({ success: true, user: { id: 'uuid-user-test' } });
-
-        const reqEmpresa = httpController.expectOne('http://localhost:3000/empresa/registro');
-        expect(reqEmpresa.request.method).toBe('POST');
-        expect(reqEmpresa.request.body).toEqual(
-            jasmine.objectContaining({ id_perfil: 'uuid-user-test' })
-        );
-
-        reqEmpresa.flush({ message: 'ok' });
-
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('success');
-        expect(navigateSpy).toHaveBeenCalledWith(['login']);
-    });
-
-    it('[C6] Camino 1,2,3,4,7,10,11,12,13,14,F — postResponse=null → sin alerta ni navegación', () => {
-        fillForms(component);
-        const navigateSpy = spyOn(router, 'navigate').and.callThrough();
-
-        component.onSignupEmpresa();
-
-        const reqUser = httpController.expectOne('http://localhost:3000/user/registro');
-        reqUser.flush({ success: true, user: { id: 'uuid-user-test' } });
-
-        const reqEmpresa = httpController.expectOne('http://localhost:3000/empresa/registro');
-        reqEmpresa.flush(null);
-
-        expect(alertsEmitted.filter(a => a.type === 'success').length).toBe(0);
-        expect(navigateSpy).not.toHaveBeenCalled();
-    });
-
-    it('[C7] Camino 1,2,3,4,7,10,11,12,13,14,15,16,F — flujo exitoso → alert.success + navigate([login])', async () => {
-        fillForms(component);
-        const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
-
-        component.onSignupEmpresa();
-
-        const reqUser = httpController.expectOne('http://localhost:3000/user/registro');
-        reqUser.flush({ success: true, user: { id: 'uuid-user-test' } });
-
-        const reqEmpresa = httpController.expectOne('http://localhost:3000/empresa/registro');
-        reqEmpresa.flush({
-            message: 'Empresa registrada con éxito',
-            empresa: { id: 'uuid-empresa-test' },
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('success');
-        expect(alertsEmitted[0].message).toBe('Registro exitoso. Por favor, inicie sesión.');
-        expect(navigateSpy).toHaveBeenCalledWith(['login']);
-    });
+        it('[CP-019] Todos los campos vacíos → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: '', password: '', repassword: '',
+                name_empresa: '', NIT: '',
+            });
 
-    // =========================================================================
-    // CASOS DE PRUEBA CP-018 a CP-028 — HU4RF02 Registrar Reclutador
-    // =========================================================================
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-018] Registro exitoso — datos válidos completos → alert.success + navigate([login])', async () => {
-        fillForms(component, {
-            email: 'empresa@correo.com',
-            password: 'Pass123',
-            repassword: 'Pass123',
-            name_empresa: 'Mi Empresa S.A.',
-            NIT: '900123456',
-        });
-        const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
-
-        component.onSignupEmpresa();
-
-        const reqUser = httpController.expectOne('http://localhost:3000/user/registro');
-        reqUser.flush({ success: true, user: { id: 'uuid-cp018' } });
-
-        const reqEmpresa = httpController.expectOne('http://localhost:3000/empresa/registro');
-        reqEmpresa.flush({ message: 'Empresa registrada con éxito', empresa: { id: 'uuid-empresa-cp018' } });
-
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('success');
-        expect(alertsEmitted[0].message).toBe('Registro exitoso. Por favor, inicie sesión.');
-        expect(navigateSpy).toHaveBeenCalledWith(['login']);
-    });
-
-    it('[CP-019] Registro fallido — todos los campos vacíos → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: '',
-            password: '',
-            repassword: '',
-            name_empresa: '',
-            NIT: '',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-020] Todos los campos con caracteres especiales → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: '!!!@@@###', password: '!@#$%^', repassword: '!@#$%^',
+                name_empresa: '***&&&', NIT: '!!!###',
+            });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-020] Registro fallido — todos los campos con caracteres especiales → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: '!!!@@@###',
-            password: '!@#$%^',
-            repassword: '!@#$%^',
-            name_empresa: '***&&&',
-            NIT: '!!!###',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-021] Todos los campos con números (email inválido) → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: '12345678', password: '123456', repassword: '123456',
+                name_empresa: '9999', NIT: '111222333',
+            });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-021] Registro fallido — todos los campos con números → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: '12345678',
-            password: '123456',
-            repassword: '123456',
-            name_empresa: '9999',
-            NIT: '111222333',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-022] Solo nombre de empresa diligenciado → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: '', password: '', repassword: '',
+                name_empresa: 'Mi Empresa SA', NIT: '',
+            });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-022] Registro fallido — solo nombre de empresa diligenciado → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: '',
-            password: '',
-            repassword: '',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-023] NIT con letras (error de patrón inyectado) → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: 'empresa@correo.com', password: 'abc123', repassword: 'abc123',
+                name_empresa: 'Mi Empresa SA', NIT: 'ABC-DEF-GHI',
+            });
+            component.empresaForm.get('NIT')?.setErrors({ pattern: true });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-023] Registro fallido — NIT con letras → alert.error("Campos incorrectos") [requiere Validators.pattern en NIT]', () => {
-        fillForms(component, {
-            email: 'empresa@correo.com',
-            password: 'abc123',
-            repassword: 'abc123',
-            name_empresa: 'Mi Empresa SA',
-            NIT: 'ABC-DEF-GHI',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.empresaForm.get('NIT')?.setErrors({ pattern: true });
+        it('[CP-024] Solo correo diligenciado → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: 'empresa@correo.com', password: '', repassword: '',
+                name_empresa: '', NIT: '',
+            });
 
-        component.onSignupEmpresa();
+            // Act
+            component.onSignupEmpresa();
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
-
-    it('[CP-024] Registro fallido — solo correo diligenciado → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: 'empresa@correo.com',
-            password: '',
-            repassword: '',
-            name_empresa: '',
-            NIT: '',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-025] Solo contraseña diligenciada → alert.error("Las contraseñas no coinciden")', () => {
+            // Arrange
+            fillForms(component, {
+                email: '', password: 'abc123', repassword: '',
+                name_empresa: '', NIT: '',
+            });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-025] Registro fallido — solo contraseña diligenciada → alert.error("Las contraseñas no coinciden")', () => {
-        fillForms(component, {
-            email: '',
-            password: 'abc123',
-            repassword: '',
-            name_empresa: '',
-            NIT: '',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Las contraseñas no coinciden');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-026] Email + nombre empresa (sin contraseña ni NIT) → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: 'empresa@correo.com', password: '', repassword: '',
+                name_empresa: 'Mi Empresa SA', NIT: '',
+            });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Las contraseñas no coinciden');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-026] Registro fallido — solo 2 campos diligenciados (email + nombre) → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: 'empresa@correo.com',
-            password: '',
-            repassword: '',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-027a] Contraseña menor a 6 caracteres → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: 'empresa@correo.com', password: 'abc', repassword: 'abc',
+                name_empresa: 'Mi Empresa SA', NIT: '123456789',
+            });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-027a] Registro fallido — contraseña menor a 6 caracteres → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: 'empresa@correo.com',
-            password: 'abc',
-            repassword: 'abc',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '123456789',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-028a] Correo con solo caracteres especiales → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: '!@#$%^&*()', password: 'abc123', repassword: 'abc123',
+                name_empresa: 'Mi Empresa SA', NIT: '123456789',
+            });
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
-    });
+            // Act
+            component.onSignupEmpresa();
 
-    it('[CP-027b] Registro — contraseña solo con letras (>=6) llega a API [sin validador de complejidad]', () => {
-        fillForms(component, {
-            email: 'empresa@correo.com',
-            password: 'abcdef',
-            repassword: 'abcdef',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '123456789',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-028b] Correo con solo letras (sin @ ni dominio) → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: 'sololetras', password: 'abc123', repassword: 'abc123',
+                name_empresa: 'Mi Empresa SA', NIT: '123456789',
+            });
 
-        const req = httpController.expectOne('http://localhost:3000/user/registro');
-        req.flush({ success: false, message: 'Error del servidor' });
+            // Act
+            component.onSignupEmpresa();
 
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-    });
-
-    it('[CP-027c] Registro — contraseña solo con números (>=6) llega a API [sin validador de complejidad]', () => {
-        fillForms(component, {
-            email: 'empresa@correo.com',
-            password: '123456',
-            repassword: '123456',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '123456789',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
+        it('[CP-028c] Correo con solo números (sin @ ni dominio) → alert.error("Campos incorrectos")', () => {
+            // Arrange
+            fillForms(component, {
+                email: '1234567890', password: 'abc123', repassword: 'abc123',
+                name_empresa: 'Mi Empresa SA', NIT: '123456789',
+            });
 
-        const req = httpController.expectOne('http://localhost:3000/user/registro');
-        req.flush({ success: false, message: 'Error del servidor' });
+            // Act
+            component.onSignupEmpresa();
 
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-    });
-
-    it('[CP-027d] Registro — contraseña solo con caracteres especiales (>=6) llega a API [sin validador de complejidad]', () => {
-        fillForms(component, {
-            email: 'empresa@correo.com',
-            password: '!@#$%^',
-            repassword: '!@#$%^',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '123456789',
+            // Assert
+            expect(mockAuth.signUp).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
         });
 
-        component.onSignupEmpresa();
-
-        const req = httpController.expectOne('http://localhost:3000/user/registro');
-        req.flush({ success: false, message: 'Error del servidor' });
-
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
     });
 
-    it('[CP-028a] Registro fallido — correo con solo caracteres especiales → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: '!@#$%^&*()',
-            password: 'abc123',
-            repassword: 'abc123',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '123456789',
+    // ══════════════════════════════════════════════════════════════════════════
+    // Bloque 2 — Errores en llamadas HTTP (signUp falla)
+    // Caminos: C3
+    // ══════════════════════════════════════════════════════════════════════════
+
+    describe('Errores HTTP en signUp', () => {
+
+        it('[C3] signUp lanza error HTTP 500 → logger.error + no alert.success', () => {
+            fillForms(component);
+            mockAuth.signUp.and.returnValue(throwError(() => new Error('Internal Server Error')));
+
+            component.onSignupEmpresa();
+
+            expect(mockAuth.signUp).toHaveBeenCalledTimes(1);
+            expect(mockLogger.error).toHaveBeenCalledOnceWith(
+                'Error en el registro de usuario',  // ← corregido
+                jasmine.any(Error)
+            );
+            expect(mockAlerts.success).not.toHaveBeenCalled();
+            expect(mockNavigate).not.toHaveBeenCalled();
         });
 
-        component.onSignupEmpresa();
-
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
     });
 
-    it('[CP-028b] Registro fallido — correo con solo letras (sin @ ni dominio) → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: 'sololetras',
-            password: 'abc123',
-            repassword: 'abc123',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '123456789',
+    // ══════════════════════════════════════════════════════════════════════════
+    // Bloque 3 — Respuesta exitosa de signUp pero falla de negocio
+    // Caminos: C4
+    // ══════════════════════════════════════════════════════════════════════════
+
+    describe('Respuesta de negocio fallida en signUp', () => {
+
+        it('[C4] response.success=false → alert.error(response.message) y no llama a signUpEmpresa', () => {
+            // Arrange
+            fillForms(component);
+            mockAuth.signUp.and.returnValue(
+                of({ success: false, message: 'El correo ya está registrado' })
+            );
+
+            // Act
+            component.onSignupEmpresa();
+
+            // Assert
+            expect(mockAuth.signUpEmpresa).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('El correo ya está registrado');
+            expect(mockNavigate).not.toHaveBeenCalled();
         });
 
-        component.onSignupEmpresa();
-
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
     });
 
-    it('[CP-028c] Registro fallido — correo con solo números (sin @ ni dominio) → alert.error("Campos incorrectos")', () => {
-        fillForms(component, {
-            email: '1234567890',
-            password: 'abc123',
-            repassword: 'abc123',
-            name_empresa: 'Mi Empresa SA',
-            NIT: '123456789',
+    // ══════════════════════════════════════════════════════════════════════════
+    // Bloque 4 — Flujo de signUpEmpresa (signUp exitoso)
+    // Caminos: C5, C6, C7 y CP-018, CP-027b/c/d
+    // ══════════════════════════════════════════════════════════════════════════
+
+    describe('Flujo signUpEmpresa tras signUp exitoso', () => {
+
+        it('[C5] signUpEmpresa recibe id_perfil correcto del usuario creado', () => {
+            // Arrange
+            fillForms(component);
+            mockAuth.signUp.and.returnValue(
+                of({ success: true, user: { id: 'uuid-user-test' } })
+            );
+            mockAuth.signUpEmpresa.and.returnValue(of({ message: 'ok' }));
+
+            // Act
+            component.onSignupEmpresa();
+
+            // Assert
+            expect(mockAuth.signUpEmpresa).toHaveBeenCalledOnceWith(
+                jasmine.objectContaining({ id_perfil: 'uuid-user-test' })
+            );
+            expect(mockAlerts.success).toHaveBeenCalledOnceWith(
+                'Registro exitoso. Por favor, inicie sesión.'
+            );
+            expect(mockNavigate).toHaveBeenCalledOnceWith(['login']);
         });
 
-        component.onSignupEmpresa();
+        it('[C6] signUpEmpresa devuelve null → alert.error("No se pudo completar")', () => {
+            fillForms(component);
+            mockAuth.signUp.and.returnValue(
+                of({ success: true, user: { id: 'uuid-user-test' } })
+            );
+            mockAuth.signUpEmpresa.and.returnValue(of(null));
 
-        httpController.expectNone('http://localhost:3000/user/registro');
-        expect(alertsEmitted.length).toBe(1);
-        expect(alertsEmitted[0].type).toBe('error');
-        expect(alertsEmitted[0].message).toBe('Campos incorrectos');
+            component.onSignupEmpresa();
+
+            expect(mockAlerts.success).not.toHaveBeenCalled();
+            expect(mockNavigate).not.toHaveBeenCalled();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith(
+                'No se pudo completar el registro de la empresa.'
+            );
+        });
+
+        it('[C7] Flujo completamente exitoso → alert.success + navigate([login])', () => {
+            // Arrange
+            fillForms(component);
+            mockAuth.signUp.and.returnValue(
+                of({ success: true, user: { id: 'uuid-user-test' } })
+            );
+            mockAuth.signUpEmpresa.and.returnValue(
+                of({ message: 'Empresa registrada con éxito', empresa: { id: 'uuid-empresa-test' } })
+            );
+
+            // Act
+            component.onSignupEmpresa();
+
+            // Assert
+            expect(mockAlerts.success).toHaveBeenCalledOnceWith(
+                'Registro exitoso. Por favor, inicie sesión.'
+            );
+            expect(mockNavigate).toHaveBeenCalledOnceWith(['login']);
+            expect(mockAlerts.error).not.toHaveBeenCalled();
+        });
+
+        it('[C8] signUpEmpresa lanza error HTTP → logger.error + sin alert.success', () => {
+            fillForms(component);
+            mockAuth.signUp.and.returnValue(
+                of({ success: true, user: { id: 'uuid-user-test' } })
+            );
+            mockAuth.signUpEmpresa.and.returnValue(
+                throwError(() => new Error('Service Unavailable'))
+            );
+
+            component.onSignupEmpresa();
+
+            expect(mockLogger.error).toHaveBeenCalledOnceWith(
+                'Error en el registro de empresa',
+                jasmine.any(Error)
+            );
+            expect(mockAlerts.success).not.toHaveBeenCalled();
+            expect(mockNavigate).not.toHaveBeenCalled();
+        });
+
+        it('[CP-018] Datos válidos completos → flujo exitoso con datos reales de empresa', () => {
+            // Arrange
+            fillForms(component, {
+                email: 'empresa@correo.com', password: 'Pass123', repassword: 'Pass123',
+                name_empresa: 'Mi Empresa S.A.', NIT: '900123456',
+            });
+            mockAuth.signUp.and.returnValue(
+                of({ success: true, user: { id: 'uuid-cp018' } })
+            );
+            mockAuth.signUpEmpresa.and.returnValue(
+                of({ message: 'Empresa registrada con éxito', empresa: { id: 'uuid-empresa-cp018' } })
+            );
+
+            // Act
+            component.onSignupEmpresa();
+
+            // Assert
+            expect(mockAlerts.success).toHaveBeenCalledOnceWith(
+                'Registro exitoso. Por favor, inicie sesión.'
+            );
+            expect(mockNavigate).toHaveBeenCalledOnceWith(['login']);
+        });
+
+        it('[CP-027b] Contraseña solo con letras (>=6) llega a signUp [sin validador de complejidad]', () => {
+            // Arrange
+            fillForms(component, { password: 'abcdef', repassword: 'abcdef' });
+            mockAuth.signUp.and.returnValue(
+                of({ success: false, message: 'Error del servidor' })
+            );
+
+            // Act
+            component.onSignupEmpresa();
+
+            // Assert
+            expect(mockAuth.signUp).toHaveBeenCalledTimes(1);
+            expect(mockAlerts.error).toHaveBeenCalledTimes(1);
+        });
+
+        it('[CP-027c] Contraseña solo con números (>=6) llega a signUp [sin validador de complejidad]', () => {
+            // Arrange
+            fillForms(component, { password: '123456', repassword: '123456' });
+            mockAuth.signUp.and.returnValue(
+                of({ success: false, message: 'Error del servidor' })
+            );
+
+            // Act
+            component.onSignupEmpresa();
+
+            // Assert
+            expect(mockAuth.signUp).toHaveBeenCalledTimes(1);
+            expect(mockAlerts.error).toHaveBeenCalledTimes(1);
+        });
+
+        it('[CP-027d] Contraseña solo con caracteres especiales (>=6) llega a signUp [sin validador de complejidad]', () => {
+            // Arrange
+            fillForms(component, { password: '!@#$%^', repassword: '!@#$%^' });
+            mockAuth.signUp.and.returnValue(
+                of({ success: false, message: 'Error del servidor' })
+            );
+
+            // Act
+            component.onSignupEmpresa();
+
+            // Assert
+            expect(mockAuth.signUp).toHaveBeenCalledTimes(1);
+            expect(mockAlerts.error).toHaveBeenCalledTimes(1);
+        });
+
     });
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // Bloque 5 — formsValidated() llamado directamente
+    // Cubre los branches del método de validación de forma aislada
+    // ══════════════════════════════════════════════════════════════════════════
+
+    describe('formsValidated() — branches directos', () => {
+
+        it('[FV-01] Formularios válidos y contraseñas iguales → retorna true', () => {
+            // Arrange
+            fillForms(component);
+
+            // Act
+            const result = component.formsValidated({} as User, {} as Empresa);
+
+            // Assert
+            expect(result).toBeTrue();
+            expect(mockAlerts.error).not.toHaveBeenCalled();
+        });
+
+        it('[FV-02] passwordMismatch activo → retorna false y lanza alert', () => {
+            // Arrange
+            fillForms(component, { password: 'abc123', repassword: 'xyz999' });
+
+            // Act
+            const result = component.formsValidated({} as User, {} as Empresa);
+
+            // Assert
+            expect(result).toBeFalse();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Las contraseñas no coinciden');
+        });
+
+        it('[FV-03] signupEmpresasForm inválido → retorna false y lanza alert', () => {
+            // Arrange
+            fillForms(component, { email: 'no-es-email' });
+
+            // Act
+            const result = component.formsValidated({} as User, {} as Empresa);
+
+            // Assert
+            expect(result).toBeFalse();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
+        });
+
+        it('[FV-04] empresaForm inválido → retorna false y lanza alert', () => {
+            // Arrange
+            fillForms(component, { name_empresa: '', NIT: '' });
+
+            // Act
+            const result = component.formsValidated({} as User, {} as Empresa);
+
+            // Assert
+            expect(result).toBeFalse();
+            expect(mockAlerts.error).toHaveBeenCalledOnceWith('Campos incorrectos');
+        });
+
+    });
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // Bloque 6 — Navegación entre pasos del formulario multistep
+    // Cubre: nextStep() y previousStep()
+    // ══════════════════════════════════════════════════════════════════════════
+
+    describe('Navegación entre pasos — nextStep() y previousStep()', () => {
+
+        it('[NS-01] nextStep() con nombre y NIT válidos → currentStep pasa a 2', () => {
+            // Arrange
+            component.empresaForm.setValue({ name_empresa: 'Mi Empresa SA', NIT: '900123456' });
+
+            // Act
+            component.nextStep();
+
+            // Assert
+            expect(component.currentStep).toBe(2);
+        });
+
+        it('[NS-02] nextStep() con nombre vacío → currentStep permanece en 1', () => {
+            // Arrange
+            component.empresaForm.setValue({ name_empresa: '', NIT: '900123456' });
+
+            // Act
+            component.nextStep();
+
+            // Assert
+            expect(component.currentStep).toBe(1);
+        });
+
+        it('[NS-03] nextStep() con NIT vacío → currentStep permanece en 1', () => {
+            // Arrange
+            component.empresaForm.setValue({ name_empresa: 'Mi Empresa SA', NIT: '' });
+
+            // Act
+            component.nextStep();
+
+            // Assert
+            expect(component.currentStep).toBe(1);
+        });
+
+        it('[NS-04] nextStep() con ambos campos vacíos → currentStep permanece en 1', () => {
+            // Arrange
+            component.empresaForm.setValue({ name_empresa: '', NIT: '' });
+
+            // Act
+            component.nextStep();
+
+            // Assert
+            expect(component.currentStep).toBe(1);
+        });
+
+        it('[NS-05] previousStep() desde paso 2 → currentStep regresa a 1', () => {
+            // Arrange
+            component.empresaForm.setValue({ name_empresa: 'Mi Empresa SA', NIT: '900123456' });
+            component.nextStep();
+            expect(component.currentStep).toBe(2);
+
+            // Act
+            component.previousStep();
+
+            // Assert
+            expect(component.currentStep).toBe(1);
+        });
+
+        it('[NS-06] previousStep() desde paso 1 → currentStep queda en 0 (sin guardia)', () => {
+            // Arrange
+            expect(component.currentStep).toBe(1);
+
+            // Act
+            component.previousStep();
+
+            // Assert
+            expect(component.currentStep).toBe(0);
+        });
+
+    });
+
 });

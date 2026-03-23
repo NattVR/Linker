@@ -1,4 +1,3 @@
-import { Empresa } from 'src/empresa/entities/empresa.entity';
 import { Postulante } from 'src/postulante/entities/postulante.entity';
 import { Vacante } from 'src/vacantes/entities/vacante.entity';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
@@ -26,13 +25,13 @@ export class Interaccion {
   @Column({  type: 'enum', enum: TipoInteraccion, default: TipoInteraccion.NO_INTERACCION })
   accionPostulante: TipoInteraccion
 
-  @ManyToOne(() => Vacante, (vacante) => vacante.interacciones, {
+  @ManyToOne(() => Vacante, vacante => vacante.interacciones, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'vacante_id' })
   vacante: Vacante;
 
-  @ManyToOne(() => Postulante, (postulante) => postulante.interacciones, {
+  @ManyToOne(() => Postulante, postulante => postulante.interacciones, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'postulante_id' })

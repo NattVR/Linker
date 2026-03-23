@@ -2,186 +2,168 @@
 
   @if (activeTab === 'form') {
 
-    <div class="btn-change">
-      <button (click)="cargarVacantes()" (click)="setActiveTab('list')" class="tab-button">
-        Publicadas
-        <i class="fa-solid fa-list-check"></i>
-        @if (vacantes.length > 0) {
-          <span class="vacantes-count">{{ vacantes.length }}</span>
-        }
-      </button>
-    </div>
+  <div class="btn-change">
+    <button (click)="cargarVacantes()" (click)="setActiveTab('list')" class="tab-button">
+      Publicadas
+      <i class="fa-solid fa-list-check"></i>
+      @if (vacantes.length > 0) {
+      <span class="vacantes-count">{{ vacantes.length }}</span>
+      }
+    </button>
+  </div>
 
-    <form [formGroup]="nuevaVacante" (ngSubmit)="publicarVacante()">
-      <div class="form-content">
-        <div class="form-group-grid form-group-grid-2">
-          <input
-            type="text"
-            formControlName="titulo"
-            placeholder="Título de la vacante *"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group-grid form-group-grid-2">
-          <input
-            type="number"
-            formControlName="salario"
-            placeholder="Salario (opcional)"
-            class="form-input"
-          />
-          <input
-            type="text"
-            formControlName="ubicacion"
-            placeholder="Ubicación"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group-grid form-group-grid-4">
-          <select formControlName="modalidad" class="form-select">
-            <option value="">Seleccionar modalidad</option>
-            @for (m of modalidades; track $index) {
-              <option [value]="m">{{ m }}</option>
-            }
-          </select>
-
-          <select formControlName="tipo_trabajo" class="form-select">
-            <option value="">Tipo de trabajo</option>
-            @for (t of tiposTrabajo; track $index) {
-              <option [value]="t">{{ t }}</option>
-            }
-          </select>
-        </div>
-
- 
-        <div class="habilidades-container">
-          <h3>Habilidades requeridas</h3>
-
-          @for (h of habilidades.controls; track $index; let i = $index) {
-            <div class="habilidad-item">
-              <button type="button" class="dropdown-button" (click)="toggleListaHabilidad(i)">
-                {{ h.value || 'Seleccione una habilidad' }}
-              </button>
-
-              @if (mostrarListaHabilidad[i]) {
-                <div class="dropdown-list">
-                  @for (hab of habilidadesDisponibles; track hab.id_habilidad) {
-                    <div (click)="seleccionarHabilidad(i, hab)" class="dropdown-item">
-                      {{ hab.nombre_habilidad }}
-                    </div>
-                  }
-                </div>
-              }
-
-              <button type="button" class="btn btn-danger" (click)="eliminarSelectHabilidad(i)">
-                −
-              </button>
-            </div>
-          }
-
-          <button type="button" class="btn btn-success" (click)="agregarSelectHabilidad()">
-            + Agregar habilidad
-          </button>
-        </div>
-
-
-        <div class="habilidades-container">
-          <h3>Idiomas requeridos</h3>
-
-          @for (i of idiomas.controls; track $index; let index = $index) {
-            <div class="habilidad-item">
-              <button type="button" class="dropdown-button" (click)="toggleListaIdioma(index)">
-                {{ i.value || 'Seleccione un idioma' }}
-              </button>
-
-              @if (mostrarListaIdioma[index]) {
-                <div class="dropdown-list">
-                  @for (idi of idiomasDisponibles; track idi.id_idioma) {
-                    <div (click)="seleccionarIdioma(index, idi)" class="dropdown-item">
-                      {{ idi.nombre }}
-                    </div>
-                  }
-                </div>
-              }
-
-              <button type="button" class="btn btn-danger" (click)="eliminarSelectIdioma(index)">
-                −
-              </button>
-            </div>
-          }
-
-          <button type="button" class="btn btn-success" (click)="agregarSelectIdioma()">
-            + Agregar idioma
-          </button>
-        </div>
-
-        <button type="submit" class="publish-button">PUBLICAR VACANTE</button>
+  <form [formGroup]="nuevaVacante" (ngSubmit)="publicarVacante()">
+    <div class="form-content">
+      <div class="form-group-grid form-group-grid-2">
+        <input type="text" formControlName="titulo" placeholder="Título de la vacante *" class="form-input" />
       </div>
-    </form>
+
+      <div class="form-group-grid form-group-grid-2">
+        <input type="number" formControlName="salario" placeholder="Salario (opcional)" class="form-input" />
+        <input type="text" formControlName="ubicacion" placeholder="Ubicación" class="form-input" />
+      </div>
+
+      <div class="form-group-grid form-group-grid-4">
+        <select formControlName="modalidad" class="form-select">
+          <option value="">Seleccionar modalidad</option>
+          @for (m of modalidades; track $index) {
+          <option [value]="m">{{ m }}</option>
+          }
+        </select>
+
+        <select formControlName="tipo_trabajo" class="form-select">
+          <option value="">Tipo de trabajo</option>
+          @for (t of tiposTrabajo; track $index) {
+          <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+
+
+      <div class="habilidades-container">
+        <h3>Habilidades requeridas</h3>
+
+        @for (h of habilidades.controls; track $index; let i = $index) {
+        <div class="habilidad-item">
+          <button type="button" class="dropdown-button" (click)="toggleListaHabilidad(i)">
+            {{ h.value || 'Seleccione una habilidad' }}
+          </button>
+
+          @if (mostrarListaHabilidad[i]) {
+          <div class="dropdown-list">
+            @for (hab of habilidadesDisponibles; track hab.id_habilidad) {
+            <button (click)="seleccionarHabilidad(i, hab)" (keydown.enter)="seleccionarHabilidad(i, hab)"
+              (keydown.space)="seleccionarHabilidad(i, hab)" class="dropdown-item" type="button">
+              {{ hab.nombre_habilidad }}
+            </button>
+            }
+          </div>
+          }
+
+          <button type="button" class="btn btn-danger" (click)="eliminarSelectHabilidad(i)">
+            −
+          </button>
+        </div>
+        }
+
+        <button type="button" class="btn btn-success" (click)="agregarSelectHabilidad()">
+          + Agregar habilidad
+        </button>
+      </div>
+
+
+      <div class="habilidades-container">
+        <h3>Idiomas requeridos</h3>
+
+        @for (i of idiomas.controls; track $index; let index = $index) {
+        <div class="habilidad-item">
+          <button type="button" class="dropdown-button" (click)="toggleListaIdioma(index)">
+            {{ i.value || 'Seleccione un idioma' }}
+          </button>
+
+          @if (mostrarListaIdioma[index]) {
+          <div class="dropdown-list">
+            @for (idi of idiomasDisponibles; track idi.id_idioma) {
+              <button (click)="seleccionarIdioma(index, idi)" (keydown.enter)="seleccionarIdioma(index, idi)"
+                (keydown.space)="seleccionarIdioma(index, idi)" class="dropdown-item" type="button">
+                {{ idi.nombre }}
+              </button>
+            }
+          </div>
+          }
+
+          <button type="button" class="btn btn-danger" (click)="eliminarSelectIdioma(index)">
+            −
+          </button>
+        </div>
+        }
+
+        <button type="button" class="btn btn-success" (click)="agregarSelectIdioma()">
+          + Agregar idioma
+        </button>
+      </div>
+
+      <button type="submit" class="publish-button">PUBLICAR VACANTE</button>
+    </div>
+  </form>
   }
 
-  
-  @if (activeTab === 'list') {
-    <div class="btn-change">
-      <button (click)="setActiveTab('form')" class="tab-button">Nueva Vacante <i class="fa-solid fa-pen-clip"></i></button>
-    </div>
 
-    <div class="list-content">
-      @if (vacantes.length === 0) {
-        <div class="no-vacantes-message">
-          <div class="no-vacantes-icon"> icon </div>
-          <h3>No tienes vacantes publicadas</h3>
-          <p>Comienza creando tu primera vacante</p>
-          <button (click)="setActiveTab('form')" class="create-first-button">
-            Crear primera vacante
+  @if (activeTab === 'list') {
+  <div class="btn-change">
+    <button (click)="setActiveTab('form')" class="tab-button">Nueva Vacante <i
+        class="fa-solid fa-pen-clip"></i></button>
+  </div>
+
+  <div class="list-content">
+    @if (vacantes.length === 0) {
+    <div class="no-vacantes-message">
+      <div class="no-vacantes-icon"> icon </div>
+      <h3>No tienes vacantes publicadas</h3>
+      <p>Comienza creando tu primera vacante</p>
+      <button (click)="setActiveTab('form')" class="create-first-button">
+        Crear primera vacante
+      </button>
+    </div>
+    } @else {
+    <div class="vacantes-list">
+      @for (v of vacantes; track v.id_vacante) {
+      <div class="vacante-card">
+        <div class="vacante-header">
+          <h3>{{ v.titulo }}</h3>
+          <button (click)="editarVacante(v)" class="edit-button" title="Editar vacante">
+            <img src="assets/img/icono-editar.png" alt="Editar" />
+          </button>
+          <button (click)="eliminarVacante(v.id_vacante)" class="delete-button" title="Eliminar vacante">
+            ✕
           </button>
         </div>
-      } @else {
-        <div class="vacantes-list">
-          @for (v of vacantes; track v.id_vacante) {
-            <div class="vacante-card">
-              <div class="vacante-header">
-                <h3>{{ v.titulo }}</h3>
-                <button
-                  (click)="editarVacante(v)"
-                  class="edit-button"
-                  title="Editar vacante"
-                >
-                  <img src="assets/img/icono-editar.png" alt="Editar" />
-                </button>
-                <button
-                  (click)="eliminarVacante(v.id_vacante)"
-                  class="delete-button"
-                  title="Eliminar vacante"
-                >
-                  ✕
-                </button>
-              </div>
-              <div class="tag-container">
-                @if (v.salario) {
-                  <span class="tag tag-salario"> ${{ v.salario }}</span>
-                }
-                @if (v.ubicacion) {
-                  <span class="tag tag-ubicacion"><i class="fa-solid fa-location-dot"></i> {{ v.ubicacion }}</span>
-                }
-                @if (v.modalidad) {
-                  <span class="tag tag-modalidad"><i class="fa-regular fa-building"></i>{{ v.modalidad }}</span>
-                }
-                @if (v.tipo_trabajo) {
-                  <span class="tag tag-tipoTrabajo"><i class="fa-solid fa-id-card-clip"></i> {{ v.tipo_trabajo }}</span>
-                }
-                @if (v.habilidades?.length) {
-                  <span class="tag tag-habilidad"><i class="fa-solid fa-square-poll-horizontal"></i>{{ v.habilidades?.join?.(', ') }}</span>
-                }
-                @if (v.idiomas?.length) {
-                  <span class="tag tag-idioma"> <i class="fa-solid fa-square-poll-horizontal"></i> {{ v.idiomas?.join?.(', ') }}</span>
-                }
-              </div>
-            </div>
+        <div class="tag-container">
+          @if (v.salario) {
+          <span class="tag tag-salario"> ${{ v.salario }}</span>
+          }
+          @if (v.ubicacion) {
+          <span class="tag tag-ubicacion"><i class="fa-solid fa-location-dot"></i> {{ v.ubicacion }}</span>
+          }
+          @if (v.modalidad) {
+          <span class="tag tag-modalidad"><i class="fa-regular fa-building"></i>{{ v.modalidad }}</span>
+          }
+          @if (v.tipo_trabajo) {
+          <span class="tag tag-tipoTrabajo"><i class="fa-solid fa-id-card-clip"></i> {{ v.tipo_trabajo }}</span>
+          }
+          @if (v.habilidades?.length) {
+          <span class="tag tag-habilidad"><i class="fa-solid fa-square-poll-horizontal"></i>{{ v.habilidades?.join?.(',
+            ') }}</span>
+          }
+          @if (v.idiomas?.length) {
+          <span class="tag tag-idioma"> <i class="fa-solid fa-square-poll-horizontal"></i> {{ v.idiomas?.join?.(', ')
+            }}</span>
           }
         </div>
+      </div>
       }
     </div>
+    }
+  </div>
   }
 </div>

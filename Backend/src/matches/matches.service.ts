@@ -9,8 +9,7 @@ import { Repository } from 'typeorm';
 export class MatchesService {
   constructor(
     @InjectRepository(Match)
-    private matchRepository: Repository<Match>,
-    //private readonly vacantesService: VacantesService
+    private readonly matchRepository: Repository<Match>,
     
   ) {}
 
