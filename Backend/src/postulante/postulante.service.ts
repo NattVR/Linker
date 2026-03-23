@@ -3,7 +3,7 @@ import { CreatePostulanteDto } from './dto/create-postulante.dto';
 import { Postulante } from './entities/postulante.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { In, Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InteraccionesService } from 'src/interacciones/interacciones.service';
 
 @Injectable()
@@ -11,37 +11,18 @@ export class PostulanteService {
   constructor(
     @InjectRepository(Postulante)
     private readonly postulanteRepository: Repository<Postulante>,
-
     @InjectRepository(User)
     private readonly usuarioRepository: Repository<User>,
-
     private readonly interaccionesService: InteraccionesService,
-  ) { }
+  ) {}
 
   async createPostulante(dto: CreatePostulanteDto) {
-    const user = await this.usuarioRepository.findOne({
-      where: { id: dto.id_perfil },
-    });
-    console.log(user);
+    const user = await this.usuarioRepository.findOne({ where: { id: dto.id_perfil } });
+    if (!user) throw new NotFoundException('No se encontró el perfil de usuario asociado.');
 
-    if (!user) {
-      throw new NotFoundException(
-        'No se encontró el perfil de usuario asociado.',
-      );
-    }
-    console.log('DTO recibido:', dto);
-    console.log('Usuario encontrado:', user?.id);
-
-    const postulante = this.postulanteRepository.create({
-      ...dto,
-      user,
-    });
-
+    const postulante = this.postulanteRepository.create({ ...dto, user });
     const registroPostulante = await this.postulanteRepository.save(postulante);
-    return {
-      message: 'Postulante registrado con éxito',
-      postulante: registroPostulante,
-    };
+    return { message: 'Postulante registrado con éxito', postulante: registroPostulante };
   }
 
   async getPostulanteById(id: string) {
@@ -49,65 +30,36 @@ export class PostulanteService {
       where: { id },
       relations: ['user'],
     });
-    if (!postulante) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
-    return {
-      name: postulante.name,
-      lastname: postulante.lastname,
-    };
+    if (!postulante) throw new NotFoundException('Usuario no encontrado');
+    return { name: postulante.name, lastname: postulante.lastname };
   }
 
   findAll() {
-    return this.postulanteRepository.find({
-      relations: ['user'],
-    });
+    return this.postulanteRepository.find({ relations: ['user'] });
   }
 
   async getPostulantes(vacanteId: string) {
-    const postulantesExcluidos =
-      await this.interaccionesService.isFilteredPostulantes(vacanteId);
-    console.log(postulantesExcluidos)
-    const postulantes = this.postulanteRepository
-      .createQueryBuilder('postulante')
-      .leftJoinAndSelect('postulante.postulanteHabilidades', 'postulanteHabilidades')
-      .leftJoinAndSelect('postulanteHabilidades.habilidades', 'habilidades')
-      .leftJoinAndSelect('postulante.postulanteIdiomas', 'postulanteIdiomas')
-      .leftJoinAndSelect('postulanteIdiomas.idioma', 'idioma')
-      .limit(5);
-    if (postulantesExcluidos?.length > 0) {
-      postulantes.andWhere('postulante.id NOT IN (:...excluidos)', { excluidos: postulantesExcluidos });
-    }
-    const postulantesResult = await postulantes.getMany();
-    const postulantesFormateados = postulantesResult.map(
-      ({ postulanteHabilidades, postulanteIdiomas, ...p }) => ({
-        ...p,
-        idiomas: postulanteIdiomas?.map(pi => pi.idioma.nombre) ?? [],
-        habilidades: postulanteHabilidades?.map(ph => ph.habilidades.nombre_habilidad) ?? [],
-      }),
-    );
-    return postulantesFormateados;
-  }
+    const excluidos = await this.interaccionesService.isFilteredPostulantes(vacanteId);
+    const query = this.buildPostulanteQuery();
 
+    if (excluidos?.length > 0) {
+      query.andWhere('postulante.id NOT IN (:...excluidos)', { excluidos });
+    }
+
+    const resultado = await query.getMany();
+    return this.formatearPostulantes(resultado);
+  }
 
   async updatePostulante(idUsuario: string, dto: any) {
     const postulante = await this.postulanteRepository.findOne({ where: { id: idUsuario } });
-    if (!postulante) {
-      throw new NotFoundException(`Postulante no encontrado`);
-    }
+    if (!postulante) throw new NotFoundException('Postulante no encontrado');
 
-    if (dto.experiencia !== undefined) {
-      postulante.años_experiencia = dto.experiencia;
-    }
-
-    if (dto.cv !== undefined) {
-      postulante.curriculum = dto.cv;
-    }
+    this.aplicarCambios(postulante, dto);
     return await this.postulanteRepository.save(postulante);
   }
 
   async getPerfilCompleto(idPostulante: string) {
-    const postulante = await this.postulanteRepository
+    return this.postulanteRepository
       .createQueryBuilder('postulante')
       .leftJoinAndSelect('postulante.postulanteHabilidades', 'postulanteHabilidades')
       .leftJoinAndSelect('postulanteHabilidades.habilidades', 'habilidades')
@@ -117,22 +69,11 @@ export class PostulanteService {
       .leftJoinAndSelect('postulanteEstudios.estudio', 'estudio')
       .where('postulante.id = :id', { id: idPostulante })
       .getOne();
-
-    console.log('Postulante encontrado:', postulante);
-    return postulante;
   }
 
   async limpiarPerfilPostulante(idPostulante: string) {
     try {
-      await this.postulanteRepository.manager.query(
-        `DELETE FROM postulante_habilidades WHERE id_postulante = $1`, [idPostulante]
-      );
-      await this.postulanteRepository.manager.query(
-        `DELETE FROM postulante_idiomas WHERE id_postulante = $1`, [idPostulante]
-      );
-      await this.postulanteRepository.manager.query(
-        `DELETE FROM detalles_estudios WHERE id_postulante = $1`, [idPostulante]
-      );
+      await this.eliminarRelaciones(idPostulante);
       return { message: 'Perfil limpiado' };
     } catch (error) {
       console.error('Error al limpiar:', error);
@@ -140,10 +81,35 @@ export class PostulanteService {
     }
   }
 
-  /*async getPostulantesNoInteraction(empresaId:string){  
-    console.log('hola desde sevice',empresaId)
+  private buildPostulanteQuery() {
+    return this.postulanteRepository
+      .createQueryBuilder('postulante')
+      .leftJoinAndSelect('postulante.postulanteHabilidades', 'postulanteHabilidades')
+      .leftJoinAndSelect('postulanteHabilidades.habilidades', 'habilidades')
+      .leftJoinAndSelect('postulante.postulanteIdiomas', 'postulanteIdiomas')
+      .leftJoinAndSelect('postulanteIdiomas.idioma', 'idioma')
+      .limit(5);
+  }
 
-    const vacantes_empresa= await this.vacanteService.vacantesEmpresa(empresaId)
-    console.log(vacantes_empresa)
-  }*/
+  private formatearPostulantes(postulantes: Postulante[]) {
+    return postulantes.map(({ postulanteHabilidades, postulanteIdiomas, ...p }) => ({
+      ...p,
+      idiomas: postulanteIdiomas?.map(pi => pi.idioma.nombre) ?? [],
+      habilidades: postulanteHabilidades?.map(ph => ph.habilidades.nombre_habilidad) ?? [],
+    }));
+  }
+
+  private aplicarCambios(postulante: Postulante, dto: any) {
+    if (dto.experiencia !== undefined) postulante.años_experiencia = dto.experiencia;
+    if (dto.cv !== undefined) postulante.curriculum = dto.cv;
+  }
+
+  private async eliminarRelaciones(idPostulante: string) {
+    const query = (sql: string) =>
+      this.postulanteRepository.manager.query(sql, [idPostulante]);
+
+    await query(`DELETE FROM postulante_habilidades WHERE id_postulante = $1`);
+    await query(`DELETE FROM postulante_idiomas WHERE id_postulante = $1`);
+    await query(`DELETE FROM detalles_estudios WHERE id_postulante = $1`);
+  }
 }

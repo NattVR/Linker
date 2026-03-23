@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { switchMap } from 'rxjs';
 import { Alerts } from '../../shared/services/alerts';
 import { Auth } from '../../shared/services/auth';
 import { Perfil } from '../../shared/services/perfil';
@@ -24,47 +25,38 @@ export class Login {
     password: ['', [Validators.required]],
   });
 
-onLogin() {
-  const user = this.loginForm.value as User;
+  onLogin() {
+    const user = this.loginForm.value as User;
 
-  this.auth.login(user).subscribe({
-    next: (response) => {
-      if (response.success) {
-        this.alert.success(response.message);
-        this.auth.isLogged.set(true);
-
-        sessionStorage.setItem('token', response.token);
-        sessionStorage.setItem('userId', response.user.id);
-
-        const id = response.user.id;
-        console.log('ID de usuario en sesión:', id);
-
-        
-        this.profile.getIsEmpresa(id).subscribe({
-          next: (isEmpresa: any) => {
-            sessionStorage.setItem('isEmpresa', isEmpresa);
-
-            this.auth.getPerfilId(id).subscribe({
-              next: (perfilData: any) => {
-                console.log('desde login perfil', perfilData.id);
-                sessionStorage.setItem('perfilId', perfilData.id);
-
-                this.router.navigate(['match']);
-              },
-              error: (err) => console.error('Error al obtener el perfil:', err),
-            });
-          },
-          error: (err) => console.error('Error al obtener tipo de usuario:', err),
-        });
-      } else {
-        this.alert.error(response.message);
+    this.auth.login(user).pipe(
+      switchMap((response) => {
+        this.handleLoginSuccess(response);
+        return this.profile.getIsEmpresa(response.user.id);
+      }),
+      switchMap((isEmpresa: any) => {
+        sessionStorage.setItem('isEmpresa', isEmpresa);
+        const id = sessionStorage.getItem('userId')!;
+        return this.auth.getPerfilId(id);
+      })
+    ).subscribe({
+      next: (perfilData: any) => {
+        sessionStorage.setItem('perfilId', perfilData.id);
+        this.router.navigate(['match']);
+      },
+      error: (err) => {
+        console.error(err);
+        this.alert.error('Error en la solicitud');
       }
-    },
-    error: (error) => {
-      console.error(error);
-      this.alert.error('Error en la solicitud');
-    },
-  });
-}
+    });
+  }
 
+  private handleLoginSuccess(response: any) {
+    if (!response.success) {
+      throw new Error(response.message);
+    }
+    this.alert.success(response.message);
+    this.auth.isLogged.set(true);
+    sessionStorage.setItem('token', response.token);
+    sessionStorage.setItem('userId', response.user.id);
+  }
 }

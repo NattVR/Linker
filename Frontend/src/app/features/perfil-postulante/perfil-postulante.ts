@@ -1,14 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { Alerts } from '../../shared/services/alerts';
 import { Perfil } from '../../shared/services/perfil';
 
+interface SeccionConfig {
+  key: string;
+  dataKey: string;
+  campos: Record<string, any>;
+  mapearDato: (item: any) => Record<string, any>;
+}
+
 @Component({
   selector: 'app-perfil-postulante',
   standalone: true,
-  imports: [NgFor, NgIf, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './perfil-postulante.html',
   styleUrls: ['./perfil-postulante.css'],
 })
@@ -20,9 +26,9 @@ export class PerfilPostulante implements OnInit {
   perfil = inject(Perfil);
 
   postulanteForm!: FormGroup;
-  name: string = '';
-  idPostulante: string = '';
-  isLoading: boolean = true;
+  name = '';
+  idPostulante = '';
+  isLoading = true;
 
   catalogoEstudios: any[] = [];
   catalogoHabilidades: any[] = [];
@@ -33,204 +39,163 @@ export class PerfilPostulante implements OnInit {
   certificadosHabilidades: Map<number, File> = new Map();
   certificadosIdiomas: Map<number, File> = new Map();
 
+  private readonly secciones: SeccionConfig[] = [
+    {
+      key: 'estudios',
+      dataKey: 'postulanteEstudios',
+      campos: { titulo: ['', Validators.required], nivel: ['', Validators.required], certificado: '' },
+      mapearDato: (de) => ({
+        titulo: de.estudio?.titulo || '',
+        nivel: de.estudio?.nivel || '',
+        certificado: de.certificado || ''
+      })
+    },
+    {
+      key: 'habilidades',
+      dataKey: 'postulanteHabilidades',
+      campos: { nombre: ['', Validators.required], certificado: '' },
+      mapearDato: (ph) => ({
+        nombre: ph.habilidades?.id_habilidad || '',
+        certificado: ph.certificado || ''
+      })
+    },
+    {
+      key: 'idiomas',
+      dataKey: 'postulanteIdiomas',
+      campos: { nombre: ['', Validators.required], certificado: '' },
+      mapearDato: (pi) => ({
+        nombre: pi.idioma?.id_idioma || '',
+        certificado: pi.certificado || ''
+      })
+    }
+  ];
+
   ngOnInit() {
     this.idPostulante = sessionStorage.getItem('perfilId') || '';
     this.inicializarFormulario();
     this.cargarCatalogos();
-
-    if (this.idPostulante) {
-      this.perfil.getUserNamePostulante(this.idPostulante).subscribe({
-        next: (data: any) => {
-          this.name = `${data.name} ${data.lastname}`;
-        },
-        error: (err: any) => console.error('Error al obtener nombre:', err),
-      });
-
-      this.perfil.getPerfilCompleto(this.idPostulante).subscribe({
-        next: (data: any) => {
-          console.log('DATA PERFIL:', JSON.stringify(data, null, 2));
-          if (!data) return;
-
-          this.postulanteForm.patchValue({
-            experiencia: data.años_experiencia || '',
-            cv: data.curriculum || ''
-          });
-
-          if (data.curriculum) {
-            this.postulanteForm.patchValue({ cv: data.curriculum });
-          }
-
-          if (data.postulanteEstudios?.length) {
-            this.estudiosForm.clear();
-            data.postulanteEstudios.forEach((de: any) => {
-              this.estudiosForm.push(this.fb.group({
-                titulo: [de.estudio?.titulo || '', Validators.required],
-                nivel: [de.estudio?.nivel || '', Validators.required],
-                certificado: [de.certificado || '']
-              }));
-            });
-          }
-
-          if (data.postulanteHabilidades?.length) {
-            this.habilidadesForm.clear();
-            data.postulanteHabilidades.forEach((ph: any) => {
-              this.habilidadesForm.push(this.fb.group({
-                nombre: [ph.habilidades?.id_habilidad || '', Validators.required],
-                certificado: [ph.certificado || '']
-              }));
-            });
-          }
-
-          if (data.postulanteIdiomas?.length) {
-            this.idiomasForm.clear();
-            data.postulanteIdiomas.forEach((pi: any) => {
-              this.idiomasForm.push(this.fb.group({
-                nombre: [pi.idioma?.id_idioma || '', Validators.required],
-                certificado: [pi.certificado || '']
-              }));
-            });
-          }
-        },
-        error: (err: any) => console.error('Error al cargar perfil:', err)
-      });
-    }
   }
 
   inicializarFormulario() {
     this.postulanteForm = this.fb.group({
       experiencia: ['', Validators.required],
       cv: [''],
-      estudios: this.fb.array([this.crearEstudio()]),
-      habilidades: this.fb.array([this.crearHabilidad()]),
-      idiomas: this.fb.array([this.crearIdioma()])
+      estudios: this.fb.array([this.crearGrupo('estudios')]),
+      habilidades: this.fb.array([this.crearGrupo('habilidades')]),
+      idiomas: this.fb.array([this.crearGrupo('idiomas')])
     });
+  }
+
+  private crearGrupo(key: string): FormGroup {
+    const seccion = this.secciones.find(s => s.key === key)!;
+    return this.fb.group(seccion.campos);
   }
 
   cargarCatalogos() {
     this.postulante.getCatalogosPostulante().subscribe({
       next: (data: any) => {
-        console.log('Catálogos cargados:', data);
         this.catalogoEstudios = data.niveles || [];
         this.catalogoHabilidades = data.habilidades || [];
         this.catalogoIdiomas = data.idiomas || [];
-        console.log('Habilidades disponibles:', this.catalogoHabilidades);
-        console.log('Idiomas disponibles:', this.catalogoIdiomas);
         this.isLoading = false;
+        if (this.idPostulante) {
+          this.cargarNombreUsuario();
+          this.cargarPerfilCompleto();
+        }
       },
-      error: (err) => {
-        console.error('Error al cargar catálogos:', err);
-        this.isLoading = false;
+      error: () => { this.isLoading = false; }
+    });
+  }
+
+  private cargarNombreUsuario() {
+    this.perfil.getUserNamePostulante(this.idPostulante).subscribe({
+      next: (data: any) => { this.name = `${data.name} ${data.lastname}`; },
+      error: (err) => console.error('Error al obtener nombre:', err)
+    });
+  }
+
+  private cargarPerfilCompleto() {
+    this.perfil.getPerfilCompleto(this.idPostulante).subscribe({
+      next: (data: any) => {
+        if (!data) return;
+        this.postulanteForm.patchValue({
+          experiencia: data.años_experiencia || '',
+          cv: data.curriculum || ''
+        });
+        this.secciones.forEach(seccion => this.cargarSeccion(seccion, data));
       },
+      error: (err) => console.error('Error al cargar perfil:', err)
     });
   }
 
-  get estudiosForm(): FormArray {
-    return this.postulanteForm.get('estudios') as FormArray;
-  }
-  get habilidadesForm(): FormArray {
-    return this.postulanteForm.get('habilidades') as FormArray;
-  }
-  get idiomasForm(): FormArray {
-    return this.postulanteForm.get('idiomas') as FormArray;
-  }
+  private cargarSeccion(seccion: SeccionConfig, data: any) {
+    const items = data[seccion.dataKey];
+    if (!items?.length) return;
 
-  crearEstudio() {
-    return this.fb.group({
-      titulo: ['', Validators.required],
-      nivel: ['', Validators.required],
-      certificado: '',
+    const formArray = this.getFormArray(seccion.key);
+    formArray.clear();
+
+    items.forEach((item: any) => {
+      const valores = seccion.mapearDato(item);
+      const grupoDef: Record<string, any> = {};
+
+      Object.keys(seccion.campos).forEach(key => {
+        const campoOriginal = seccion.campos[key];
+        const valor = valores[key] ?? '';
+        grupoDef[key] = Array.isArray(campoOriginal) ? [valor, campoOriginal[1]] : valor;
+      });
+
+      formArray.push(this.fb.group(grupoDef));
     });
   }
 
-  crearHabilidad() {
-    return this.fb.group({
-      nombre: ['', Validators.required],
-      certificado: '',
-    });
+  get estudiosForm(): FormArray { return this.getFormArray('estudios'); }
+  get habilidadesForm(): FormArray { return this.getFormArray('habilidades'); }
+  get idiomasForm(): FormArray { return this.getFormArray('idiomas'); }
+
+  private getFormArray(key: string): FormArray {
+    return this.postulanteForm.get(key) as FormArray;
   }
 
-  crearIdioma() {
-    return this.fb.group({
-      nombre: ['', Validators.required],
-      certificado: '',
-    });
+  agregarItem(key: string) {
+    const arr = this.getFormArray(key);
+    if (arr.length < 5) arr.push(this.crearGrupo(key));
   }
 
-  agregarEstudio() {
-    if (this.estudiosForm.length < 5) {
-      this.estudiosForm.push(this.crearEstudio());
-    }
+  eliminarItem(key: string, index: number) {
+    const arr = this.getFormArray(key);
+    if (arr.length > 1) arr.removeAt(index);
   }
 
-  agregarHabilidad() {
-    if (this.habilidadesForm.length < 5) {
-      this.habilidadesForm.push(this.crearHabilidad());
-    }
-  }
-
-  agregarIdioma() {
-    if (this.idiomasForm.length < 5) {
-      this.idiomasForm.push(this.crearIdioma());
-    }
-  }
-
-  eliminarEstudio(index: number) {
-    if (this.estudiosForm.length > 1) {
-      this.estudiosForm.removeAt(index);
-    }
-  }
-
-  eliminarHabilidad(index: number) {
-    if (this.habilidadesForm.length > 1) {
-      this.habilidadesForm.removeAt(index);
-    }
-  }
-
-  eliminarIdioma(index: number) {
-    if (this.idiomasForm.length > 1) {
-      this.idiomasForm.removeAt(index);
-    }
-  }
+  agregarEstudio() { this.agregarItem('estudios'); }
+  agregarHabilidad() { this.agregarItem('habilidades'); }
+  agregarIdioma() { this.agregarItem('idiomas'); }
+  eliminarEstudio(i: number) { this.eliminarItem('estudios', i); }
+  eliminarHabilidad(i: number) { this.eliminarItem('habilidades', i); }
+  eliminarIdioma(i: number) { this.eliminarItem('idiomas', i); }
 
   onCvChange(event: any) {
     const file = event.target.files[0];
-    if (file) {
-      this.cvFile = file;
-      this.postulanteForm.patchValue({ cv: file.name });
-    }
+    if (!file) return;
+    this.cvFile = file;
+    this.postulanteForm.patchValue({ cv: file.name });
+  }
+
+  private onCertificadoChange(event: any, index: number, mapa: Map<number, File>, formArray: FormArray) {
+    const file = event.target.files[0];
+    if (!file) return;
+    mapa.set(index, file);
+    formArray.at(index).get('certificado')?.setValue(file.name);
   }
 
   onCertificadoEstudioChange(event: any, index: number) {
-    const file = event.target.files[0];
-    if (file) {
-      this.certificadosEstudios.set(index, file);
-      const control = this.estudiosForm.at(index).get('certificado');
-      if (control) {
-        control.setValue(file.name);
-      }
-    }
+    this.onCertificadoChange(event, index, this.certificadosEstudios, this.estudiosForm);
   }
-
   onCertificadoHabilidadChange(event: any, index: number) {
-    const file = event.target.files[0];
-    if (file) {
-      this.certificadosHabilidades.set(index, file);
-      const control = this.habilidadesForm.at(index).get('certificado');
-      if (control) {
-        control.setValue(file.name);
-      }
-    }
+    this.onCertificadoChange(event, index, this.certificadosHabilidades, this.habilidadesForm);
   }
-
   onCertificadoIdiomaChange(event: any, index: number) {
-    const file = event.target.files[0];
-    if (file) {
-      this.certificadosIdiomas.set(index, file);
-      const control = this.idiomasForm.at(index).get('certificado');
-      if (control) {
-        control.setValue(file.name);
-      }
-    }
+    this.onCertificadoChange(event, index, this.certificadosIdiomas, this.idiomasForm);
   }
 
   OnPostulante() {
@@ -239,58 +204,38 @@ export class PerfilPostulante implements OnInit {
       return;
     }
 
-    // Permite CV ya guardado anteriormente
-    const cvNombre = this.cvFile ? this.cvFile.name : this.postulanteForm.get('cv')?.value;
+    const cvNombre = this.cvFile?.name ?? this.postulanteForm.get('cv')?.value;
     if (!cvNombre) {
       this.alert.error('Debe cargar su currículum');
       return;
     }
 
+    const val = this.postulanteForm.value;
+
     const datosFormulario = {
-      experiencia: this.postulanteForm.value.experiencia,
+      experiencia: val.experiencia,
       cv: cvNombre,
-      estudios: this.postulanteForm.value.estudios.map((estudio: any, index: number) => {
-        const certificadoFile = this.certificadosEstudios.get(index);
-        return {
-          titulo: estudio.titulo,
-          nivel: estudio.nivel,
-          certificado: certificadoFile ? certificadoFile.name : estudio.certificado || null
-        };
-      }),
-      habilidades: this.postulanteForm.value.habilidades.map((habilidad: any, index: number) => {
-        const certificadoFile = this.certificadosHabilidades.get(index);
-        return {
-          id: habilidad.nombre,
-          certificado: certificadoFile ? certificadoFile.name : habilidad.certificado || null
-        };
-      }),
-      idiomas: this.postulanteForm.value.idiomas.map((idioma: any, index: number) => {
-        const certificadoFile = this.certificadosIdiomas.get(index);
-        return {
-          id: idioma.nombre,
-          certificado: certificadoFile ? certificadoFile.name : idioma.certificado || null
-        };
-      })
+      estudios: val.estudios.map((e: any, i: number) => ({
+        titulo: e.titulo,
+        nivel: e.nivel,
+        certificado: this.certificadosEstudios.get(i)?.name ?? e.certificado ?? null
+      })),
+      habilidades: val.habilidades.map((h: any, i: number) => ({
+        id: h.nombre,
+        certificado: this.certificadosHabilidades.get(i)?.name ?? h.certificado ?? null
+      })),
+      idiomas: val.idiomas.map((id: any, i: number) => ({
+        id: id.nombre,
+        certificado: this.certificadosIdiomas.get(i)?.name ?? id.certificado ?? null
+      }))
     };
 
     this.postulante.guardarPerfilPostulante(this.idPostulante, datosFormulario).subscribe({
-      next: (response) => {
+      next: () => {
         this.alert.success('Perfil guardado exitosamente');
         this.router.navigate(['/match']);
       },
-      error: (error) => {
-        this.alert.error('Error al guardar el perfil');
-      }
+      error: () => this.alert.error('Error al guardar el perfil')
     });
   }
-
-  /*const response = this.postulante.guardarPerfil(perfil);
-
-  if (!!response.success) {
-    this.alert.success(response.message);
-    this.router.navigate(['/match']);
-  } else {
-    this.alert.error(response.message);
-  }*/
-
 }

@@ -33,7 +33,9 @@ describe('Header - onLogout()', () => {
     fixture.detectChanges();
   });
 
-  it('[C-001] Camino 1,2,3,4,F - onLogout() ejecuta logout, navega a "" y cierra el menú', () => {
+  afterEach(() => sessionStorage.clear());
+
+  it('[C-001] onLogout() -> llama logout, navega a "" y cierra menú', () => {
     component.isMenuOpen = true;
 
     component.onLogout();
@@ -43,11 +45,10 @@ describe('Header - onLogout()', () => {
     expect(component.isMenuOpen).toBeFalse();
   });
 
-  it('[C-002] Camino 1,2,3,F - Auth.logout() pone isLogged en false y limpia sessionStorage', () => {
+  it('[C-002] onLogout() -> Auth.logout limpia sesión y pone isLogged en false', () => {
     sessionStorage.setItem('token', 'fake-token');
     sessionStorage.setItem('userId', 'u-1');
     (authSpy as any).isLogged.set(true);
-
     authSpy.logout.and.callFake(() => {
       (authSpy as any).isLogged.set(false);
       sessionStorage.clear();
@@ -59,23 +60,23 @@ describe('Header - onLogout()', () => {
     expect(sessionStorage.length).toBe(0);
   });
 
-  it('después de onLogout(), isMenuOpen queda en false', () => {
+  it('[C-003] onLogout() -> isMenuOpen queda en false sin importar estado previo', () => {
     component.isMenuOpen = true;
+
     component.onLogout();
+
     expect(component.isMenuOpen).toBeFalse();
   });
 
-  it('onLogout() redirige a la ruta raíz ""', () => {
+  it('[C-004] onLogout() -> redirige exactamente a la ruta raíz ""', () => {
     component.onLogout();
+
     expect(router.navigateByUrl).toHaveBeenCalledWith('');
   });
 
-  it('onLogout() invoca el servicio de autenticación para cerrar sesión', () => {
-    component.onLogout();
-    expect(authSpy.logout).toHaveBeenCalled();
-  });
+  it('[C-005] onLogout() -> múltiples llamadas no producen efectos inesperados', () => {
+    component.isMenuOpen = true;
 
-  it('múltiples llamadas a onLogout() no producen efectos inesperados', () => {
     component.onLogout();
     component.onLogout();
 

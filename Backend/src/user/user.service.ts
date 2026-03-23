@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ParseFilePipe } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,54 +9,36 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class UserService {
   constructor(
-    // 1
     @InjectRepository(User)
-    private usuarioRepository: Repository<User>,
+    private readonly usuarioRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async createUser(dto: UserDto) {
-    // 2
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(dto.password, salt);
-
+    const hash = this.hashPassword(dto.password);
     try {
-      const userEntity = this.usuarioRepository.create({ // 3
-        ...dto,
-        password: hash,
-      });
-
-      await this.usuarioRepository.save(userEntity); // 4
-
-      return { // 6
+      const userEntity = this.usuarioRepository.create({ ...dto, password: hash });
+      await this.usuarioRepository.save(userEntity);
+      return {
         success: true,
         message: 'Postulante registrado correctamente',
         user: { id: userEntity.id },
       };
     } catch (error) {
-      console.error(error); // 7
-      throw new BadRequestException('No se pudo crear'); // 8
+      console.error(error);
+      throw new BadRequestException('No se pudo crear');
     }
   }
 
   async loginUser(dto: UserDto) {
     const user = await this.usuarioRepository.findOneBy({ email: dto.email });
-    if (!user) {
-      throw new BadRequestException('Credenciales inválidas');
-    }
+    this.validateCredentials(user, dto.password);
 
-    const isPasswordValid = bcrypt.compareSync(dto.password, user.password);
-    if (!isPasswordValid) {
-      throw new BadRequestException('Credenciales inválidas');
-    }
-
-    const payload = { sub: user.id, email: user.email };
-    const token = this.jwtService.sign(payload);
-
+    const token = this.jwtService.sign({ sub: user!.id, email: user!.email });
     return {
       success: true,
       message: 'Inicio de sesión exitoso',
-      user: { id: user.id },
+      user: { id: user!.id },
       token,
     };
   }
@@ -64,15 +46,24 @@ export class UserService {
   async getPerfilUser(userId: string) {
     const perfil = await this.usuarioRepository.findOne({
       where: { id: userId },
-      relations: ['empresa', 'postulante']
+      relations: ['empresa', 'postulante'],
     });
+    return this.resolverPerfil(perfil);
+  }
 
-    console.log('Perfil encontrado:', perfil);
-    console.log('Postulante:', perfil?.postulante);
+  private hashPassword(password: string): string {
+    const salt = bcrypt.genSaltSync(10);
+    return bcrypt.hashSync(password, salt);
+  }
 
+  private validateCredentials(user: User | null, password: string) {
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      throw new BadRequestException('Credenciales inválidas');
+    }
+  }
+
+  private resolverPerfil(perfil: User | null) {
     if (!perfil) return null;
-    if (perfil.postulante) return perfil.postulante;
-    if (perfil.empresa) return perfil.empresa;
-    return null;
+    return perfil.postulante ?? perfil.empresa ?? null;
   }
 }

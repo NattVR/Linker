@@ -16,97 +16,82 @@ export class Swipe {
   profile = inject(Perfil);
   match = inject(Match);
   auth = inject(Auth);
-  alerts = inject(Alerts)
+  alerts = inject(Alerts);
 
   userType = this.auth.getUserType();
 
-  list: Vacante[] =[];
+  list: Vacante[] = [];
   start = 0;
   current_position = 0;
   isDragging = false;
 
-  ngOnInit(): void {
-    console.log('Swipe Component Initialized');
-    console.log(this.list)
+  @ViewChildren('card') cardElement!: QueryList<ElementRef<HTMLDivElement>>;
+
+  private get firstCard() {
+    return this.cardElement.first.nativeElement;
   }
 
+  private resetCard() {
+    this.firstCard.style.transition = 'transform 0.4s cubic-bezier(0.25, 1.25, 0.5, 1)';
+    this.firstCard.style.transform = 'translateX(0px) rotate(0deg)';
+    this.firstCard.classList.remove('grabbing');
+    this.isDragging = false;
+    this.current_position = 0;
+  }
 
-  @ViewChildren('card') cardElement!: QueryList<ElementRef<HTMLDivElement>>;
+  private buildInteraccion(accion: 'like' | 'dislike', vacante: Vacante): Interaccion {
+    return {
+      accion_postulante: accion,
+      vacante: vacante.id_vacante,
+      postulante: sessionStorage.getItem('perfilId') || '',
+      empresa: vacante.empresa.id_perfil,
+    };
+  }
+
+  private sendAccion(accion: 'like' | 'dislike', vacante: Vacante) {
+    const interaccion = this.buildInteraccion(accion, vacante);
+    this.match.onAction(interaccion).subscribe({
+      next: () => console.log(`${accion} enviado:`, interaccion),
+      error: (err) => console.error(`Error al enviar ${accion}:`, err),
+    });
+  }
 
   onPointerDown(event: PointerEvent) {
     this.start = event.clientX;
     this.isDragging = true;
-    //console.log('se ha tocaod ', this.start);
   }
 
   onPointerMove(event: PointerEvent) {
-    //console.log('point_move');
     if (!this.isDragging) return;
-    //console.log('inicio', this.start);
     this.current_position = event.clientX - this.start;
-    //console.log('Evento', event.clientX);
-    //console.log('currentposition', this.current_position);
-
-    const card = this.cardElement.first.nativeElement;
-    card.style.transform = `translateX(${this.current_position}px) rotate(${
-      this.current_position / 20
-    }deg)`;
+    this.firstCard.style.transform = `translateX(${this.current_position}px) rotate(${this.current_position / 20}deg)`;
   }
 
-  onPointerUp(vacante:Vacante) {
+  onPointerUp(vacante: Vacante) {
     if (!this.isDragging) return;
-    const card = this.cardElement.first.nativeElement;
-    //console.log(card)
-    if (Math.abs(this.current_position) < 110) {
-      card.style.transition = 'transform 0.4s cubic-bezier(0.25, 1.25, 0.5, 1)';
-      card.style.transform = 'translateX(0px) rotate(0deg)';
-      card.classList.remove('grabbing');
-      this.isDragging = false;
-      this.current_position = 0;
+
+    const isSmallMove = Math.abs(this.current_position) < 110;
+    if (isSmallMove) {
+      this.resetCard();
       return;
-    } else if (this.current_position < 0) {
-
-      const interaccion: Interaccion = {
-      accion_postulante: 'dislike',
-      vacante: vacante.id_vacante,
-      postulante: sessionStorage.getItem('perfilId') || '',
-      empresa: vacante.empresa.id_perfil
-      };
-      console.log(interaccion)
-
-      this.match.onAction(interaccion).subscribe({
-      next: () => console.log('Dislike enviado:', interaccion),
-      error: (err) => console.error('Error al enviar dislike:', err)
-      });
-    } else {
-      const interaccion: Interaccion = {
-      accion_postulante: 'like',
-      vacante: vacante.id_vacante,
-      postulante: sessionStorage.getItem('perfilId') || '',
-      empresa: vacante.empresa.id_perfil
-      };
-      this.match.onAction(interaccion).subscribe({
-      next: () => console.log('like enviado:', interaccion),
-      error: (err) => console.error('Error al enviar like:', err)
-      });
     }
-    this.list.shift(); // Elimina la carta actual
 
+    const accion = this.current_position < 0 ? 'dislike' : 'like';
+    this.sendAccion(accion, vacante);
+    this.list.shift();
     this.isDragging = false;
     this.current_position = 0;
   }
 
   getCards() {
-      this.match.getVacantes().subscribe({
-        next: (data: Vacante[]) => {
-          this.list = data;
-          console.log(this.list);
-        },
-        error: (err: any) => {
-          console.log(err);
-          this.alerts.info('No hay mas vacantes disponibles por el momento')
-        },
-      });
+    this.match.getVacantes().subscribe({
+      next: (data: Vacante[]) => {
+        this.list = data;
+      },
+      error: () => {
+        this.alerts.info('No hay mas vacantes disponibles por el momento');
+      },
+    });
   }
 
   filterActivated() {

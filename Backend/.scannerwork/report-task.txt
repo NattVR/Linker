@@ -1,6 +1,0 @@
-projectKey=Linker-Backend
-serverUrl=http://localhost:9000
-serverVersion=26.3.0.120487
-dashboardUrl=http://localhost:9000/dashboard?id=Linker-Backend
-ceTaskId=840c548f-be75-43c6-b186-468b93232803
-ceTaskUrl=http://localhost:9000/api/ce/task?id=840c548f-be75-43c6-b186-468b93232803

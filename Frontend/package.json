@@ -42,13 +42,17 @@
     "@angular/cli": "^20.3.2",
     "@angular/compiler-cli": "^20.2.0",
     "@types/jasmine": "~5.1.0",
+    "@types/jest": "^30.0.0",
     "baseline-browser-mapping": "^2.9.11",
     "jasmine-core": "~5.9.0",
+    "jest": "^30.3.0",
+    "jest-preset-angular": "^16.1.1",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "lcov-result-merger": "^5.0.1",
     "typescript": "~5.9.2"
   }
 }

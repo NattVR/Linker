@@ -75,6 +75,7 @@
           "builder": "@angular/build:karma",
           "options": {
             "codeCoverage": true,
+            "karmaConfig": "karma.conf.js",
             "browsers": "ChromeHeadless",
             "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",

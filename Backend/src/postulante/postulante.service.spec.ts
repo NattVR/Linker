@@ -1,7 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { PostulanteService } from './postulante.service';
 import { Postulante } from './entities/postulante.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -233,5 +232,205 @@ describe('PostulanteService — updatePostulante()', () => {
     expect(postulanteRepo.save).toHaveBeenCalledWith(
       jasmine.objectContaining({ años_experiencia: 1, curriculum: 'viejo.pdf' })
     );
+  });
+});
+
+describe('PostulanteService — getPostulanteById()', () => {
+  let service: PostulanteService;
+  let postulanteRepo: { findOne: jest.Mock };
+
+  beforeEach(async () => {
+    postulanteRepo = { findOne: jest.fn() };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PostulanteService,
+        { provide: getRepositoryToken(Postulante), useValue: postulanteRepo },
+        { provide: getRepositoryToken(User), useValue: { findOne: jest.fn() } },
+        { provide: InteraccionesService, useValue: {} },
+      ],
+    }).compile();
+
+    service = module.get<PostulanteService>(PostulanteService);
+  });
+
+  it('[C-001] postulante existe -> retorna name y lastname', async () => {
+    postulanteRepo.findOne.mockResolvedValue({ name: 'Juan', lastname: 'Perez' });
+
+    const result = await service.getPostulanteById('post-1');
+
+    expect(postulanteRepo.findOne).toHaveBeenCalledWith({
+      where: { id: 'post-1' },
+      relations: ['user'],
+    });
+    expect(result).toEqual({ name: 'Juan', lastname: 'Perez' });
+  });
+
+  it('[C-002] postulante no existe -> NotFoundException', async () => {
+    postulanteRepo.findOne.mockResolvedValue(null);
+
+    await expect(service.getPostulanteById('no-existe'))
+      .rejects.toThrow(new NotFoundException('Usuario no encontrado'));
+  });
+});
+
+describe('PostulanteService — findAll()', () => {
+  let service: PostulanteService;
+  let postulanteRepo: { find: jest.Mock };
+
+  beforeEach(async () => {
+    postulanteRepo = { find: jest.fn() };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PostulanteService,
+        { provide: getRepositoryToken(Postulante), useValue: postulanteRepo },
+        { provide: getRepositoryToken(User), useValue: {} },
+        { provide: InteraccionesService, useValue: {} },
+      ],
+    }).compile();
+
+    service = module.get<PostulanteService>(PostulanteService);
+  });
+
+  it('[C-001] findAll() -> retorna todos los postulantes con relación user', async () => {
+    const postulantes = [{ id: 'p-1' }, { id: 'p-2' }];
+    postulanteRepo.find.mockResolvedValue(postulantes);
+
+    const result = await service.findAll();
+
+    expect(postulanteRepo.find).toHaveBeenCalledWith({ relations: ['user'] });
+    expect(result).toEqual(postulantes);
+  });
+
+  it('[C-002] findAll() -> retorna [] cuando no hay postulantes', async () => {
+    postulanteRepo.find.mockResolvedValue([]);
+
+    const result = await service.findAll();
+
+    expect(result).toEqual([]);
+  });
+});
+
+describe('PostulanteService — getPostulantes()', () => {
+  let service: PostulanteService;
+  let postulanteRepo: { createQueryBuilder: jest.Mock };
+  let interaccionesSvc: { isFilteredPostulantes: jest.Mock };
+  let qbMock: any;
+
+  beforeEach(async () => {
+    qbMock = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getMany: jest.fn(),
+    };
+    postulanteRepo = { createQueryBuilder: jest.fn().mockReturnValue(qbMock) };
+    interaccionesSvc = { isFilteredPostulantes: jest.fn() };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PostulanteService,
+        { provide: getRepositoryToken(Postulante), useValue: postulanteRepo },
+        { provide: getRepositoryToken(User), useValue: {} },
+        { provide: InteraccionesService, useValue: interaccionesSvc },
+      ],
+    }).compile();
+
+    service = module.get<PostulanteService>(PostulanteService);
+  });
+
+  it('[C-001] con excluidos -> andWhere aplicado + formatea resultado', async () => {
+    interaccionesSvc.isFilteredPostulantes.mockResolvedValue(['p-excluido']);
+    qbMock.getMany.mockResolvedValue([{
+      id: 'p-1', name: 'Juan',
+      postulanteHabilidades: [{ habilidades: { nombre_habilidad: 'Angular' } }],
+      postulanteIdiomas: [{ idioma: { nombre: 'Inglés' } }],
+    }]);
+
+    const result = await service.getPostulantes('v-uuid');
+
+    expect(qbMock.andWhere).toHaveBeenCalledWith(
+      'postulante.id NOT IN (:...excluidos)',
+      { excluidos: ['p-excluido'] }
+    );
+    expect(result[0].habilidades).toEqual(['Angular']);
+    expect(result[0].idiomas).toEqual(['Inglés']);
+  });
+
+  it('[C-002] sin excluidos -> andWhere NO aplicado', async () => {
+    interaccionesSvc.isFilteredPostulantes.mockResolvedValue([]);
+    qbMock.getMany.mockResolvedValue([]);
+
+    await service.getPostulantes('v-uuid');
+
+    expect(qbMock.andWhere).not.toHaveBeenCalled();
+  });
+
+  it('[C-003] postulante sin habilidades ni idiomas -> arrays vacíos en resultado', async () => {
+    interaccionesSvc.isFilteredPostulantes.mockResolvedValue([]);
+    qbMock.getMany.mockResolvedValue([{
+      id: 'p-1',
+      postulanteHabilidades: [],
+      postulanteIdiomas: [],
+    }]);
+
+    const result = await service.getPostulantes('v-uuid');
+
+    expect(result[0].habilidades).toEqual([]);
+    expect(result[0].idiomas).toEqual([]);
+  });
+});
+
+describe('PostulanteService — limpiarPerfilPostulante()', () => {
+  let service: PostulanteService;
+  let managerMock: { query: jest.Mock };
+  let postulanteRepo: any;
+
+  beforeEach(async () => {
+    managerMock = { query: jest.fn() };
+    postulanteRepo = { manager: managerMock };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PostulanteService,
+        { provide: getRepositoryToken(Postulante), useValue: postulanteRepo },
+        { provide: getRepositoryToken(User), useValue: {} },
+        { provide: InteraccionesService, useValue: {} },
+      ],
+    }).compile();
+
+    service = module.get<PostulanteService>(PostulanteService);
+  });
+
+  it('[C-001] queries exitosas -> retorna { message: "Perfil limpiado" }', async () => {
+    managerMock.query.mockResolvedValue(undefined);
+
+    const result = await service.limpiarPerfilPostulante('post-1');
+
+    expect(managerMock.query).toHaveBeenCalledTimes(3);
+    expect(result).toEqual({ message: 'Perfil limpiado' });
+  });
+
+  it('[C-002] query falla -> retorna { message: "Sin registros previos" }', async () => {
+    managerMock.query.mockRejectedValue(new Error('db error'));
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const result = await service.limpiarPerfilPostulante('post-1');
+
+    expect(result).toEqual({ message: 'Sin registros previos' });
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it('[C-003] se ejecutan las 3 queries con el id correcto', async () => {
+    managerMock.query.mockResolvedValue(undefined);
+    const id = 'post-uuid-check';
+
+    await service.limpiarPerfilPostulante(id);
+
+    const calls = managerMock.query.mock.calls;
+    expect(calls[0][1]).toEqual([id]);
+    expect(calls[1][1]).toEqual([id]);
+    expect(calls[2][1]).toEqual([id]);
   });
 });

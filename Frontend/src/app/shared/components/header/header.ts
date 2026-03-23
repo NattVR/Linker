@@ -12,7 +12,7 @@ import { Perfil } from '../../services/perfil';
 })
 export class Header {
   router = inject(Router);
-  private authService = inject(Auth);
+  private readonly authService = inject(Auth);
   isLogged = this.authService.isLogged;
   isMenuOpen = false;
   profile = inject(Perfil);
