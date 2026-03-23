@@ -2,5 +2,5 @@ projectKey=backend-linker
 serverUrl=http://localhost:9000
 serverVersion=26.3.0.120487
 dashboardUrl=http://localhost:9000/dashboard?id=backend-linker
-ceTaskId=425fda00-d0a1-4877-81d0-d32cec75e391
-ceTaskUrl=http://localhost:9000/api/ce/task?id=425fda00-d0a1-4877-81d0-d32cec75e391
+ceTaskId=c867fd60-4452-4f38-8735-c39cdd998da0
+ceTaskUrl=http://localhost:9000/api/ce/task?id=c867fd60-4452-4f38-8735-c39cdd998da0
