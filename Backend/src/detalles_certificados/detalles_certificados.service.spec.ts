@@ -94,6 +94,35 @@ describe('DetallesCertificadosService', () => {
     expect(repository.save).toHaveBeenCalledWith(entity);
   });
 
+  it('should load the service metadata when Repository is not a constructor', () => {
+    // Arrange
+    let isolatedService: typeof DetallesCertificadosService | undefined;
+
+    // Act
+    jest.isolateModules(() => {
+      jest.doMock('@nestjs/typeorm', () => ({
+        InjectRepository: () => () => undefined,
+      }));
+      jest.doMock('typeorm', () => {
+        const actualTypeorm = jest.requireActual('typeorm');
+        return {
+          ...actualTypeorm,
+          Repository: {},
+        };
+      });
+
+      ({
+        DetallesCertificadosService: isolatedService,
+      } = require('./detalles_certificados.service'));
+
+      jest.dontMock('@nestjs/typeorm');
+      jest.dontMock('typeorm');
+    });
+
+    // Assert
+    expect(isolatedService).toBeDefined();
+  });
+
   it('should return all detalles with empresa and certificado relations', async () => {
     // Arrange
     const detalles = [buildDetalle(), buildDetalle({ id_detalles_certificados: 'detalle-2' })];

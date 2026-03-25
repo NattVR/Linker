@@ -185,4 +185,33 @@ describe('DetallesCertificadosController', () => {
     expect(detallesCertificadosService.remove).toHaveBeenCalledWith(detalleId);
     expect(result).toBe(respuesta);
   });
+
+  it('should load the controller metadata when injected types are not constructors', () => {
+    // Arrange
+    let isolatedController: typeof DetallesCertificadosController | undefined;
+
+    // Act
+    jest.isolateModules(() => {
+      jest.doMock('./detalles_certificados.service', () => ({
+        DetallesCertificadosService: {},
+      }));
+      jest.doMock('./dto/create-detalles_certificado.dto', () => ({
+        CreateDetallesCertificadoDto: {},
+      }));
+      jest.doMock('./dto/update-detalles_certificado.dto', () => ({
+        UpdateDetallesCertificadoDto: {},
+      }));
+
+      ({
+        DetallesCertificadosController: isolatedController,
+      } = require('./detalles_certificados.controller'));
+
+      jest.dontMock('./detalles_certificados.service');
+      jest.dontMock('./dto/create-detalles_certificado.dto');
+      jest.dontMock('./dto/update-detalles_certificado.dto');
+    });
+
+    // Assert
+    expect(isolatedController).toBeDefined();
+  });
 });

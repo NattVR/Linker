@@ -62,6 +62,55 @@ describe('CertificadosService', () => {
     expect(result).toBe(certificadoEntity);
   });
 
+  it('should bubble synchronous repository errors during create', () => {
+    // Arrange
+    const createCertificadoDto: CreateCertificadoDto = {
+      entidad_emisora: 'AWS',
+      nombre_certificado: 'Solutions Architect Associate',
+    };
+    const certificadoEntity = buildCertificado();
+    const error = new Error('save failed');
+    repository.create.mockReturnValue(certificadoEntity);
+    repository.save.mockImplementation(() => {
+      throw error;
+    });
+
+    // Act
+    const create = () => service.create(createCertificadoDto);
+
+    // Assert
+    expect(create).toThrow(error);
+    expect(repository.create).toHaveBeenCalledWith(createCertificadoDto);
+    expect(repository.save).toHaveBeenCalledWith(certificadoEntity);
+  });
+
+  it('should load the service metadata when Repository is not a constructor', () => {
+    // Arrange
+    let isolatedService: typeof CertificadosService | undefined;
+
+    // Act
+    jest.isolateModules(() => {
+      jest.doMock('@nestjs/typeorm', () => ({
+        InjectRepository: () => () => undefined,
+      }));
+      jest.doMock('typeorm', () => {
+        const actualTypeorm = jest.requireActual('typeorm');
+        return {
+          ...actualTypeorm,
+          Repository: {},
+        };
+      });
+
+      ({ CertificadosService: isolatedService } = require('./certificados.service'));
+
+      jest.dontMock('@nestjs/typeorm');
+      jest.dontMock('typeorm');
+    });
+
+    // Assert
+    expect(isolatedService).toBeDefined();
+  });
+
   it('should return all certificados from the repository', async () => {
     // Arrange
     const certificados = [

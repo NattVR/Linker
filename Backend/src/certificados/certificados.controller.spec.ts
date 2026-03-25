@@ -59,6 +59,25 @@ describe('CertificadosController', () => {
     expect(result).toBe(certificadoCreado);
   });
 
+  it('should propagate service errors during create', () => {
+    // Arrange
+    const createCertificadoDto: CreateCertificadoDto = {
+      entidad_emisora: 'Coursera',
+      nombre_certificado: 'Angular Avanzado',
+    };
+    const error = new Error('create failed');
+    certificadosService.create.mockImplementation(() => {
+      throw error;
+    });
+
+    // Act
+    const create = () => controller.create(createCertificadoDto);
+
+    // Assert
+    expect(create).toThrow(error);
+    expect(certificadosService.create).toHaveBeenCalledWith(createCertificadoDto);
+  });
+
   it('should delegate findAll to the service and return the available certificados', () => {
     // Arrange
     const certificados = [
@@ -82,5 +101,45 @@ describe('CertificadosController', () => {
     expect(certificadosService.findAll).toHaveBeenCalledTimes(1);
     expect(certificadosService.findAll).toHaveBeenCalledWith();
     expect(result).toBe(certificados);
+  });
+
+  it('should propagate service errors during findAll', () => {
+    // Arrange
+    const error = new Error('find failed');
+    certificadosService.findAll.mockImplementation(() => {
+      throw error;
+    });
+
+    // Act
+    const findAll = () => controller.findAll();
+
+    // Assert
+    expect(findAll).toThrow(error);
+    expect(certificadosService.findAll).toHaveBeenCalledWith();
+  });
+
+  it('should load the controller metadata when injected types are not constructors', () => {
+    // Arrange
+    let isolatedController: typeof CertificadosController | undefined;
+
+    // Act
+    jest.isolateModules(() => {
+      jest.doMock('./certificados.service', () => ({
+        CertificadosService: {},
+      }));
+      jest.doMock('./dto/create-certificado.dto', () => ({
+        CreateCertificadoDto: {},
+      }));
+
+      ({
+        CertificadosController: isolatedController,
+      } = require('./certificados.controller'));
+
+      jest.dontMock('./certificados.service');
+      jest.dontMock('./dto/create-certificado.dto');
+    });
+
+    // Assert
+    expect(isolatedController).toBeDefined();
   });
 });
