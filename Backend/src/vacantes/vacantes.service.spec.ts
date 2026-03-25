@@ -220,9 +220,6 @@ describe('HU8RF9 — Publicar Vacante | VacantesService.create()', () => {
 
 });
 
-// =============================================================================
-// Suite 2 — VacantesService.getVacantes()
-// =============================================================================
 describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
     let service: VacantesService;
     let repoMock: any;
@@ -252,9 +249,6 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
         service = module.get<VacantesService>(VacantesService);
     });
 
-    // -------------------------------------------------------------------------
-    // [CB1] vacantesExcluidas=[ids] → andWhere aplicado
-    // -------------------------------------------------------------------------
     it('[CB1] Camino 1,2,3,4,5,6,7,F — vacantesExcluidas=[ids] → andWhere() aplicado → retorna vacantes filtradas', async () => {
         const excluidas = ['v-excluida-1', 'v-excluida-2'];
         interaccionMock.isFilteredVacantes.mockResolvedValue(excluidas);
@@ -268,32 +262,24 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
 
         const result = await service.getVacantes('postulante-uuid');
 
-        // Nodo 1: isFilteredVacantes llamado con postulanteId
         expect(interaccionMock.isFilteredVacantes).toHaveBeenCalledWith(
             'postulante-uuid',
         );
 
-        // Nodo 3→Sí → Nodo 4: andWhere con exclusiones
         expect(qbMock.andWhere).toHaveBeenCalledWith(
             'vacante.id_vacante NOT IN (:...excluidas)',
             { excluidas },
         );
 
-        // Nodo 5: getMany() ejecutado
         expect(qbMock.getMany).toHaveBeenCalled();
 
-        // Nodo 6: map formatea idiomas y habilidades correctamente
         expect(result[0].idiomas).toEqual(['Inglés']);
         expect(result[0].habilidades).toEqual(['React']);
 
-        // Nodo 7: retorna vacantesFormateadas
         expect(result).toHaveLength(1);
         expect(result[0].id_vacante).toBe('v-nueva');
     });
 
-    // -------------------------------------------------------------------------
-    // [CB2] vacantesExcluidas=[] → andWhere NO aplicado
-    // -------------------------------------------------------------------------
     it('[CB2] Camino 1,2,3,5,6,7,F — vacantesExcluidas=[] → andWhere() NO aplicado → retorna todas las vacantes', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
 
@@ -305,21 +291,15 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
 
         const result = await service.getVacantes('postulante-nuevo-uuid');
 
-        // Nodo 3→No: andWhere NO llamado
         expect(qbMock.andWhere).not.toHaveBeenCalled();
 
-        // Nodo 5: getMany sin filtro adicional
         expect(qbMock.getMany).toHaveBeenCalled();
 
-        // Nodo 7: retorna todas
         expect(result).toHaveLength(2);
         expect(result[0].id_vacante).toBe('v-1');
         expect(result[1].id_vacante).toBe('v-2');
     });
 
-    // -------------------------------------------------------------------------
-    // Assertions adicionales getVacantes()
-    // -------------------------------------------------------------------------
     it('getVacantes() — el queryBuilder aplica limit(5)', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
         qbMock.getMany.mockResolvedValue([]);

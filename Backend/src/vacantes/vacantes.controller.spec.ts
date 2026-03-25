@@ -117,4 +117,12 @@ describe('VacantesController', () => {
     await expect(controller.update('id-inexistente', {} as any))
       .rejects.toThrow('Vacante no encontrada');
   });
+
+  it('[C-010] controller se instancia correctamente', () => {
+    expect(controller).toBeDefined();
+  });
+
+  it('[C-011] update() existe como método del controlador', () => {
+    expect(typeof controller.update).toBe('function');
+  });
 });

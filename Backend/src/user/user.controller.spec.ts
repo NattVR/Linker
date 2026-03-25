@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserDto } from './dto/create-user.dto';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
 
 const mockUserService = {
   createUser: jest.fn(),
@@ -107,5 +110,83 @@ describe('UserController', () => {
 
     expect(service.getPerfilUser).toHaveBeenCalledWith(idUser);
     expect(result).toEqual(perfilEmpresa);
+  });
+});
+
+describe('UserService — getPerfilUser()', () => {
+  let service: UserService;
+  let repository: {
+    findOne: jest.Mock;
+  };
+
+  beforeEach(async () => {
+    // Arrange
+    repository = { findOne: jest.fn() };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserService,
+        {
+          provide: getRepositoryToken(User),
+          useValue: repository,
+        },
+        {
+          provide: JwtService,
+          useValue: { sign: jest.fn() },
+        },
+      ],
+    }).compile();
+
+    service = module.get<UserService>(UserService);
+  });
+
+  it('[C-001] usuario no existe -> retorna null', async () => {
+    repository.findOne.mockResolvedValue(null);
+
+    const result = await service.getPerfilUser('user-no-existe');
+
+    expect(repository.findOne).toHaveBeenCalledWith({
+      where: { id: 'user-no-existe' },
+      relations: ['empresa', 'postulante'],
+    });
+    expect(result).toBeNull();
+  });
+
+  it('[C-002] usuario tiene postulante -> retorna postulante', async () => {
+    const postulante = { id: 'post-1', name: 'Juan' };
+    repository.findOne.mockResolvedValue({
+      id: 'user-1',
+      postulante,
+      empresa: null,
+    });
+
+    const result = await service.getPerfilUser('user-1');
+
+    expect(result).toEqual(postulante);
+  });
+
+  it('[C-003] usuario tiene empresa pero no postulante -> retorna empresa', async () => {
+    const empresa = { id: 'emp-1', nombre_empresa: 'Tech Corp' };
+    repository.findOne.mockResolvedValue({
+      id: 'user-2',
+      postulante: null,
+      empresa,
+    });
+
+    const result = await service.getPerfilUser('user-2');
+
+    expect(result).toEqual(empresa);
+  });
+
+  it('[C-004] usuario sin postulante ni empresa -> retorna null', async () => {
+    repository.findOne.mockResolvedValue({
+      id: 'user-3',
+      postulante: null,
+      empresa: null,
+    });
+
+    const result = await service.getPerfilUser('user-3');
+
+    expect(result).toBeNull();
   });
 });

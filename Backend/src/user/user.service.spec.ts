@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
-import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 import { UserDto } from './dto/create-user.dto';
@@ -92,8 +91,6 @@ describe('UserService', () => {
     expect(console.error).toHaveBeenCalled();
   });
 
-
-  // [C1] email único → save() exitoso → success:true + user.id
   it('[C1] Camino 1,2,3,4,5,6,F — email único → save() exitoso → retorna success:true con id', async () => {
     const result = await service.createUser({
       email:    'usuario1@mail.com',
@@ -106,7 +103,6 @@ describe('UserService', () => {
     expect(result.user.id).toBeTruthy();
   });
 
-  // [C2] email duplicado → constraint unique → BadRequestException
   it('[C2] Camino 1,2,3,4,5,7,8,F — email duplicado → save() falla → throw BadRequestException', async () => {
     await service.createUser({ email: 'duplicado@mail.com', password: 'abc123' });
 
@@ -118,10 +114,6 @@ describe('UserService', () => {
       service.createUser({ email: 'duplicado@mail.com', password: 'otraClave' })
     ).rejects.toThrow('No se pudo crear');
   });
-
-  // ===========================================================================
-  // ASSERTIONS ADICIONALES
-  // ===========================================================================
 
   it('createUser() — dos usuarios con emails distintos reciben ids distintos', async () => {
     const r1 = await service.createUser({ email: 'user_a@mail.com', password: '123456' });
@@ -152,8 +144,6 @@ describe('UserService', () => {
     expect(result.user.id).toBeTruthy();
   });
 });
-
-//Casos de pruebas inicio sesión
 
 describe('UserService — loginUser()', () => {
   let service: UserService;

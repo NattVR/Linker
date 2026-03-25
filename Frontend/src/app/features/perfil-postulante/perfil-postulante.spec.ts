@@ -385,4 +385,85 @@ describe('PerfilPostulante — OnPostulante()', () => {
       })
     );
   });
+
+  it('[C-020] cargarCatalogos falla -> isLoading queda en false', () => {
+    perfilSpy.getCatalogosPostulante.and.returnValue(
+      throwError(() => new Error('500'))
+    );
+
+    fixture.detectChanges();
+
+    expect(component.isLoading).toBeFalse();
+  });
+
+  it('[C-021] mapearDato estudios con valores null -> usa string vacío', () => {
+    sessionStorage.setItem('perfilId', '1');
+    perfilSpy.getPerfilCompleto.and.returnValue(of({
+      años_experiencia: null,
+      curriculum: null,
+      postulanteEstudios: [
+        { estudio: null, certificado: null }
+      ],
+      postulanteHabilidades: [],
+      postulanteIdiomas: []
+    }));
+
+    fixture.detectChanges();
+
+    expect(component.estudiosForm.at(0).get('titulo')?.value).toBe('');
+    expect(component.estudiosForm.at(0).get('nivel')?.value).toBe('');
+    expect(component.estudiosForm.at(0).get('certificado')?.value).toBe('');
+  });
+
+  it('[C-022] mapearDato habilidades con valores null -> usa string vacío', () => {
+    sessionStorage.setItem('perfilId', '1');
+    perfilSpy.getPerfilCompleto.and.returnValue(of({
+      años_experiencia: null,
+      curriculum: null,
+      postulanteEstudios: [],
+      postulanteHabilidades: [
+        { habilidades: null, certificado: null }
+      ],
+      postulanteIdiomas: []
+    }));
+
+    fixture.detectChanges();
+
+    expect(component.habilidadesForm.at(0).get('nombre')?.value).toBe('');
+    expect(component.habilidadesForm.at(0).get('certificado')?.value).toBe('');
+  });
+
+  it('[C-023] mapearDato idiomas con valores null -> usa string vacío', () => {
+    sessionStorage.setItem('perfilId', '1');
+    perfilSpy.getPerfilCompleto.and.returnValue(of({
+      años_experiencia: null,
+      curriculum: null,
+      postulanteEstudios: [],
+      postulanteHabilidades: [],
+      postulanteIdiomas: [
+        { idioma: null, certificado: null }
+      ]
+    }));
+
+    fixture.detectChanges();
+
+    expect(component.idiomasForm.at(0).get('nombre')?.value).toBe('');
+    expect(component.idiomasForm.at(0).get('certificado')?.value).toBe('');
+  });
+
+  it('[C-024] patchValue con años_experiencia y curriculum null -> usa string vacío', () => {
+    sessionStorage.setItem('perfilId', '1');
+    perfilSpy.getPerfilCompleto.and.returnValue(of({
+      años_experiencia: null,
+      curriculum: null,
+      postulanteEstudios: [],
+      postulanteHabilidades: [],
+      postulanteIdiomas: []
+    }));
+
+    fixture.detectChanges();
+
+    expect(component.postulanteForm.get('experiencia')?.value).toBe('');
+    expect(component.postulanteForm.get('cv')?.value).toBe('');
+  });
 });

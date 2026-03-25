@@ -3,7 +3,7 @@ import { CreateVacanteDto } from './dto/create-vacante.dto';
 import { UpdateVacanteDto } from './dto/update-vacante.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vacante } from './entities/vacante.entity';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { InteraccionesService } from 'src/interacciones/interacciones.service';
 
 @Injectable()
@@ -42,14 +42,22 @@ export class VacantesService {
 
   async getVacantes(postulanteId: string) {
     const excluidas = await this.interaccionService.isFilteredVacantes(postulanteId);
-    const query = this.buildVacanteQuery();
 
-    if (excluidas?.length > 0) {
-      query.andWhere('vacante.id_vacante NOT IN (:...excluidas)', { excluidas });
-    }
+    const vacantes = await this.vacanteRepository.find({
+      where: excluidas?.length > 0
+        ? { id_vacante: Not(In(excluidas)) }
+        : {},
+      relations: [
+        'empresa',
+        'vacanteHabilidades',
+        'vacanteHabilidades.habilidades',
+        'vacantesIdiomas',
+        'vacantesIdiomas.idioma',
+      ],
+      take: 5,
+    });
 
-    const resultado = await query.getMany();
-    return resultado.map(v => this.formatearVacante(v));
+    return vacantes.map(v => this.formatearVacante(v));
   }
 
   async update(id: string, dto: UpdateVacanteDto) {

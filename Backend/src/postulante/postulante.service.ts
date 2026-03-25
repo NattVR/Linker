@@ -3,7 +3,7 @@ import { CreatePostulanteDto } from './dto/create-postulante.dto';
 import { Postulante } from './entities/postulante.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { InteraccionesService } from 'src/interacciones/interacciones.service';
 
 @Injectable()
@@ -39,16 +39,21 @@ export class PostulanteService {
   }
 
   async getPostulantes(vacanteId: string) {
-    const excluidos = await this.interaccionesService.isFilteredPostulantes(vacanteId);
-    const query = this.buildPostulanteQuery();
+  const excluidos = await this.interaccionesService.isFilteredPostulantes(vacanteId);
 
-    if (excluidos?.length > 0) {
-      query.andWhere('postulante.id NOT IN (:...excluidos)', { excluidos });
-    }
-
-    const resultado = await query.getMany();
-    return this.formatearPostulantes(resultado);
-  }
+  return this.postulanteRepository.find({
+    where: excluidos?.length > 0
+      ? { id: Not(In(excluidos)) }
+      : {},
+    relations: [
+      'postulanteHabilidades',
+      'postulanteHabilidades.habilidades',
+      'postulanteIdiomas',
+      'postulanteIdiomas.idioma',
+    ],
+    take: 5,
+  }).then(resultado => this.formatearPostulantes(resultado));
+}
 
   async updatePostulante(idUsuario: string, dto: any) {
     const postulante = await this.postulanteRepository.findOne({ where: { id: idUsuario } });
@@ -105,11 +110,11 @@ export class PostulanteService {
   }
 
   private async eliminarRelaciones(idPostulante: string) {
-    const query = (sql: string) =>
-      this.postulanteRepository.manager.query(sql, [idPostulante]);
-
-    await query(`DELETE FROM postulante_habilidades WHERE id_postulante = $1`);
-    await query(`DELETE FROM postulante_idiomas WHERE id_postulante = $1`);
-    await query(`DELETE FROM detalles_estudios WHERE id_postulante = $1`);
+    await this.postulanteRepository
+    .createQueryBuilder()
+    .delete()
+    .from('postulante_habilidades')
+    .where('id_postulante = :id', { id: idPostulante })
+    .execute();
   }
 }
