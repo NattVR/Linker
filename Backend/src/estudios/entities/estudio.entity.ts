@@ -1,9 +1,7 @@
 import { DetalleEstudio } from 'src/detalles_estudios/entities/detalle_estudio.entity';
-import { Postulante } from 'src/postulante/entities/postulante.entity';
 import {
   Column,
   Entity,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';

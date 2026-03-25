@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Sidebar } from './sidebar/sidebar';
 import { Swipe } from './swipe/swipe';
 import { Filter } from './filter/filter';
@@ -23,11 +23,4 @@ export class Match {
   get userType(): boolean {
     return this.auth.getUserType();
   }
-
-
-  
-  //userType = this.auth.getUserType();
-  //console.log('Tipo de usuario:', this.userType);
-  
-
 }

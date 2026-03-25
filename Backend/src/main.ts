@@ -23,4 +23,4 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? PORT);
 }
 
-void bootstrap();
+void bootstrap(); // NOSONAR typescript:S4123

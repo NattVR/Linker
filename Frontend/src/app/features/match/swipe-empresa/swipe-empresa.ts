@@ -95,7 +95,7 @@ export class SwipeEmpresa {
   }
 
     private enviarInteraccion(postulanteId: string, accion: 'like' | 'dislike'): void {
-    const vacanteId = sessionStorage.getItem('vacante'); // ← leer aquí, no del readonly
+    const vacanteId = sessionStorage.getItem('vacante');
     const empresaId = sessionStorage.getItem('perfilId');
   
     console.log('vacanteId:', vacanteId);

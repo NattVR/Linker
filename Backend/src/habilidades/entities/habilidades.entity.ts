@@ -3,7 +3,6 @@ import { VacanteHabilidade } from 'src/vacante_habilidades/entities/vacante_habi
 import {
   Column,
   Entity,
-  JoinTable,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';

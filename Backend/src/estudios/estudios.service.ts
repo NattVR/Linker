@@ -9,7 +9,7 @@ import { Estudio } from './entities/estudio.entity';
 export class EstudiosService {
   constructor(
     @InjectRepository(Estudio)
-    private estudiosRepository: Repository<Estudio>,
+    private readonly estudiosRepository: Repository<Estudio>,
   ) {}
 
   async create(createEstudioDto: CreateEstudioDto) {

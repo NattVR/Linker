@@ -4,14 +4,14 @@
 
       @if (!isLoading) {
         <div class="perfil-header">
-          <img src="assets/img/match-user-icon.webp" class="foto" />
+          <img src="assets/img/match-user-icon.webp" class="foto" alt="Foto usuario"/>
           <span class="nombre">{{ name }}</span>
         </div>
       }
 
       <div class="campo">
         <div class="mini-titulo">
-          <label>Mi CV</label>
+          <span>Mi CV</span>
         </div>
         <select formControlName="experiencia">
           <option value="">Experiencia</option>
@@ -30,7 +30,7 @@
         @for (estudio of estudiosForm.controls; track $index; let i = $index) {
           <div [formGroupName]="i" class="campo">
             <div class="mini-titulo">
-              <label>Estudios {{ i + 1 }}</label>
+              <span>Estudios {{ i + 1 }}</span>
             </div>
             <input type="text" placeholder="Título" formControlName="titulo" />
             <select formControlName="nivel">
@@ -65,7 +65,7 @@
         @for (habilidad of habilidadesForm.controls; track $index; let i = $index) {
           <div [formGroupName]="i" class="campo">
             <div class="mini-titulo">
-              <label>Habilidad {{ i + 1 }}</label>
+              <span>Habilidad {{ i + 1 }}</span>
             </div>
             <select formControlName="nombre">
               <option value="">Selecciona una habilidad</option>
@@ -95,7 +95,7 @@
         @for (idioma of idiomasForm.controls; track $index; let i = $index) {
           <div [formGroupName]="i" class="campo">
             <div class="mini-titulo">
-              <label>Idioma {{ i + 1 }}</label>
+              <span>Idioma {{ i + 1 }}</span>
             </div>
             <select formControlName="nombre">
               <option value="">Selecciona un idioma</option>

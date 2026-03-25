@@ -1,6 +1,6 @@
 import { Certificado } from 'src/certificados/entities/certificado.entity';
 import { Empresa } from 'src/empresa/entities/empresa.entity';
-import { IsDate, IsOptional } from 'class-validator';
+import { IsDate } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateDetallesCertificadoDto {

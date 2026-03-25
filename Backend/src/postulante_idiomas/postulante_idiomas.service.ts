@@ -11,11 +11,11 @@ import { PostulanteIdioma } from './entities/postulante_idioma.entity';
 export class PostulanteIdiomasService {
   constructor(
     @InjectRepository(Postulante)
-    private postulanteRepository: Repository<Postulante>,
+    private readonly postulanteRepository: Repository<Postulante>,
     @InjectRepository(Idioma)
-    private idiomaRepository: Repository<Idioma>,
+    private readonly idiomaRepository: Repository<Idioma>,
     @InjectRepository(PostulanteIdioma)
-    private postulanteIdiomaRepository: Repository<PostulanteIdioma>,
+    private readonly postulanteIdiomaRepository: Repository<PostulanteIdioma>,
   ) {}
 
   async create(createPostulanteIdiomaDto: CreatePostulanteIdiomaDto) {

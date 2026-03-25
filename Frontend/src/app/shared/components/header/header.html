@@ -1,7 +1,7 @@
 <header>
   <nav>
     <ul>
-      <li routerLink="" >
+      <li routerLink="">
         <h1>Linker</h1>
       </li>
       @if(isLogged()) {
@@ -24,18 +24,16 @@
         <a href="#home" (click)="closeMenu()">Inicio</a>
         <a href="#features" (click)="closeMenu()">Nosotros</a>
         <a href="#cta" (click)="closeMenu()">Comenzar</a>
-        
-        <a class="login-button-responsive" routerLink="login" (click)="closeMenu()"
-          >Login</a
-        >
+
+        <a class="login-button-responsive" routerLink="login" (click)="closeMenu()">Login</a>
       </li>
       <li>
         <button class="login-button" routerLink="login" (click)="closeMenu()">Login</button>
       </li>
       }
-      <li class="menu-icon" (click)="toggleMenu()">
+      <button class="menu-icon" type="button" (click)="toggleMenu()">
         <i class="fa-solid fa-bars hamburguer-icon"></i>
-      </li>
+      </button>
     </ul>
   </nav>
 </header>

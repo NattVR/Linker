@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 export class VacantesIdiomasService {
   constructor(
     @InjectRepository(VacantesIdioma)
-    private vacantesIdiomaRepository: Repository<VacantesIdioma>,
+    private readonly vacantesIdiomaRepository: Repository<VacantesIdioma>,
   ) {}
 
   async create(createVacantesIdiomaDto: CreateVacantesIdiomaDto) {

@@ -2,7 +2,6 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  ManyToOne,
   JoinColumn,
   OneToOne,
   OneToMany,
@@ -11,7 +10,6 @@ import {
 import { User } from 'src/user/entities/user.entity';
 import { DetallesCertificado } from 'src/detalles_certificados/entities/detalles_certificado.entity';
 import { Vacante } from 'src/vacantes/entities/vacante.entity';
-import { Match } from 'src/matches/entities/match.entity';
 
 @Entity('empresas')
 export class Empresa {

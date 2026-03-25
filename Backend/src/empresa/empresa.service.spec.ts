@@ -81,26 +81,18 @@ describe('EmpresaService', () => {
   });
 
   it('should be defined', () => {
-    // Arrange
-
-    // Act
-
-    // Assert
     expect(service).toBeDefined();
   });
 
   it('should return all empresas with the user relation', () => {
-    // Arrange
     const empresas = [
       buildEmpresa({ id: 'emp-1', user: { id: 'user-1' } as User }),
       buildEmpresa({ id: 'emp-2', user: { id: 'user-2' } as User }),
     ];
     empresaRepository.find.mockReturnValue(empresas);
 
-    // Act
     const result = service.findAll();
 
-    // Assert
     expect(empresaRepository.find).toHaveBeenCalledTimes(1);
     expect(empresaRepository.find).toHaveBeenCalledWith({
       relations: ['user'],
@@ -109,14 +101,11 @@ describe('EmpresaService', () => {
   });
 
   it('should throw NotFoundException when the associated user does not exist', async () => {
-    // Arrange
     const dto = buildCreateEmpresaDto({ id_perfil: 'user-inexistente' });
     usuarioRepository.findOne.mockResolvedValue(null);
 
-    // Act
     const result = service.createEmpresa(dto);
 
-    // Assert
     await expect(result).rejects.toThrow(NotFoundException);
     await expect(result).rejects.toThrow(
       'No se encontró el perfil de usuario asociado.',
@@ -129,7 +118,6 @@ describe('EmpresaService', () => {
   });
 
   it('should create and save the empresa when the associated user exists', async () => {
-    // Arrange
     const dto = buildCreateEmpresaDto();
     const user = { id: 'user-1' } as User;
     const empresa = buildEmpresa({ user });
@@ -137,10 +125,8 @@ describe('EmpresaService', () => {
     empresaRepository.create.mockReturnValue(empresa);
     empresaRepository.save.mockResolvedValue(empresa);
 
-    // Act
     const result = await service.createEmpresa(dto);
 
-    // Assert
     expect(usuarioRepository.findOne).toHaveBeenCalledTimes(1);
     expect(usuarioRepository.findOne).toHaveBeenCalledWith({
       where: { id: dto.id_perfil },
@@ -159,14 +145,11 @@ describe('EmpresaService', () => {
   });
 
   it('should return the empresa when getEmpresaById finds a match', async () => {
-    // Arrange
     const empresa = buildEmpresa({ user: { id: 'user-1' } as User });
     empresaRepository.findOne.mockResolvedValue(empresa);
 
-    // Act
     const result = await service.getEmpresaById('user-1');
 
-    // Assert
     expect(empresaRepository.findOne).toHaveBeenCalledTimes(1);
     expect(empresaRepository.findOne).toHaveBeenCalledWith({
       where: { user: { id: 'user-1' } },
@@ -175,13 +158,10 @@ describe('EmpresaService', () => {
   });
 
   it('should return null when getEmpresaById does not find a match', async () => {
-    // Arrange
     empresaRepository.findOne.mockResolvedValue(null);
 
-    // Act
     const result = await service.getEmpresaById('user-inexistente');
 
-    // Assert
     expect(empresaRepository.findOne).toHaveBeenCalledWith({
       where: { user: { id: 'user-inexistente' } },
     });
@@ -189,13 +169,10 @@ describe('EmpresaService', () => {
   });
 
   it('should return true when isEmpresa finds a related empresa', async () => {
-    // Arrange
     empresaRepository.findOne.mockResolvedValue(buildEmpresa());
 
-    // Act
     const result = await service.isEmpresa('user-1');
 
-    // Assert
     expect(empresaRepository.findOne).toHaveBeenCalledWith({
       where: { user: { id: 'user-1' } },
     });
@@ -203,13 +180,10 @@ describe('EmpresaService', () => {
   });
 
   it('should return false when isEmpresa does not find a related empresa', async () => {
-    // Arrange
     empresaRepository.findOne.mockResolvedValue(null);
 
-    // Act
     const result = await service.isEmpresa('user-inexistente');
 
-    // Assert
     expect(empresaRepository.findOne).toHaveBeenCalledWith({
       where: { user: { id: 'user-inexistente' } },
     });
@@ -217,7 +191,6 @@ describe('EmpresaService', () => {
   });
 
   it('should merge and save the empresa when update finds an existing record', async () => {
-    // Arrange
     const empresa = buildEmpresa({ id: 'emp-1' });
     const updateEmpresaDto: UpdateEmpresaDto = {
       name_empresa: 'Empresa Actualizada',
@@ -231,10 +204,8 @@ describe('EmpresaService', () => {
     empresaRepository.merge.mockReturnValue(empresaActualizada);
     empresaRepository.save.mockResolvedValue(empresaActualizada);
 
-    // Act
     const result = await service.update('user-1', updateEmpresaDto);
 
-    // Assert
     expect(empresaRepository.findOne).toHaveBeenCalledWith({
       where: { user: { id: 'user-1' } },
     });
@@ -249,16 +220,13 @@ describe('EmpresaService', () => {
   });
 
   it('should throw NotFoundException when update does not find an empresa', async () => {
-    // Arrange
     const updateEmpresaDto: UpdateEmpresaDto = {
       name_empresa: 'Empresa Inexistente',
     };
     empresaRepository.findOne.mockResolvedValue(null);
 
-    // Act
     const result = service.update('user-inexistente', updateEmpresaDto);
 
-    // Assert
     await expect(result).rejects.toThrow(NotFoundException);
     await expect(result).rejects.toThrow('Empresa no encontrada');
     expect(empresaRepository.findOne).toHaveBeenCalledWith({

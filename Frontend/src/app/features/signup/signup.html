@@ -25,13 +25,17 @@
     @if (currentStep === 1) {
     <form [formGroup]="postulanteForm">
       <div class="form-group">
-        <label>Nombres</label>
-        <input type="text" formControlName="name" placeholder="Tu nombre" />
+        <label>
+          Nombres
+          <input type="text" formControlName="name" placeholder="Tu nombre" />
+        </label>
       </div>
 
       <div class="form-group">
-        <label>Apellidos</label>
-        <input type="text" formControlName="lastname" placeholder="Tu apellido" />
+        <label>
+          Apellidos
+          <input type="text" formControlName="lastname" placeholder="Tu apellido" />
+        </label>
       </div>
 
       <div class="button-group">
@@ -43,18 +47,24 @@
   @if (currentStep === 2) {
     <form [formGroup]="signupForm">
       <div class="form-group">
-        <label>Email</label>
-        <input type="email" formControlName="email" placeholder="Ingresa tu email" />
+        <label>
+          Email
+          <input type="email" formControlName="email" placeholder="Ingresa tu email" />
+        </label>
       </div>
 
       <div class="form-group">
-        <label>Contraseña</label>
-        <input type="password" formControlName="password" placeholder="Ingresa tu contraseña" />
+        <label>
+          Contraseña
+          <input type="password" formControlName="password" placeholder="Ingresa tu contraseña" />
+        </label>
       </div>
 
       <div class="form-group">
-        <label>Confirmar contraseña</label>
-        <input type="password" formControlName="repassword" placeholder="Repite tu contraseña" />
+        <label>
+          Confirmar contraseña
+          <input type="password" formControlName="repassword" placeholder="Repite tu contraseña" />
+        </label>
       </div>
     
 

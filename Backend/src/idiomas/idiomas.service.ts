@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 export class IdiomasService {
   constructor(
     @InjectRepository(Idioma)
-    private idiomasRepository: Repository<Idioma>,
+    private readonly idiomasRepository: Repository<Idioma>,
   ) {}
 
   async create(createIdiomaDto: CreateIdiomaDto) {

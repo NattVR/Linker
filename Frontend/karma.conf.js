@@ -16,16 +16,16 @@ module.exports = function (config) {
       suppressAll: true
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage'),
+      dir: require('path').join(__dirname, './coverage/frontend'),
       subdir: '.',
       reporters: [
         { type: 'html' },
-        { type: 'lcov' },
+        { type: 'lcovonly', file: 'lcov.info' },
         { type: 'text-summary' }
       ]
     },
     reporters: ['progress', 'kjhtml', 'coverage'],
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
     restartOnFileChange: true
   });
 };

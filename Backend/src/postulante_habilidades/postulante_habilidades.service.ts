@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreatePostulanteHabilidadeDto } from './dto/create-postulante_habilidade.dto';
 import { UpdatePostulanteHabilidadeDto } from './dto/update-postulante_habilidade.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 export class PostulanteHabilidadesService {
   constructor(
     @InjectRepository(PostulanteHabilidades)
-    private postulanteHabilidadesRepository: Repository<PostulanteHabilidades>,
+    private readonly postulanteHabilidadesRepository: Repository<PostulanteHabilidades>,
   ) {}
 
   async create(createPostulanteHabilidadeDto: CreatePostulanteHabilidadeDto) {

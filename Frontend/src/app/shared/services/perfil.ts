@@ -1,8 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { v4 as uuid4 } from 'uuid';
 import { Auth } from './auth';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, forkJoin, Observable, of, switchMap } from 'rxjs';
+import { forkJoin, Observable, switchMap } from 'rxjs';
 
 interface PerfilPostulanteResponse {
   name: string;
@@ -147,7 +146,7 @@ export class Perfil {
         ...detalleEstudios$,
         ...postulanteHabilidades$,
         ...postulanteIdiomas$,
-      ]))
+      ] as Observable<any>[]))
     );
 
   }
@@ -163,20 +162,4 @@ export class Perfil {
   deleteCertificado(id: string): Observable<any> {
     return this.http.delete(`http://localhost:3000/detalles-certificados/${id}`);
   }
-
-  /*guardarPerfil(perfil: PerfilPostulanteModel| PerfilEmpresaModel) {
-    let user= this.auth.getUser()
-    if(user){
-      let userData= localStorage.getItem(user)
-      if(userData){
-        let parsedUser = JSON.parse(userData);
-        parsedUser.perfil= perfil;
-        localStorage.setItem(user, JSON.stringify(parsedUser));
-        return{success:true , message:'Usuario registrado exitosamente'}
-      }
-      return{success:false , message:'Usuario no encontrado'}
-    }  
-
-    return{success:false , message:'Usuario np encontrado :)'}
-  }*/
 }

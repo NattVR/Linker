@@ -1,16 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Perfil } from './perfil';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Match {
   http = inject(HttpClient);
-  //isEmpresa=sessionStorage.getItem('isEmpresa');
-  //user = sessionStorage.getItem('userId');
-  //perfil= sessionStorage.getItem('perfilId');
 
   get perfil() {
     return sessionStorage.getItem('perfilId');

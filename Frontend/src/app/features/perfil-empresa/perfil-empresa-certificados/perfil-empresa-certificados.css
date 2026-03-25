@@ -16,7 +16,8 @@
   border: none;
   padding: 10px 8px;
   border-radius: 8px;
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: #4f46e5;
+  background-image: linear-gradient(145deg, #4f46e5, #db2777);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -157,7 +158,8 @@ button:focus {
 }
 
 .publish-button {
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: #4f46e5;
+  background-image: linear-gradient(145deg, #4f46e5, #db2777);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -175,6 +177,7 @@ button:focus {
   justify-content: center;
   gap: 0.5rem;
 }
+
 
 /* ── Cert readonly (modo edición) ───────────────────────────────────── */
 .cert-readonly {
@@ -315,11 +318,12 @@ button:focus {
 }
 
 .dropdown-item.selected {
-  background-color: rgba(99, 102, 241, 0.2);
-  color: #a5b4fc;
+  background-color: #2d2f52;
+  color: #e0e7ff;
   font-weight: 600;
-  box-shadow: inset 3px 0 0 #6366f1;
+  box-shadow: inset 3px 0 0 #e0e7ff;
 }
+
 
 .dropdown-empty {
   padding: 1rem;
@@ -464,23 +468,23 @@ button:focus {
 }
 
 .btn-edit {
-  background: rgba(99, 102, 241, 0.15);
-  color: #6366f1;
+  background: #e0e0fb;
+  color: #3730a3;
 }
 
 .btn-edit:hover {
-  background: #6366f1;
+  background: #4f46e5;
   color: white;
   transform: translateY(-2px);
 }
 
 .btn-delete {
-  background: rgba(236, 72, 153, 0.15);
-  color: #ec4899;
+  background: #fce7f3;
+  color: #9d174d;
 }
 
 .btn-delete:hover {
-  background: #ec4899;
+  background: #db2777;
   color: white;
   transform: translateY(-2px);
 }

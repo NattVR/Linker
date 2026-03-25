@@ -18,7 +18,7 @@
 
     <div class="card-content">
       <div class="card-image-container">
-        <img alt="Card Image" class="card-image" />
+        <img alt="Card" class="card-image" />
         <div class="distance-badge"><i class="fa-solid fa-location-dot"></i>{{ v.ubicacion }}</div>
         <button class="filter-btn" (click)="filterActivated()">
             <i class="fa-solid fa-sliders"></i>
@@ -29,7 +29,6 @@
           <div class="card-name">{{ v.titulo}}</div>
           <div class="card-salary"><i class="fa-solid fa-hand-holding-dollar"></i>{{ ' $'+ v.salario }}</div>
         </div>
-        <!--<div class="card-description">{{ v.description }}</div>-->
   
         <div class="tags">
           @for(tag of v.habilidades; track tag) {

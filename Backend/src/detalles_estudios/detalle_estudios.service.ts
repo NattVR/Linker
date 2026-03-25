@@ -3,13 +3,13 @@ import { CreateDetalleEstudioDto } from './dto/create-detalle_estudio.dto';
 import { UpdateDetalleEstudioDto } from './dto/update-detalle_estudio.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DetalleEstudio } from './entities/detalle_estudio.entity';
-import { Repository, DeepPartial } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class DetalleEstudiosService {
   constructor(
     @InjectRepository(DetalleEstudio)
-    private detalleEstudioRepository: Repository<DetalleEstudio>,
+    private readonly detalleEstudioRepository: Repository<DetalleEstudio>,
   ) {}
   
   async create(createDetalleEstudioDto: CreateDetalleEstudioDto): Promise<DetalleEstudio> {

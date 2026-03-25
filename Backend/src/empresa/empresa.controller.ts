@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
 } from '@nestjs/common';
 import { EmpresaService } from './empresa.service';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';

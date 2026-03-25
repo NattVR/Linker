@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 export class HabilidadesService {
   constructor(
     @InjectRepository(Habilidades)
-    private habilidadesRepository: Repository<Habilidades>,
+    private readonly habilidadesRepository: Repository<Habilidades>,
   ) {}
 
   create(createHabilidadeDto: CreateHabilidadeDto) {

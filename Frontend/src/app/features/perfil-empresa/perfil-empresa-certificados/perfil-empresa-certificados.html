@@ -34,11 +34,14 @@
         <div class="dropdown-empty">No hay certificados disponibles</div>
         }
         @for (cert of certificados; track cert.id_certificado) {
-        <div (click)="seleccionarCertificado(cert)" class="dropdown-item"
+        <button
+          type="button"
+          (click)="seleccionarCertificado(cert)"
+          class="dropdown-item"
           [class.selected]="certificadoSeleccionado?.id_certificado === cert.id_certificado">
           <span class="cert-nombre">{{ cert.nombre_certificado }}</span>
           <span class="cert-entidad">{{ cert.entidad_emisora }}</span>
-        </div>
+        </button>
         }
       </div>
       }
@@ -54,14 +57,18 @@
     <form [formGroup]="certificadoForm" (ngSubmit)="submitForm()">
       <div class="form-group-grid form-group-grid-2">
         <div class="form-group">
-          <label>Fecha de Emisión</label>
-          <input type="date" formControlName="fechaEmision" class="form-input"
-            [class.input-error]="certificadoForm.get('fechaEmision')?.invalid && certificadoForm.get('fechaEmision')?.touched" />
+          <label>
+            Fecha de Emisión
+            <input type="date" formControlName="fechaEmision" class="form-input"
+              [class.input-error]="certificadoForm.get('fechaEmision')?.invalid && certificadoForm.get('fechaEmision')?.touched" />
+          </label>
         </div>
         <div class="form-group">
-          <label>Fecha de Caducidad</label>
-          <input type="date" formControlName="fechaCaducidad" class="form-input"
-            [class.input-error]="certificadoForm.get('fechaCaducidad')?.invalid && certificadoForm.get('fechaCaducidad')?.touched" />
+          <label>
+            Fecha de Caducidad
+            <input type="date" formControlName="fechaCaducidad" class="form-input"
+              [class.input-error]="certificadoForm.get('fechaCaducidad')?.invalid && certificadoForm.get('fechaCaducidad')?.touched" />
+          </label>
         </div>
       </div>
 

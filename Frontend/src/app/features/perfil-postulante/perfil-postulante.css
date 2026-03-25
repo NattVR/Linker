@@ -106,15 +106,13 @@ button:focus {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-
 .campo label[for^="cv"]:hover,
 .campo label[for^="certificado-estudios"]:hover,
 .campo label[for^="certificado-habilidades"]:hover,
 .campo label[for^="certificado-idiomas"]:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 6px 20px rgba(67, 56, 202, 0.35);
 }
-
 
 .campo input::placeholder {
   color: #9ca3af;
@@ -134,7 +132,7 @@ button:focus {
 .campo label[for^="certificado-estudios"],
 .campo label[for^="certificado-habilidades"],
 .campo label[for^="certificado-idiomas"] {
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: linear-gradient(145deg, #4338ca, #be185d);
   color: white;
   padding: 10px 10px;
   border-radius: 8px;
@@ -143,13 +141,12 @@ button:focus {
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 15px rgba(67, 56, 202, 0.25);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: inline-block;
   text-align: center;
 }
-
 
 .botones-container {
   display: flex;
@@ -168,15 +165,14 @@ button:focus {
   display: flex;
   font-size: 0.875rem;
   font-weight: 600;
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: linear-gradient(145deg, #4338ca, #be185d);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 15px rgba(67, 56, 202, 0.25);
 }
-
 
 .eliminar {
   width: auto;
@@ -189,20 +185,19 @@ button:focus {
   justify-content: center;
   font-size: 0.875rem;
   font-weight: 600;
-  background: #ef4444;
+  background: #b91c1c;
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 15px rgba(185, 28, 28, 0.25);
 }
-
 
 .btn-guardar {
   width: 100%;
   margin-top: 2rem;
-  background: linear-gradient(145deg, #6366f1, #ec4899);
+  background: linear-gradient(145deg, #4338ca, #be185d);
   border: none;
   padding: 1rem 2rem;
   color: white;
@@ -211,7 +206,7 @@ button:focus {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 15px rgba(67, 56, 202, 0.25);
   text-transform: uppercase;
   letter-spacing: 1px;
   position: relative;
@@ -288,7 +283,7 @@ button:focus {
 
   .campo input,
   .campo select {
-    font-size: 16px; 
+    font-size: 16px;
   }
 
   .botones-container {

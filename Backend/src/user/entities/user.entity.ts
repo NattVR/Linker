@@ -2,7 +2,6 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  OneToMany,
   OneToOne,
 } from 'typeorm';
 import { Postulante } from 'src/postulante/entities/postulante.entity';
