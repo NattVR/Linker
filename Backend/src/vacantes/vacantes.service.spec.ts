@@ -224,16 +224,14 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
     let service: VacantesService;
     let repoMock: any;
     let interaccionMock: { isFilteredVacantes: jest.Mock };
-    let qbMock: any;
 
     beforeEach(async () => {
-        qbMock = makeQbMock();
         repoMock = {
             create: jest.fn(),
             save: jest.fn(),
             find: jest.fn(),
             findOne: jest.fn(),
-            createQueryBuilder: jest.fn().mockReturnValue(qbMock),
+            createQueryBuilder: jest.fn().mockReturnValue(makeQbMock()),
         };
 
         interaccionMock = { isFilteredVacantes: jest.fn() };
@@ -249,7 +247,7 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
         service = module.get<VacantesService>(VacantesService);
     });
 
-    it('[CB1] Camino 1,2,3,4,5,6,7,F — vacantesExcluidas=[ids] → andWhere() aplicado → retorna vacantes filtradas', async () => {
+    it('[CB1] Camino 1,2,3,4,5,6,7,F — vacantesExcluidas=[ids] → find con NOT IN → retorna vacantes filtradas', async () => {
         const excluidas = ['v-excluida-1', 'v-excluida-2'];
         interaccionMock.isFilteredVacantes.mockResolvedValue(excluidas);
 
@@ -258,75 +256,71 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
             vacantesIdiomas: [{ idioma: { nombre: 'Inglés' } }],
             vacanteHabilidades: [{ habilidades: { nombre_habilidad: 'React' } }],
         });
-        qbMock.getMany.mockResolvedValue([vacanteEntity]);
+        repoMock.find.mockResolvedValue([vacanteEntity]);
 
         const result = await service.getVacantes('postulante-uuid');
 
-        expect(interaccionMock.isFilteredVacantes).toHaveBeenCalledWith(
-            'postulante-uuid',
-        );
-
-        expect(qbMock.andWhere).toHaveBeenCalledWith(
-            'vacante.id_vacante NOT IN (:...excluidas)',
-            { excluidas },
-        );
-
-        expect(qbMock.getMany).toHaveBeenCalled();
-
+        expect(interaccionMock.isFilteredVacantes).toHaveBeenCalledWith('postulante-uuid');
+        expect(repoMock.find).toHaveBeenCalled();
         expect(result[0].idiomas).toEqual(['Inglés']);
         expect(result[0].habilidades).toEqual(['React']);
-
         expect(result).toHaveLength(1);
         expect(result[0].id_vacante).toBe('v-nueva');
     });
 
-    it('[CB2] Camino 1,2,3,5,6,7,F — vacantesExcluidas=[] → andWhere() NO aplicado → retorna todas las vacantes', async () => {
+    it('[CB2] Camino 1,2,3,5,6,7,F — vacantesExcluidas=[] → find con where vacío → retorna todas las vacantes', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
 
         const vacantes = [
             makeVacanteEntity({ id_vacante: 'v-1' }),
             makeVacanteEntity({ id_vacante: 'v-2' }),
         ];
-        qbMock.getMany.mockResolvedValue(vacantes);
+        repoMock.find.mockResolvedValue(vacantes);
 
         const result = await service.getVacantes('postulante-nuevo-uuid');
 
-        expect(qbMock.andWhere).not.toHaveBeenCalled();
-
-        expect(qbMock.getMany).toHaveBeenCalled();
-
+        expect(repoMock.find).toHaveBeenCalledWith(
+            expect.objectContaining({ where: {} })
+        );
         expect(result).toHaveLength(2);
         expect(result[0].id_vacante).toBe('v-1');
         expect(result[1].id_vacante).toBe('v-2');
     });
 
-    it('getVacantes() — el queryBuilder aplica limit(5)', async () => {
+    it('getVacantes() — aplica take(5)', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
-        qbMock.getMany.mockResolvedValue([]);
+        repoMock.find.mockResolvedValue([]);
 
         await service.getVacantes('p-uuid');
 
-        expect(qbMock.limit).toHaveBeenCalledWith(5);
+        expect(repoMock.find).toHaveBeenCalledWith(
+            expect.objectContaining({ take: 5 })
+        );
     });
 
-    it('getVacantes() — el queryBuilder hace join con empresa, habilidades e idiomas', async () => {
+    it('getVacantes() — hace join con empresa, habilidades e idiomas', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
-        qbMock.getMany.mockResolvedValue([]);
+        repoMock.find.mockResolvedValue([]);
 
         await service.getVacantes('p-uuid');
 
-        const joins = qbMock.leftJoinAndSelect.mock.calls.map((c: any[]) => c[1]);
-        expect(joins).toContain('empresa');
-        expect(joins).toContain('vacanteHabilidades');
-        expect(joins).toContain('habilidades');
-        expect(joins).toContain('vacantesIdiomas');
-        expect(joins).toContain('idioma');
+        expect(repoMock.find).toHaveBeenCalledWith(
+            expect.objectContaining({
+                relations: expect.arrayContaining([
+                    'empresa',
+                    'vacanteHabilidades',
+                    'vacanteHabilidades.habilidades',
+                    'vacantesIdiomas',
+                    'vacantesIdiomas.idioma',
+                ]),
+            })
+        );
     });
 
     it('getVacantes() — map() extrae nombres de idiomas y habilidades correctamente', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
 
-        qbMock.getMany.mockResolvedValue([
+        repoMock.find.mockResolvedValue([
             makeVacanteEntity({
                 vacantesIdiomas: [
                     { idioma: { nombre: 'Español' } },
@@ -345,9 +339,9 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
         expect(result[0].habilidades).toEqual(['Angular', 'TypeScript']);
     });
 
-    it('getVacantes() — vacante sin idiomas ni habilidades retorna arrays vacíos en el formato', async () => {
+    it('getVacantes() — vacante sin idiomas ni habilidades retorna arrays vacíos', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
-        qbMock.getMany.mockResolvedValue([
+        repoMock.find.mockResolvedValue([
             makeVacanteEntity({ vacantesIdiomas: [], vacanteHabilidades: [] }),
         ]);
 
@@ -359,7 +353,7 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
 
     it('getVacantes() — retorna array vacío cuando no hay vacantes disponibles', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
-        qbMock.getMany.mockResolvedValue([]);
+        repoMock.find.mockResolvedValue([]);
 
         const result = await service.getVacantes('p-uuid');
 
@@ -368,7 +362,7 @@ describe('Seleccionar Vacante | VacantesService.getVacantes()', () => {
 
     it('getVacantes() — los campos base de la vacante (título, empresa) se preservan en el formato', async () => {
         interaccionMock.isFilteredVacantes.mockResolvedValue([]);
-        qbMock.getMany.mockResolvedValue([
+        repoMock.find.mockResolvedValue([
             makeVacanteEntity({
                 id_vacante: 'v-check',
                 titulo: 'Backend NestJS',

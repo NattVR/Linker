@@ -12,7 +12,7 @@ export class VacantesService {
     @InjectRepository(Vacante)
     private readonly vacanteRepository: Repository<Vacante>,
     private readonly interaccionService: InteraccionesService,
-  ) {}
+  ) { }
 
   async create(dto: CreateVacanteDto) {
     const { vacantesIdiomas, vacanteHabilidades, empresa, ...vacanteData } = dto;
@@ -100,14 +100,14 @@ export class VacantesService {
   }
 
   private asignarIdiomas(vacante: Vacante, ids?: string[]) {
-    if (ids?.length) {
-      vacante.vacantesIdiomas = ids.map(id_idioma => ({ idioma: { id_idioma } }) as any);
-    }
+    vacante.vacantesIdiomas = ids?.length
+      ? ids.map(id_idioma => ({ idioma: { id_idioma } }) as any)
+      : [];
   }
 
   private asignarHabilidades(vacante: Vacante, ids?: string[]) {
-    if (ids?.length) {
-      vacante.vacanteHabilidades = ids.map(id_habilidad => ({ habilidades: { id_habilidad } }) as any);
-    }
+    vacante.vacanteHabilidades = ids?.length
+      ? ids.map(id_habilidad => ({ habilidades: { id_habilidad } }) as any)
+      : [];
   }
 }
