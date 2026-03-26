@@ -55,29 +55,25 @@ describe('Signup', () => {
   }
 
   describe('nextStep', () => {
-    it('moves to step 2 when the postulante form is valid', () => {
-      // Arrange
+    it('moves to step 2 postulante form is valid', () => {
+     
       setValidPostulante();
 
-      // Act
       component.nextStep();
 
-      // Assert
       expect(component.currentStep).toBe(2);
       expect(alertsSpy.error).not.toHaveBeenCalled();
     });
 
-    it('keeps step 1, marks fields as touched and shows an error when the postulante form is invalid', () => {
-      // Arrange
+    it('se queda en step 1, marks fields as touched y error postulante form is invalid', () => {
+
       component.postulanteForm.setValue({
         name: '',
         lastname: '',
       });
 
-      // Act
       component.nextStep();
 
-      // Assert
       expect(component.currentStep).toBe(1);
       expect(component.postulanteForm.get('name')?.touched).toBeTrue();
       expect(component.postulanteForm.get('lastname')?.touched).toBeTrue();
@@ -87,20 +83,17 @@ describe('Signup', () => {
 
   describe('previousStep', () => {
     it('returns to step 1', () => {
-      // Arrange
+     
       component.currentStep = 2;
 
-      // Act
       component.previousStep();
 
-      // Assert
       expect(component.currentStep).toBe(1);
     });
   });
 
   describe('onSignUp', () => {
-    it('stops the flow when passwords do not match', () => {
-      // Arrange
+    it('stops the flow when passwords missmatch', () => {
       component.signupForm.setValue({
         email: 'test@mail.com',
         password: 'abc12345678',
@@ -108,17 +101,14 @@ describe('Signup', () => {
       });
       setValidPostulante();
 
-      // Act
       component.onSignUp();
 
-      // Assert
       expect(component.signupForm.hasError('passwordMismatch')).toBeTrue();
       expect(alertsSpy.error).toHaveBeenCalledWith(jasmine.stringMatching(/^Las contrase/));
       expect(authSpy.signUp).not.toHaveBeenCalled();
     });
 
-    it('stops the flow when a form is invalid and marks controls as touched', () => {
-      // Arrange
+    it(' para cuando form is invalid and marks controls as touched', () => {
       component.signupForm.setValue({
         email: '',
         password: 'abc12345678',
@@ -129,43 +119,39 @@ describe('Signup', () => {
         lastname: 'Perez',
       });
 
-      // Act
       component.onSignUp();
 
-      // Assert
       expect(component.signupForm.get('email')?.touched).toBeTrue();
       expect(component.postulanteForm.get('name')?.touched).toBeTrue();
       expect(alertsSpy.error).toHaveBeenCalledWith('Campos incorrectos');
       expect(authSpy.signUp).not.toHaveBeenCalled();
     });
 
-    it('shows the backend message when signUp responds with success false', () => {
-      // Arrange
+    it('backend message signUp responde con success false', () => {
+
       setValidForms();
       authSpy.signUp.and.returnValue(
         of({ success: false, message: 'El correo ya esta registrado' })
       );
 
-      // Act
       component.onSignUp();
 
-      // Assert
+  
       expect(authSpy.signUp).toHaveBeenCalled();
       expect(authSpy.signUpPostulante).not.toHaveBeenCalled();
       expect(alertsSpy.error).toHaveBeenCalledWith('El correo ya esta registrado');
       expect(navigateSpy).not.toHaveBeenCalled();
     });
 
-    it('shows an error when the signUp request fails', () => {
-      // Arrange
+    it('serror cuando signUp request fails', () => {
+    
       const requestError = new Error('network error');
       setValidForms();
       authSpy.signUp.and.returnValue(throwError(() => requestError));
 
-      // Act
+
       component.onSignUp();
 
-      // Assert
       const lastErrorCall = alertsSpy.error.calls.mostRecent().args;
       expect(authSpy.signUpPostulante).not.toHaveBeenCalled();
       expect(alertsSpy.error).toHaveBeenCalled();
@@ -174,16 +160,13 @@ describe('Signup', () => {
       expect(navigateSpy).not.toHaveBeenCalled();
     });
 
-    it('registers the postulante, shows success and redirects when both requests succeed', () => {
-      // Arrange
+    it('registers the postulante, shows success and redirects cuando las dos requests succeed', () => {
       setValidForms();
       authSpy.signUp.and.returnValue(of({ success: true, user: { id: 10 } }));
       authSpy.signUpPostulante.and.returnValue(of({ message: 'ok' }));
 
-      // Act
       component.onSignUp();
 
-      // Assert
       expect(authSpy.signUp).toHaveBeenCalled();
       expect(authSpy.signUpPostulante).toHaveBeenCalledWith(
         jasmine.objectContaining({
@@ -198,17 +181,14 @@ describe('Signup', () => {
       expect(navigateSpy).toHaveBeenCalledWith(['login']);
     });
 
-    it('shows an error when postulante registration fails', () => {
-      // Arrange
+    it(' error cuando postulante registration fails', () => {
       const requestError = new Error('postulante error');
       setValidForms();
       authSpy.signUp.and.returnValue(of({ success: true, user: { id: 10 } }));
       authSpy.signUpPostulante.and.returnValue(throwError(() => requestError));
 
-      // Act
       component.onSignUp();
 
-      // Assert
       const lastErrorCall = alertsSpy.error.calls.mostRecent().args;
       expect(authSpy.signUpPostulante).toHaveBeenCalled();
       expect(alertsSpy.error).toHaveBeenCalled();

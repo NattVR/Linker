@@ -240,9 +240,9 @@ export class PerfilVacantes {
       },
       error: err => {
         alert('Error al cargar vacantes');
-        this.logger.log('error al cargar vacantes' + JSON.stringify(err))
+        //this.logger.log('error al cargar vacantes' + JSON.stringify(err))
       }
     });
-    this.logger.log(JSON.stringify(this.vacantes))
+    //this.logger.log(JSON.stringify(this.vacantes))
   }
 }
