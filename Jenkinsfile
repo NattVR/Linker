@@ -69,8 +69,15 @@ pipeline {
         stage('SonarQube') {
             steps {
                 script {
-                    runCommand("cd Backend && npm run test:cov")
-                    runCommand("cd Frontend && ng test --watch=false --code-coverage")
+                    dir('Backend') {
+                        runCommand("npm install")
+                        runCommand("npm run test:cov")
+                    }
+                    dir('Frontend') {
+                        runCommand("npm install")
+                        runCommand("ng test --watch=false --code-coverage")
+                    }
+
                 }
             }
         }
