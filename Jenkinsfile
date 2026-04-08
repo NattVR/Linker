@@ -66,6 +66,15 @@ pipeline {
             }
         }
 
+        stage('SonarQube') {
+            steps {
+                script {
+                    runCommand("cd Backend && npm run test:cov")
+                    runCommand("cd Frontend && ng test --watch=false --code-coverage")
+                }
+            }
+        }
+
         stage('Deploy') {
             when {
                 expression { params.DEPLOY }
