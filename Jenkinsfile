@@ -31,6 +31,7 @@ pipeline {
         DB_PASSWORD = credentials('DB_PASSWORD')
         DB_DATABASE = credentials('DB_DATABASE')
         JWT_SECRET = credentials('JWT_SECRET')
+        CHROME_BIN = '/usr/bin/chromium'
         DB_PORT = '5432'
     }
 
