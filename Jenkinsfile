@@ -75,7 +75,7 @@ pipeline {
                     }
                     dir('Frontend') {
                         runCommand("npm install --legacy-peer-deps")
-                        runCommand("ng test --watch=false --code-coverage")
+                        runCommand("npx ng test --watch=false --code-coverage")
                     }
 
                 }
