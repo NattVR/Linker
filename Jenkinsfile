@@ -58,15 +58,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Build Images') {
-            steps {
-                script {
-                    runCommand("docker compose -f ${env.COMPOSE_FILE} build")
-                }
-            }
-        }
-
         stage('SonarQube') {
             steps {
                 script {
@@ -76,12 +67,23 @@ pipeline {
                     }
                     dir('Frontend') {
                         runCommand("npm install --legacy-peer-deps")
-                        runCommand("npx ng test --watch=false --code-coverage")
+                        runCommand("npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI")
                     }
-
+                    withSonarQubeEnv('SonarQube') {
+                        runCommand("npx sonar-scanner")
+                    }
                 }
             }
         }
+
+        stage('Build Images') {
+            steps {
+                script {
+                    runCommand("docker compose -f ${env.COMPOSE_FILE} up -d --remove-orphans")
+                }
+            }
+        }
+
 
         stage('Deploy') {
             when {

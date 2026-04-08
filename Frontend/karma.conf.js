@@ -21,9 +21,15 @@ module.exports = function (config) {
       reporters: [
         { type: 'html' },
         { type: 'lcovonly', file: 'lcov.info' },
-        { type: 'text-summary' }
       ]
     },
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage']
+      }
+    },
+    browsers: ['ChromeHeadlessCI'],
     reporters: ['progress', 'kjhtml', 'coverage'],
     browsers: ['ChromeHeadless'],
     restartOnFileChange: true
