@@ -21,17 +21,21 @@ module.exports = function (config) {
       reporters: [
         { type: 'html' },
         { type: 'lcovonly', file: 'lcov.info' },
+        { type: 'text-summary' }
       ]
     },
+    reporters: ['progress', 'kjhtml', 'coverage'],
     customLaunchers: {
       ChromeHeadlessCI: {
         base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage']
+        flags: [
+          '--no-sandbox',
+          '--disable-gpu',
+          '--disable-dev-shm-usage'
+        ]
       }
     },
     browsers: ['ChromeHeadlessCI'],
-    reporters: ['progress', 'kjhtml', 'coverage'],
-    browsers: ['ChromeHeadless'],
     restartOnFileChange: true
   });
 };
