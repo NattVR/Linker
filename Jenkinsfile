@@ -74,7 +74,7 @@ pipeline {
                         runCommand("npm run test:cov")
                     }
                     dir('Frontend') {
-                        runCommand("npm install")
+                        runCommand("npm install --legacy-peer-deps")
                         runCommand("ng test --watch=false --code-coverage")
                     }
 
