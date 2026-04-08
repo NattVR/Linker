@@ -3,8 +3,13 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-    env_file:
-      - ./Backend/.env
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "3000:3000"
     restart: unless-stopped
