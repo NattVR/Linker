@@ -29,7 +29,7 @@ export class Login {
     const user = this.loginForm.value as User;
 
     this.auth.login(user).pipe(
-      switchMap((response) => {
+      switchMap(response => {
         this.handleLoginSuccess(response);
         return this.profile.getIsEmpresa(response.user.id);
       }),
@@ -43,8 +43,7 @@ export class Login {
         sessionStorage.setItem('perfilId', perfilData.id);
         this.router.navigate(['match']);
       },
-      error: (err) => {
-        console.error(err);
+      error: err => {
         this.alert.error('Error en la solicitud');
       }
     });

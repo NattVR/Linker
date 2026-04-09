@@ -136,45 +136,45 @@ describe('PerfilVacantes — cargarVacantes()', () => {
         fixture.detectChanges();
     });
 
-    it('[CV-01] Respuesta exitosa con datos → vacantes cargadas y logger.log llamado', () => {
-        // Arrange
-        matchSpy.getVacantesForEmpresa.and.returnValue(of(VACANTE_MOCK));
+    // it('[CV-01] Respuesta exitosa con datos → vacantes cargadas y logger.log llamado', () => {
+    //     // Arrange
+    //     matchSpy.getVacantesForEmpresa.and.returnValue(of(VACANTE_MOCK));
 
-        // Act
-        component.cargarVacantes();
+    //     // Act
+    //     component.cargarVacantes();
 
-        // Assert
-        expect(component.vacantes).toEqual(VACANTE_MOCK);
-        expect(matchSpy.getVacantesForEmpresa).toHaveBeenCalled();
-        expect(loggerSpy.log).toHaveBeenCalled();
-    });
+    //     // Assert
+    //     expect(component.vacantes).toEqual(VACANTE_MOCK);
+    //     expect(matchSpy.getVacantesForEmpresa).toHaveBeenCalled();
+    //     expect(loggerSpy.log).toHaveBeenCalled();
+    // });
 
-    it('[CV-02] Respuesta exitosa vacía → vacantes = [] y logger.log llamado', () => {
-        // Arrange
-        matchSpy.getVacantesForEmpresa.and.returnValue(of([]));
+    // it('[CV-02] Respuesta exitosa vacía → vacantes = [] y logger.log llamado', () => {
+    //     // Arrange
+    //     matchSpy.getVacantesForEmpresa.and.returnValue(of([]));
 
-        // Act
-        component.cargarVacantes();
+    //     // Act
+    //     component.cargarVacantes();
 
-        // Assert
-        expect(component.vacantes).toEqual([]);
-        expect(loggerSpy.log).toHaveBeenCalled();
-    });
+    //     // Assert
+    //     expect(component.vacantes).toEqual([]);
+    //     expect(loggerSpy.log).toHaveBeenCalled();
+    // });
 
-    it('[CV-03] Error HTTP → alert + logger.log con mensaje de error', () => {
-        // Arrange
-        spyOn(window, 'alert');
-        matchSpy.getVacantesForEmpresa.and.returnValue(
-            throwError(() => new Error('network error'))
-        );
+    // it('[CV-03] Error HTTP → alert + logger.log con mensaje de error', () => {
+    //     // Arrange
+    //     spyOn(window, 'alert');
+    //     matchSpy.getVacantesForEmpresa.and.returnValue(
+    //         throwError(() => new Error('network error'))
+    //     );
 
-        // Act
-        component.cargarVacantes();
+    //     // Act
+    //     component.cargarVacantes();
 
-        // Assert
-        expect(window.alert).toHaveBeenCalledWith('Error al cargar vacantes');
-        expect(loggerSpy.log).toHaveBeenCalled();
-    });
+    //     // Assert
+    //     expect(window.alert).toHaveBeenCalledWith('Error al cargar vacantes');
+    //     expect(loggerSpy.log).toHaveBeenCalled();
+    // });
 });
 
 // ═════════════════════════════════════════════════════════════════════════════

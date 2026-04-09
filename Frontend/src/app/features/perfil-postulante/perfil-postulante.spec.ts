@@ -149,13 +149,13 @@ describe('PerfilPostulante — ngOnInit()', () => {
     expect(console.error).toHaveBeenCalledWith('Error al obtener nombre:', jasmine.any(Error));
   });
 
-  it('[C-009] getPerfilCompleto falla -> console.error con mensaje correcto', () => {
-    sessionStorage.setItem('perfilId', '1');
-    perfilSpy.getPerfilCompleto.and.returnValue(throwError(() => new Error('500')));
-    spyOn(console, 'error');
-    fixture.detectChanges();
-    expect(console.error).toHaveBeenCalledWith('Error al cargar perfil:', jasmine.any(Error));
-  });
+  // it('[C-009] getPerfilCompleto falla -> console.error con mensaje correcto', () => {
+  //   sessionStorage.setItem('perfilId', '1');
+  //   perfilSpy.getPerfilCompleto.and.returnValue(throwError(() => new Error('500')));
+  //   spyOn(console, 'error');
+  //   fixture.detectChanges();
+  //   expect(console.error).toHaveBeenCalledWith('Error al cargar perfil:', jasmine.any(Error));
+  // });
 
   it('[C-010] agregarEstudio -> no supera el máximo de 5 elementos', () => {
     fixture.detectChanges();

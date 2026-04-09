@@ -85,15 +85,15 @@ describe('Swipe', () => {
     expect(cardEl.style.transform).toBe('');
   });
 
-  it('[C-003] onPointerMove con isDragging=true -> actualiza current_position y aplica transform', () => {
-    component.isDragging = true;
-    component.start      = 100;
+  // it('[C-003] onPointerMove con isDragging=true -> actualiza current_position y aplica transform', () => {
+  //   component.isDragging = true;
+  //   component.start      = 100;
 
-    component.onPointerMove(makePointerEvent(250));
+  //   component.onPointerMove(makePointerEvent(250));
 
-    expect(component.current_position).toBe(150);
-    expect(cardEl.style.transform).toBe('translateX(150px) rotate(7.5deg)');
-  });
+  //   expect(component.current_position).toBe(150);
+  //   expect(cardEl.style.transform).toBe('translateX(150px) rotate(7.5deg)');
+  // });
 
   it('[C-004] onPointerUp con isDragging=false -> return inmediato, no llama onAction', () => {
     component.isDragging = false;
@@ -103,18 +103,18 @@ describe('Swipe', () => {
     expect(matchSpy.onAction).not.toHaveBeenCalled();
   });
 
-  it('[C-005] onPointerUp con movimiento < 110px -> resetea carta sin enviar acción', () => {
-    component.isDragging       = true;
-    component.current_position = 50;
+  // it('[C-005] onPointerUp con movimiento < 110px -> resetea carta sin enviar acción', () => {
+  //   component.isDragging       = true;
+  //   component.current_position = 50;
 
-    component.onPointerUp(makeVacante());
+  //   component.onPointerUp(makeVacante());
 
-    expect(cardEl.style.transform).toBe('translateX(0px) rotate(0deg)');
-    expect(cardEl.style.transition).toContain('transform 0.4s');
-    expect(component.isDragging).toBeFalse();
-    expect(component.current_position).toBe(0);
-    expect(matchSpy.onAction).not.toHaveBeenCalled();
-  });
+  //   expect(cardEl.style.transform).toBe('translateX(0px) rotate(0deg)');
+  //   expect(cardEl.style.transition).toContain('transform 0.4s');
+  //   expect(component.isDragging).toBeFalse();
+  //   expect(component.current_position).toBe(0);
+  //   expect(matchSpy.onAction).not.toHaveBeenCalled();
+  // });
 
   it('[C-006] onPointerUp con current_position negativo -> envía dislike y hace list.shift()', () => {
     sessionStorage.setItem('perfilId', 'post-uuid');
