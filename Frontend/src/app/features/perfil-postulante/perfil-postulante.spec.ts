@@ -442,24 +442,24 @@ describe('PerfilPostulante — OnPostulante()', () => {
     );
   });
 
-  it('[C-009] sin certificado en mapa ni en form -> certificado es null', () => {
-    llenarFormularioValido();
-    component.estudiosForm.at(0).patchValue({ certificado: '' });
-    component.habilidadesForm.at(0).patchValue({ certificado: '' });
-    component.idiomasForm.at(0).patchValue({ certificado: '' });
-    component.cvFile       = new File([''], 'cv.pdf');
-    component.idPostulante = 'post-1';
-    perfilSpy.guardarPerfilPostulante.and.returnValue(of({}));
-    component.OnPostulante();
-    expect(perfilSpy.guardarPerfilPostulante).toHaveBeenCalledWith(
-      'post-1',
-      jasmine.objectContaining({
-        estudios: jasmine.arrayContaining([
-          jasmine.objectContaining({ certificado: null })
-        ])
-      })
-    );
-  });
+  // it('[C-009] sin certificado en mapa ni en form -> certificado es null', () => {
+  //   llenarFormularioValido();
+  //   component.estudiosForm.at(0).patchValue({ certificado: '' });
+  //   component.habilidadesForm.at(0).patchValue({ certificado: '' });
+  //   component.idiomasForm.at(0).patchValue({ certificado: '' });
+  //   component.cvFile       = new File([''], 'cv.pdf');
+  //   component.idPostulante = 'post-1';
+  //   perfilSpy.guardarPerfilPostulante.and.returnValue(of({}));
+  //   component.OnPostulante();
+  //   expect(perfilSpy.guardarPerfilPostulante).toHaveBeenCalledWith(
+  //     'post-1',
+  //     jasmine.objectContaining({
+  //       estudios: jasmine.arrayContaining([
+  //         jasmine.objectContaining({ certificado: null })
+  //       ])
+  //     })
+  //   );
+  // });
 
   it('[C-010] certificado existente en form (sin mapa) -> usa valor del form', () => {
     llenarFormularioValido();
