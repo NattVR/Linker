@@ -112,14 +112,12 @@ pipeline {
         success {
             echo 'Pipeline ejecutado correctamente'
         }
-
         failure {
             echo 'El pipeline fallo. Revisa los logs en Jenkins.'
         }
-
         always {
             script {
-                runCommand('docker image prune -f')
+                sh 'docker image prune -f || true'
             }
         }
     }

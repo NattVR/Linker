@@ -112,70 +112,70 @@ async function buildTestBed(
 // Suite 1 — cargarVacantes()
 // ═════════════════════════════════════════════════════════════════════════════
 
-describe('PerfilVacantes — cargarVacantes()', () => {
-    let component: PerfilVacantes;
-    let fixture: ComponentFixture<PerfilVacantes>;
-    let perfilSpy: jasmine.SpyObj<Perfil>;
-    let matchSpy: jasmine.SpyObj<Match>;
-    let loggerSpy: jasmine.SpyObj<LoggerService>;
+// describe('PerfilVacantes — cargarVacantes()', () => {
+//     let component: PerfilVacantes;
+//     let fixture: ComponentFixture<PerfilVacantes>;
+//     let perfilSpy: jasmine.SpyObj<Perfil>;
+//     let matchSpy: jasmine.SpyObj<Match>;
+//     let loggerSpy: jasmine.SpyObj<LoggerService>;
 
-    beforeEach(async () => {
-        perfilSpy = jasmine.createSpyObj<Perfil>('Perfil', [
-            'getHabilidades', 'getIdiomas', 'updateVacante',
-            'createVacante', 'getCatalogosPostulante',
-        ]);
-        matchSpy = jasmine.createSpyObj<Match>('Match', ['getVacantesForEmpresa']);
-        loggerSpy = jasmine.createSpyObj<LoggerService>('LoggerService', ['log', 'error']);
+//     beforeEach(async () => {
+//         perfilSpy = jasmine.createSpyObj<Perfil>('Perfil', [
+//             'getHabilidades', 'getIdiomas', 'updateVacante',
+//             'createVacante', 'getCatalogosPostulante',
+//         ]);
+//         matchSpy = jasmine.createSpyObj<Match>('Match', ['getVacantesForEmpresa']);
+//         loggerSpy = jasmine.createSpyObj<LoggerService>('LoggerService', ['log', 'error']);
 
-        matchSpy.getVacantesForEmpresa.and.returnValue(of([]));
+//         matchSpy.getVacantesForEmpresa.and.returnValue(of([]));
 
-        await buildTestBed(perfilSpy, matchSpy, loggerSpy);
+//         await buildTestBed(perfilSpy, matchSpy, loggerSpy);
 
-        fixture = TestBed.createComponent(PerfilVacantes);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+//         fixture = TestBed.createComponent(PerfilVacantes);
+//         component = fixture.componentInstance;
+//         fixture.detectChanges();
+//     });
 
-    // it('[CV-01] Respuesta exitosa con datos → vacantes cargadas y logger.log llamado', () => {
-    //     // Arrange
-    //     matchSpy.getVacantesForEmpresa.and.returnValue(of(VACANTE_MOCK));
+//     // it('[CV-01] Respuesta exitosa con datos → vacantes cargadas y logger.log llamado', () => {
+//     //     // Arrange
+//     //     matchSpy.getVacantesForEmpresa.and.returnValue(of(VACANTE_MOCK));
 
-    //     // Act
-    //     component.cargarVacantes();
+//     //     // Act
+//     //     component.cargarVacantes();
 
-    //     // Assert
-    //     expect(component.vacantes).toEqual(VACANTE_MOCK);
-    //     expect(matchSpy.getVacantesForEmpresa).toHaveBeenCalled();
-    //     expect(loggerSpy.log).toHaveBeenCalled();
-    // });
+//     //     // Assert
+//     //     expect(component.vacantes).toEqual(VACANTE_MOCK);
+//     //     expect(matchSpy.getVacantesForEmpresa).toHaveBeenCalled();
+//     //     expect(loggerSpy.log).toHaveBeenCalled();
+//     // });
 
-    // it('[CV-02] Respuesta exitosa vacía → vacantes = [] y logger.log llamado', () => {
-    //     // Arrange
-    //     matchSpy.getVacantesForEmpresa.and.returnValue(of([]));
+//     // it('[CV-02] Respuesta exitosa vacía → vacantes = [] y logger.log llamado', () => {
+//     //     // Arrange
+//     //     matchSpy.getVacantesForEmpresa.and.returnValue(of([]));
 
-    //     // Act
-    //     component.cargarVacantes();
+//     //     // Act
+//     //     component.cargarVacantes();
 
-    //     // Assert
-    //     expect(component.vacantes).toEqual([]);
-    //     expect(loggerSpy.log).toHaveBeenCalled();
-    // });
+//     //     // Assert
+//     //     expect(component.vacantes).toEqual([]);
+//     //     expect(loggerSpy.log).toHaveBeenCalled();
+//     // });
 
-    // it('[CV-03] Error HTTP → alert + logger.log con mensaje de error', () => {
-    //     // Arrange
-    //     spyOn(window, 'alert');
-    //     matchSpy.getVacantesForEmpresa.and.returnValue(
-    //         throwError(() => new Error('network error'))
-    //     );
+//     // it('[CV-03] Error HTTP → alert + logger.log con mensaje de error', () => {
+//     //     // Arrange
+//     //     spyOn(window, 'alert');
+//     //     matchSpy.getVacantesForEmpresa.and.returnValue(
+//     //         throwError(() => new Error('network error'))
+//     //     );
 
-    //     // Act
-    //     component.cargarVacantes();
+//     //     // Act
+//     //     component.cargarVacantes();
 
-    //     // Assert
-    //     expect(window.alert).toHaveBeenCalledWith('Error al cargar vacantes');
-    //     expect(loggerSpy.log).toHaveBeenCalled();
-    // });
-});
+//     //     // Assert
+//     //     expect(window.alert).toHaveBeenCalledWith('Error al cargar vacantes');
+//     //     expect(loggerSpy.log).toHaveBeenCalled();
+//     // });
+// });
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Suite 2 — publicarVacante()
