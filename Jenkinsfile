@@ -62,15 +62,18 @@ pipeline {
             steps {
                 script {
                     dir('Backend') {
-                        runCommand("npm install")
-                        runCommand("npm run test:cov")
+                        runCommand('npm install')
+                        runCommand('npm run test:cov')
+                        withSonarQubeEnv('SonarQube') {
+                            runCommand('npx sonar-scanner')
+                        }
                     }
                     dir('Frontend') {
-                        runCommand("npm install --legacy-peer-deps")
-                        runCommand("npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI")
-                    }
-                    withSonarQubeEnv('SonarQube') {
-                        runCommand("npx sonar-scanner")
+                        runCommand('npm install --legacy-peer-deps')
+                        runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
+                        withSonarQubeEnv('SonarQube') {
+                            runCommand('npx sonar-scanner')
+                        }
                     }
                 }
             }
