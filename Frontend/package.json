@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:performance": "ng test --include src/performance-test-entry.spec.ts --watch=false",
+    "test:regression": "ng test --include src/checks-entry.spec.ts --watch=false"
   },
   "prettier": {
     "printWidth": 100,
