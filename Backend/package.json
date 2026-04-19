@@ -17,7 +17,17 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "perf": "node test/performance/run-k6.js",
+    "perf:list": "node test/performance/run-k6.js --list",
+    "perf:quick": "node test/performance/run-k6.js --profile quick",
+    "perf:smoke": "node test/performance/run-k6.js --profile smoke",
+    "perf:load": "node test/performance/run-k6.js --profile load",
+    "perf:empresa": "node test/performance/run-k6.js --test empresa",
+    "perf:empresa:smoke": "node test/performance/run-k6.js --test empresa --profile smoke",
+    "perf:empresa:load": "node test/performance/run-k6.js --test empresa --profile load",
+    "perf:certificados": "node test/performance/run-k6.js --test certificados",
+    "perf:detalles-certificados": "node test/performance/run-k6.js --test detalles-certificados"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
