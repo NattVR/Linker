@@ -95,22 +95,20 @@ pipeline {
                     runCommand("docker compose -f ${env.COMPOSE_FILE} down --remove-orphans || true")
 
                     sh '''
-                        for port in 3000 4200; do
-                            # Buscar contenedores Docker usando el puerto
-                            CONTAINER=$(docker ps --format "{{.ID}} {{.Ports}}" | grep ":${port}->" | awk '{print $1}')
-                            if [ -n "$CONTAINER" ]; then
-                                echo "Deteniendo contenedor $CONTAINER en puerto $port..."
-                                docker stop $CONTAINER && docker rm $CONTAINER || true
-                            fi
+                    for port in 3000 4200; do
+                        CONTAINER=$(docker ps --format "{{.ID}} {{.Ports}}" | grep ":${port}->" | awk '{print $1}')
+                        if [ -n "$CONTAINER" ]; then
+                            echo "Deteniendo contenedor $CONTAINER en puerto $port..."
+                            docker stop $CONTAINER && docker rm $CONTAINER || true
+                        fi
 
-                            # Buscar procesos del sistema usando el puerto
-                            PID=$(ss -tlnp | grep ":${port} " | grep -oP 'pid=\K[0-9]+' | head -1)
-                            if [ -n "$PID" ]; then
-                                echo "Matando proceso $PID en puerto $port..."
-                                kill -9 $PID || true
-                            fi
-                        done
-                    '''
+                        PID=$(ss -tlnp | grep ":${port} " | awk -F'pid=' '{print $2}' | awk -F',' '{print $1}' | head -1)
+                        if [ -n "$PID" ]; then
+                            echo "Matando proceso $PID en puerto $port..."
+                            kill -9 $PID || true
+                        fi
+                    done
+                '''
 
                     runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
                 }
