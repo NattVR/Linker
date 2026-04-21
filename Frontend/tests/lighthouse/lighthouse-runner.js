@@ -30,12 +30,10 @@ async function getTokenViaLogin(page) {
   await page.type('input[type="password"]', TEST_PASSWORD);
   await page.click('button[type="submit"]');
   await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }).catch(() => {});
-  await page.waitForFunction(
-    () => localStorage.getItem('token') !== null,
-    { timeout: 30000 }
-  );
+  await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }).catch(() => {});
 
   const token = await page.evaluate(() => localStorage.getItem('token'));
+  console.log('TOKEN:', token);
   if (!token) throw new Error('Login fallido: no se encontró el token en localStorage');
 
   return token;
