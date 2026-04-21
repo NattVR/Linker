@@ -92,9 +92,20 @@ pipeline {
             }
             steps {
                 script {
-                    // Bajar con el compose principal para liberar puertos sin importar
-                    // cómo quedaron los contenedores de ejecuciones anteriores
+                    // Bajar contenedores del proyecto
                     runCommand("docker compose -f ${env.COMPOSE_FILE} down --remove-orphans || true")
+
+                    // Matar cualquier contenedor Docker que esté usando los puertos 3000 o 4200
+                    sh '''
+                        for port in 3000 4200; do
+                            CONTAINER=$(docker ps --format "{{.ID}} {{.Ports}}" | grep ":${port}->" | awk '{print $1}')
+                            if [ -n "$CONTAINER" ]; then
+                                echo "Puerto ${port} ocupado por contenedor $CONTAINER, deteniéndolo..."
+                                docker stop $CONTAINER && docker rm $CONTAINER || true
+                            fi
+                        done
+                    '''
+
                     runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
                 }
             }
