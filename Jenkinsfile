@@ -99,9 +99,15 @@ pipeline {
             }
         }
 
+        stage('Check Frontend') {
+            steps {
+                sh 'curl -I http://host.docker.internal:4200 || true'
+            }
+        }
+
         stage('Lighthouse') {
             environment {
-                FRONTEND_URL   = 'http://linker-frontend-1:4200'
+                FRONTEND_URL = 'http://host.docker.internal:4200'
                 LH_TEST_EMAIL    = credentials('linker-test-email')
                 LH_TEST_PASSWORD = credentials('linker-test-password')
             }

@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { thresholds, lighthouseFlags } = require('./lighthouse.config');
 
-const BASE_URL = process.env.FRONTEND_URL || 'http://linker-frontend-1';
+const BASE_URL = process.env.FRONTEND_URL || 'http://host.docker.internal:4200';
 const LOGIN_URL = `${BASE_URL}/login`;
 const TEST_EMAIL = process.env.LH_TEST_EMAIL || 'test@linker.com';
 const TEST_PASSWORD = process.env.LH_TEST_PASSWORD || 'TestPassword123';
