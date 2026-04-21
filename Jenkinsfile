@@ -93,20 +93,10 @@ pipeline {
             steps {
                 script {
                     runCommand("docker compose -f ${env.COMPOSE_FILE} down --remove-orphans || true")
-                    
                     sh '''
                         docker rm -f linker-backend-1 linker-frontend-1 2>/dev/null || true
-                        
-                        # Forzar liberación de puertos reiniciando el daemon
-                        echo "Reiniciando Docker daemon para liberar puertos..."
-                        service docker restart || systemctl restart docker || true
-                        sleep 5
-                        
-                        echo "Estado de puertos después del restart:"
-                        ss -tlnp | grep -E "3000|4200" || echo "Puertos libres"
-
-                        docker rm -f linker-backend-1 linker-frontend-1 2>/dev/null || true
-                        echo "Esperando liberación de puertos..."
+                        fuser -k 3000/tcp 2>/dev/null || true
+                        fuser -k 4200/tcp 2>/dev/null || true
                         sleep 3
                     '''
                     runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
