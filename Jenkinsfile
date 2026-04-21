@@ -104,8 +104,11 @@ pipeline {
                         
                         echo "Estado de puertos después del restart:"
                         ss -tlnp | grep -E "3000|4200" || echo "Puertos libres"
+
+                        docker rm -f linker-backend-1 linker-frontend-1 2>/dev/null || true
+                        echo "Esperando liberación de puertos..."
+                        sleep 3
                     '''
-                    
                     runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
                 }
             }

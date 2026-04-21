@@ -1,5 +1,6 @@
 services:
   backend:
+    restart: "no"
     build:
       context: ./Backend
       dockerfile: Dockerfile
