@@ -100,6 +100,7 @@ pipeline {
             }
             steps {
                 script {
+                    runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml down --remove-orphans")
                     runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
                 }
             }
