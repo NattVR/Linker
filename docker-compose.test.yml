@@ -1,6 +1,5 @@
 services:
   backend:
-    restart: "no"
     build:
       context: ./Backend
       dockerfile: Dockerfile
@@ -13,7 +12,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     ports:
       - "3000:3000"
-    restart: unless-stopped
 
   frontend:
     build:
