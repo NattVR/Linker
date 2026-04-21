@@ -92,6 +92,12 @@ pipeline {
             when {
                 expression { params.DEPLOY }
             }
+            environment {
+                DB_HOST_TEST     = credentials('DB_HOST_TEST')
+                DB_USER_TEST     = credentials('DB_USER_TEST')
+                DB_PASSWORD_TEST = credentials('DB_PASSWORD_TEST')
+                DB_DATABASE_TEST = credentials('DB_DATABASE_TEST')
+            }
             steps {
                 script {
                     runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")

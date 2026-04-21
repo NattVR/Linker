@@ -1,16 +1,14 @@
 services:
   backend:
-    env_file:
-      - Backend/.env.test
     build:
       context: ./Backend
       dockerfile: Dockerfile
     environment:
-      DB_HOST: ${DB_HOST}
+      DB_HOST: ${DB_HOST_TEST}
+      DB_USER: ${DB_USER_TEST}
+      DB_PASSWORD: ${DB_PASSWORD_TEST}
+      DB_DATABASE: ${DB_DATABASE_TEST}
       DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_DATABASE: ${DB_DATABASE}
       JWT_SECRET: ${JWT_SECRET}
     ports:
       - "3000:3000"
