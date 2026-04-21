@@ -36,6 +36,9 @@ import { winstonTransports } from './logger/winston.config';
       database: process.env.DB_DATABASE,
       autoLoadEntities: true,
       synchronize: true,
+      // ssl: {
+      //   rejectUnauthorized: false
+      // }
     }),
     AuthModule,
     UserModule,

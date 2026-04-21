@@ -19,10 +19,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenv -e .env.test -- node -e \"console.log('BD:', process.env.DB_DATABASE)\" && dotenv -e .env.test -- jest --runInBand --config ./test/jest-e2e.json",
     "start:test": "dotenv -e .env.test -- nest start --watch",
-    "test:perf:list":   "dotenv -e .env.test -- node test/performance/run-k6.js --list",
-    "test:perf:quick":  "dotenv -e .env.test -- node test/performance/run-k6.js --profile quick",
-    "test:perf:smoke":  "dotenv -e .env.test -- node test/performance/run-k6.js --profile smoke",
-    "test:perf:load":   "dotenv -e .env.test -- node test/performance/run-k6.js --profile load"
+    "test:perf:list": "dotenv -e .env.test -- node test/performance/run-k6.js --list",
+    "test:perf:quick": "dotenv -e .env.test -- node test/performance/run-k6.js --profile quick",
+    "test:perf:smoke": "dotenv -e .env.test -- node test/performance/run-k6.js --profile smoke",
+    "test:perf:load": "dotenv -e .env.test -- node test/performance/run-k6.js --profile load"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -36,6 +36,8 @@
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "dotenv": "^17.4.2",
+    "jest-util": "^30.3.0",
     "mysql2": "^3.15.2",
     "nest-winston": "^1.10.2",
     "pg": "^8.16.3",
