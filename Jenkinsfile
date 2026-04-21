@@ -110,7 +110,7 @@ pipeline {
                     sh '''
                         which chromium || echo "Chromium ya instalado"
 
-                        npm ci
+                        npm ci --legacy-peer-deps
                         node tests/lighthouse/lighthouse-runner.js
                     '''
                 }
