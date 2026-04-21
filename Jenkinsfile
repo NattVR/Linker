@@ -93,23 +93,19 @@ pipeline {
             steps {
                 script {
                     runCommand("docker compose -f ${env.COMPOSE_FILE} down --remove-orphans || true")
-
+                    
                     sh '''
-                    for port in 3000 4200; do
-                        CONTAINER=$(docker ps --format "{{.ID}} {{.Ports}}" | grep ":${port}->" | awk '{print $1}')
-                        if [ -n "$CONTAINER" ]; then
-                            echo "Deteniendo contenedor $CONTAINER en puerto $port..."
-                            docker stop $CONTAINER && docker rm $CONTAINER || true
-                        fi
-
-                        PID=$(ss -tlnp | grep ":${port} " | awk -F'pid=' '{print $2}' | awk -F',' '{print $1}' | head -1)
-                        if [ -n "$PID" ]; then
-                            echo "Matando proceso $PID en puerto $port..."
-                            kill -9 $PID || true
-                        fi
-                    done
-                '''
-
+                        docker rm -f linker-backend-1 linker-frontend-1 2>/dev/null || true
+                        
+                        # Forzar liberación de puertos reiniciando el daemon
+                        echo "Reiniciando Docker daemon para liberar puertos..."
+                        service docker restart || systemctl restart docker || true
+                        sleep 5
+                        
+                        echo "Estado de puertos después del restart:"
+                        ss -tlnp | grep -E "3000|4200" || echo "Puertos libres"
+                    '''
+                    
                     runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
                 }
             }
