@@ -99,6 +99,40 @@ pipeline {
             }
         }
 
+        stage('Lighthouse') {
+            environment {
+                FRONTEND_URL   = 'http://localhost:4200'
+                LH_TEST_EMAIL    = credentials('linker-test-email')
+                LH_TEST_PASSWORD = credentials('linker-test-password')
+            }
+            steps {
+                dir('Frontend') {
+                    sh '''
+                        # Chromium necesario para Puppeteer en el agente Jenkins
+                        which chromium-browser || apt-get install -y chromium-browser
+
+                        npm ci
+                        node tests/lighthouse/lighthouse-runner.js
+                    '''
+                }
+            }
+            post {
+                always {
+                    publishHTML(target: [
+                        allowMissing         : false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll              : true,
+                        reportDir            : 'Frontend/coverage/lighthouse',
+                        reportFiles          : '*.html',
+                        reportName           : 'Lighthouse Reports'
+                    ])
+                }
+                failure {
+                    echo 'Lighthouse: una o más rutas no alcanzan los thresholds mínimos'
+                }
+            }
+        }
+
         stage('Verify') {
             when {
                 expression { params.DEPLOY }
