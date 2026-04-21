@@ -5,9 +5,35 @@ const path = require('path');
 const { thresholds, lighthouseFlags } = require('./lighthouse.config');
 
 const BASE_URL = process.env.FRONTEND_URL || 'http://host.docker.internal:4200';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://host.docker.internal:3000';
 const LOGIN_URL = `${BASE_URL}/login`;
 const TEST_EMAIL = process.env.LH_TEST_EMAIL || 'test@linker.com';
 const TEST_PASSWORD = process.env.LH_TEST_PASSWORD || 'TestPassword123';
+
+async function ensureTestUser() {
+  try {
+    const response = await fetch(`${BACKEND_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        nombre: 'Test',
+        apellido: 'Lighthouse',
+        isEmpresa: false,
+      }),
+    });
+
+    if (response.ok) {
+      console.info('Usuario de prueba creado');
+    } else {
+      const body = await response.text();
+      console.info(`Registro respondió ${response.status}: ${body.substring(0, 100)}`);
+    }
+  } catch (err) {
+    console.warn('No se pudo crear usuario de prueba:', err.message);
+  }
+}
 
 const PUBLIC_ROUTES = [
   { name: 'login', path: '/login' },
@@ -79,6 +105,8 @@ function checkThresholds(name, lhr) {
 
 async function run() {
   if (!fs.existsSync(REPORTS_DIR)) fs.mkdirSync(REPORTS_DIR, { recursive: true });
+
+  await ensureTestUser();
 
   const browser = await puppeteer.launch({
     headless: 'new',

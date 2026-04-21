@@ -94,7 +94,7 @@ pipeline {
             }
             steps {
                 script {
-                    runCommand("docker compose -f ${env.COMPOSE_FILE} up -d --build --remove-orphans")
+                    runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
                 }
             }
         }
@@ -121,7 +121,8 @@ pipeline {
 
         stage('Lighthouse') {
             environment {
-                FRONTEND_URL = 'http://host.docker.internal:4200'
+                FRONTEND_URL     = 'http://host.docker.internal:4200'
+                BACKEND_URL      = 'http://host.docker.internal:3000'
                 LH_TEST_EMAIL    = credentials('linker-test-email')
                 LH_TEST_PASSWORD = credentials('linker-test-password')
             }
