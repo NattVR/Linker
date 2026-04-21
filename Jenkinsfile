@@ -24,15 +24,15 @@ pipeline {
     }
 
     environment {
-        COMPOSE_FILE = 'docker-compose.yml'
+        COMPOSE_FILE         = 'docker-compose.yml'
         COMPOSE_PROJECT_NAME = 'linker'
-        DB_HOST = credentials('DB_HOST')
-        DB_USER = credentials('DB_USER')
-        DB_PASSWORD = credentials('DB_PASSWORD')
-        DB_DATABASE = credentials('DB_DATABASE')
-        JWT_SECRET = credentials('JWT_SECRET')
-        CHROME_BIN = '/usr/bin/chromium'
-        DB_PORT = '5432'
+        DB_HOST              = credentials('DB_HOST')
+        DB_USER              = credentials('DB_USER')
+        DB_PASSWORD          = credentials('DB_PASSWORD')
+        DB_DATABASE          = credentials('DB_DATABASE')
+        JWT_SECRET           = credentials('JWT_SECRET')
+        CHROME_BIN           = '/usr/bin/chromium'
+        DB_PORT              = '5432'
     }
 
     stages {
@@ -58,6 +58,7 @@ pipeline {
                 }
             }
         }
+
         stage('SonarQube') {
             steps {
                 script {
@@ -79,15 +80,6 @@ pipeline {
             }
         }
 
-        stage('Build Images') {
-            steps {
-                script {
-                    runCommand("docker compose -f ${env.COMPOSE_FILE} up -d --remove-orphans")
-                }
-            }
-        }
-
-
         stage('Deploy') {
             when {
                 expression { params.DEPLOY }
@@ -100,7 +92,9 @@ pipeline {
             }
             steps {
                 script {
-                    runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml down --remove-orphans")
+                    // Bajar con el compose principal para liberar puertos sin importar
+                    // cómo quedaron los contenedores de ejecuciones anteriores
+                    runCommand("docker compose -f ${env.COMPOSE_FILE} down --remove-orphans || true")
                     runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
                 }
             }
@@ -110,16 +104,14 @@ pipeline {
             steps {
                 sh '''
                 echo "Esperando a que el frontend esté disponible..."
-
                 for i in {1..20}; do
-                if curl -s http://host.docker.internal:4200 > /dev/null; then
-                    echo "Frontend listo"
-                    exit 0
-                fi
-                echo "Intento $i..."
-                sleep 3
+                    if curl -s http://host.docker.internal:4200 > /dev/null; then
+                        echo "Frontend listo"
+                        exit 0
+                    fi
+                    echo "Intento $i..."
+                    sleep 3
                 done
-
                 echo "Frontend no respondió a tiempo"
                 exit 1
                 '''
@@ -137,7 +129,6 @@ pipeline {
                 dir('Frontend') {
                     sh '''
                         which chromium || echo "Chromium ya instalado"
-
                         npm ci --legacy-peer-deps
                         node tests/lighthouse/lighthouse-runner.js
                     '''
