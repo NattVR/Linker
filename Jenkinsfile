@@ -108,8 +108,7 @@ pipeline {
             steps {
                 dir('Frontend') {
                     sh '''
-                        # Chromium necesario para Puppeteer en el agente Jenkins
-                        which chromium-browser || apt-get install -y chromium-browser
+                        which chromium || echo "Chromium ya instalado"
 
                         npm ci
                         node tests/lighthouse/lighthouse-runner.js
