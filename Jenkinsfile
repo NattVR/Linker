@@ -128,8 +128,8 @@ pipeline {
 
         stage('Lighthouse') {
             environment {
-                FRONTEND_URL     = 'http://host.docker.internal:4200'
-                BACKEND_URL      = 'http://host.docker.internal:3000'
+                FRONTEND_URL     = 'http://host.docker.internal:4201'
+                BACKEND_URL      = 'http://host.docker.internal:3001'
                 LH_TEST_EMAIL    = credentials('linker-test-email')
                 LH_TEST_PASSWORD = credentials('linker-test-password')
             }
