@@ -97,7 +97,7 @@ pipeline {
                         docker rm -f linker-backend-1 linker-frontend-1 2>/dev/null || true
                         docker network rm linker_default 2>/dev/null || true
 
-                        fuser -k 3001/tcp 2>/dev/null || true
+                        fuser -k 3000/tcp 2>/dev/null || true
                         fuser -k 4201/tcp 2>/dev/null || true
 
                         docker network prune -f || true
@@ -129,7 +129,7 @@ pipeline {
         stage('Lighthouse') {
             environment {
                 FRONTEND_URL     = 'http://host.docker.internal:4201'
-                BACKEND_URL      = 'http://host.docker.internal:3001'
+                BACKEND_URL      = 'http://host.docker.internal:3000'
                 LH_TEST_EMAIL    = credentials('linker-test-email')
                 LH_TEST_PASSWORD = credentials('linker-test-password')
             }
