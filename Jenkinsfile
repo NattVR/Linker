@@ -113,7 +113,7 @@ pipeline {
                 sh '''
                 echo "Esperando a que el frontend esté disponible..."
                 for i in {1..20}; do
-                    if curl -s http://host.docker.internal:4200 > /dev/null; then
+                    if curl -s http://host.docker.internal:4201 > /dev/null; then
                         echo "Frontend listo"
                         exit 0
                     fi

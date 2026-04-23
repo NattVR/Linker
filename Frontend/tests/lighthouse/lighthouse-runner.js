@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const { thresholds, lighthouseFlags } = require('./lighthouse.config');
 
-const BASE_URL = process.env.FRONTEND_URL || 'http://host.docker.internal:4200';
-const BACKEND_URL = process.env.BACKEND_URL || 'http://host.docker.internal:3000';
+const BASE_URL = process.env.FRONTEND_URL || 'http://host.docker.internal:4201';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://host.docker.internal:3001';
 const LOGIN_URL = `${BASE_URL}/login`;
 const TEST_EMAIL = process.env.LH_TEST_EMAIL || 'test@linker.com';
 const TEST_PASSWORD = process.env.LH_TEST_PASSWORD || 'TestPassword123';
