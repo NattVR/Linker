@@ -68,13 +68,13 @@ async function getTokenViaLogin(page) {
 }
 
 async function auditUrl({ browser, url, name, token }) {
-  const setupPage = await browser.newPage();
-  await setupPage.goto(BASE_URL, { waitUntil: 'networkidle2' });
+  // const setupPage = await browser.newPage();
+  // await setupPage.goto(BASE_URL, { waitUntil: 'networkidle2' });
 
-  if (token) {
-    await setupPage.evaluate((t) => localStorage.setItem('token', t), token);
-  }
-  await setupPage.close();
+  // if (token) {
+  //   await setupPage.evaluate((t) => localStorage.setItem('token', t), token);
+  // }
+  // await setupPage.close();
 
   const wsEndpoint = browser.wsEndpoint();
   const port = new URL(wsEndpoint).port;
@@ -82,6 +82,7 @@ async function auditUrl({ browser, url, name, token }) {
   const result = await lighthouse(url, {
     ...lighthouseFlags,
     port: parseInt(port),
+    extraHeaders: token ? { Authorization: `Bearer ${token}` } : {},
   });
 
   return { name, lhr: result.lhr, report: result.report };
