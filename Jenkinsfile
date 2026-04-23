@@ -96,6 +96,10 @@ pipeline {
                         docker compose -f docker-compose.yml down --remove-orphans --timeout 30 || true
                         docker rm -f linker-backend-1 linker-frontend-1 2>/dev/null || true
                         docker network rm linker_default 2>/dev/null || true
+
+                        fuser -k 3000/tcp 2>/dev/null || true
+                        fuser -k 4200/tcp 2>/dev/null || true
+
                         docker network prune -f || true
                         sleep 5
                     '''
