@@ -111,17 +111,21 @@ pipeline {
         stage('Check Frontend') {
             steps {
                 sh '''
-                echo "Esperando a que el frontend esté disponible..."
-                for i in {1..20}; do
-                    if curl -s http://host.docker.internal:4201 > /dev/null; then
-                        echo "Frontend listo"
-                        exit 0
-                    fi
-                    echo "Intento $i..."
-                    sleep 3
-                done
-                echo "Frontend no respondió a tiempo"
-                exit 1
+                    echo "Esperando a que el frontend esté disponible..."
+                    for i in {1..20}; do
+                        if curl -s http://host.docker.internal:4201 > /dev/null; then
+                            echo "Frontend listo"
+                            break
+                        fi
+                        echo "Intento $i..."
+                        sleep 3
+                    done
+
+                    echo "=== Contenido de config.json en el contenedor ==="
+                    docker exec linker-frontend-1 cat /usr/share/nginx/html/assets/config.json
+
+                    echo "=== config.json accesible desde el host ==="
+                    curl -s http://host.docker.internal:4201/assets/config.json
                 '''
             }
         }

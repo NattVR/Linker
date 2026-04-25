@@ -50,20 +50,48 @@ const PRIVATE_ROUTES = [
 const REPORTS_DIR = path.join(__dirname, '../../coverage/lighthouse');
 
 async function getTokenViaLogin(page) {
+  page.on('console', msg => console.info('BROWSER LOG:', msg.text()));
+  page.on('requestfailed', req =>
+    console.info('REQUEST FAILED:', req.url(), req.failure()?.errorText)
+  );
+  page.on('response', res => {
+    if (res.url().includes('/user/login')) {
+      console.info('LOGIN RESPONSE:', res.status(), res.url());
+    }
+  });
+
   await page.goto(LOGIN_URL, { waitUntil: 'networkidle2' });
-  await page.waitForSelector('input[type="email"]');
+
+  const emailField = await page.$('input[type="email"]');
+  const passField  = await page.$('input[type="password"]');
+  const submitBtn  = await page.$('button[type="submit"]');
+
+  console.info('Email field found:', !!emailField);
+  console.info('Password field found:', !!passField);
+  console.info('Submit button found:', !!submitBtn);
+
+  if (!emailField || !passField || !submitBtn) {
+    await page.screenshot({ path: '/tmp/login-debug.png' });
+    throw new Error('Formulario de login no encontrado en la página');
+  }
+
   await page.type('input[type="email"]', TEST_EMAIL);
   await page.type('input[type="password"]', TEST_PASSWORD);
   await page.click('button[type="submit"]');
 
+  await new Promise(r => setTimeout(r, 3000));
+  const tokenCheck = await page.evaluate(() => sessionStorage.getItem('token'));
+  console.info('Token after 3s:', tokenCheck ? 'FOUND' : 'NOT FOUND');
+
   await page.waitForFunction(
-    () => localStorage.getItem('token') !== null,
+    () => sessionStorage.getItem('token') !== null,
     { timeout: 15000 }
   );
 
-  const token = await page.evaluate(() => localStorage.getItem('token'));
-  console.log('TOKEN:', token);
-  if (!token) throw new Error('Login fallido: no se encontró el token en localStorage');
+  const token = await page.evaluate(() => sessionStorage.getItem('token'));
+  if (!token) throw new Error('Login fallido: no se encontró el token en sessionStorage');
+
+  console.info('Login exitoso, token obtenido');
   return token;
 }
 
