@@ -1,12 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ConfigService } from '../../core/services/config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Match {
   http = inject(HttpClient);
+
+  private config = inject(ConfigService);
+
+  get apiUrl() {
+    return this.config.apiUrl;
+  }
 
   get perfil() {
     return sessionStorage.getItem('perfilId');
@@ -22,25 +29,25 @@ export class Match {
 
   getVacantesForEmpresa(): Observable<any> {
     console.log('desde getvacantesempresafront', this.perfil);
-    return this.http.get(`http://localhost:3000/vacantes/empresaId/${this.perfil}`);
+    return this.http.get(`${this.apiUrl}/vacantes/empresaId/${this.perfil}`);
   }
 
   getVacantes(): Observable<any> {
     if (!this.perfil) {
       console.warn('No hay perfil en sesión');
     }
-    return this.http.get(`http://localhost:3000/vacantes/vacantes/${this.perfil}`);
+    return this.http.get(`${this.apiUrl}/vacantes/vacantes/${this.perfil}`);
   }
 
   getPostulantes(vacanteId: string): Observable<any> {
-    return this.http.get(`http://localhost:3000/postulante/postulantes/${vacanteId}`);
+    return this.http.get(`${this.apiUrl}/postulante/postulantes/${vacanteId}`);
   }
 
   onAction(interaccion: Interaccion): Observable<any> {
     if (!this.perfil) {
       console.warn(' No hay perfil en sesión');
     }
-    return this.http.post(`http://localhost:3000/interacciones`, interaccion);
+    return this.http.post(`${this.apiUrl}/interacciones`, interaccion);
   }
 
   onLike() {

@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Auth } from './auth';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, Observable, switchMap } from 'rxjs';
+import { ConfigService } from '../../core/services/config.service';
 
 interface PerfilPostulanteResponse {
   name: string;
@@ -12,39 +13,46 @@ interface PerfilPostulanteResponse {
   providedIn: 'root',
 })
 export class Perfil {
+
+  private config = inject(ConfigService);
+  
+  get apiUrl() {
+    return this.config.apiUrl;
+  }
+
   updateVacante(id: string, data: any) {
-    return this.http.put(`http://localhost:3000/vacantes/${id}`, data);
+    return this.http.put(`${this.apiUrl}/vacantes/${id}`, data);
   }
   auth = inject(Auth);
   http = inject(HttpClient);
 
 
   updatePerfilEmpresa(id: string, datos: any): Observable<any> {
-    return this.http.patch(`http://localhost:3000/empresa/${id}`, datos);
+    return this.http.patch(`${this.apiUrl}/empresa/${id}`, datos);
   }
 
   getIsEmpresa(id: string): Observable<{ isEmpresa: boolean }> {
-    return this.http.get<{ isEmpresa: boolean }>(`http://localhost:3000/empresa/isEmpresa/${id}`);
+    return this.http.get<{ isEmpresa: boolean }>(`${this.apiUrl}/empresa/isEmpresa/${id}`);
   }
 
   getPostulanteByUserId(idUsuario: string) {
-    return this.http.get(`http://localhost:3000/postulante/${idUsuario}`);
+    return this.http.get(`${this.apiUrl}/postulante/${idUsuario}`);
   }
 
   getUserNamePostulante(id: string): Observable<PerfilPostulanteResponse> {
-    return this.http.get<PerfilPostulanteResponse>(`http://localhost:3000/postulante/${id}`);
+    return this.http.get<PerfilPostulanteResponse>(`${this.apiUrl}/postulante/${id}`);
   }
 
   getEmpresa(id: string): Observable<Empresa> {
-    return this.http.get<Empresa>(`http://localhost:3000/empresa/${id}`);
+    return this.http.get<Empresa>(`${this.apiUrl}/empresa/${id}`);
   }
 
   getCatalogoHabilidades(): Observable<any> {
-    return this.http.get(`http://localhost:3000/habilidades`);
+    return this.http.get(`${this.apiUrl}/habilidades`);
   }
 
   getCatalogoIdiomas(): Observable<any> {
-    return this.http.get(`http://localhost:3000/idiomas`);
+    return this.http.get(`${this.apiUrl}/idiomas`);
   }
 
   getCatalogosPostulante(): Observable<any> {
@@ -55,51 +63,51 @@ export class Perfil {
   }
 
   createVacante(vacante: CrearVacante): Observable<any> {
-    return this.http.post('http://localhost:3000/vacantes', vacante);
+    return this.http.post(`${this.apiUrl}/vacantes`, vacante);
   }
 
   getHabilidades(): Observable<Habilidad[]> {
-    return this.http.get<Habilidad[]>('http://localhost:3000/habilidades');
+    return this.http.get<Habilidad[]>(`${this.apiUrl}/habilidades`);
   }
 
   getIdiomas(): Observable<any> {
-    return this.http.get('http://localhost:3000/idiomas');
+    return this.http.get(`${this.apiUrl}/idiomas`);
   }
 
   getCerticados(): Observable<any> {
-    return this.http.get('http://localhost:3000/certificados')
+    return this.http.get(`${this.apiUrl}/certificados`);
   }
 
   createCertificado(certificado: CrearCertificadoEmpresa): Observable<any> {
-    return this.http.post('http://localhost:3000/detalles-certificados', certificado)
+    return this.http.post(`${this.apiUrl}/detalles-certificados`, certificado);
   }
 
   getCertificadosOfEmpresa(idEmpresa: string): Observable<any> {
-    return this.http.get(`http://localhost:3000/detalles-certificados/empresa/${idEmpresa}`)
+    return this.http.get(`${this.apiUrl}/detalles-certificados/empresa/${idEmpresa}`);
   }
 
   crearEstudio(datos: any): Observable<any> {
-    return this.http.post(`http://localhost:3000/estudios`, datos);
+    return this.http.post(`${this.apiUrl}/estudios`, datos);
   }
 
   crearDetalleEstudios(datos: any): Observable<any> {
-    return this.http.post(`http://localhost:3000/detalle-estudios`, datos);
+    return this.http.post(`${this.apiUrl}/detalle-estudios`, datos);
   }
 
   crearDetalleCertificados(datos: any): Observable<any> {
-    return this.http.post(`http://localhost:3000/detalles-certificados`, datos);
+    return this.http.post(`${this.apiUrl}/detalles-certificados`, datos);
   }
 
   crearPostulanteHabilidad(datos: any): Observable<any> {
-    return this.http.post(`http://localhost:3000/postulante-habilidades`, datos);
+    return this.http.post(`${this.apiUrl}/postulante-habilidades`, datos);
   }
 
   crearPostulanteIdioma(datos: any): Observable<any> {
-    return this.http.post(`http://localhost:3000/postulante-idiomas`, datos);
+    return this.http.post(`${this.apiUrl}/postulante-idiomas`, datos);
   }
 
   actualizarPostulante(id: string, datos: any): Observable<any> {
-    return this.http.patch(`http://localhost:3000/postulante/${id}`, datos);
+    return this.http.patch(`${this.apiUrl}/postulante/${id}`, datos);
   }
 
   guardarPerfilPostulante(idUsuario: string, datosFormulario: any): Observable<any> {
@@ -108,7 +116,7 @@ export class Perfil {
       cv: datosFormulario.cv,
     });
 
-    const limpiar$ = this.http.delete(`http://localhost:3000/postulante/limpiar/${idUsuario}`);
+    const limpiar$ = this.http.delete(`${this.apiUrl}/postulante/limpiar/${idUsuario}`);
 
     const detalleEstudios$ = datosFormulario.estudios.map((estudio: any) =>
       this.crearEstudio({ titulo: estudio.titulo, nivel: estudio.nivel }).pipe(
@@ -153,13 +161,13 @@ export class Perfil {
 
 
   getPerfilCompleto(id: string) {
-    return this.http.get(`http://localhost:3000/postulante/perfil-completo/${id}`);
+    return this.http.get(`${this.apiUrl}/postulante/perfil-completo/${id}`);
   }
 
   updateCertificado(id: string, datos: any): Observable<any> {
-    return this.http.patch(`http://localhost:3000/detalles-certificados/${id}`, datos);
+    return this.http.patch(`${this.apiUrl}/detalles-certificados/${id}`, datos);
   }
   deleteCertificado(id: string): Observable<any> {
-    return this.http.delete(`http://localhost:3000/detalles-certificados/${id}`);
+    return this.http.delete(`${this.apiUrl}/detalles-certificados/${id}`);
   }
 }

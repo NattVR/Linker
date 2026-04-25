@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer');
-const lighthouse = require('lighthouse');
+const { default: lighthouse } = require('lighthouse');
 const fs = require('fs');
 const path = require('path');
 const { thresholds, lighthouseFlags } = require('./lighthouse.config');
