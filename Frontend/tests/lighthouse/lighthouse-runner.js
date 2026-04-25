@@ -12,7 +12,7 @@ const TEST_PASSWORD = process.env.LH_TEST_PASSWORD || 'TestPassword123';
 
 async function ensureTestUser() {
   try {
-    const response = await fetch(`${BACKEND_URL}/auth/register`, {
+    const response = await fetch(`${BACKEND_URL}/user/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
