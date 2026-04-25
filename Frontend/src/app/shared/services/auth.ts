@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
+import { ConfigService } from '../../core/services/config.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,11 @@ export class Auth {
 
   http = inject(HttpClient);
 
-  apiUrl = environment.apiUrl;
+  private config = inject(ConfigService);
+
+  get apiUrl() {
+    return this.config.apiUrl;
+  }
 
   getUserType() {
     const isEmpresa = sessionStorage.getItem('isEmpresa');

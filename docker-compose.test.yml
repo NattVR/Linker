@@ -17,6 +17,8 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
+    environment:
+      API_URL: "http://host.docker.internal:3001"
     depends_on:
       - backend
     ports:
