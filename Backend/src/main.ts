@@ -15,8 +15,13 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: 'http://localhost:4200',
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    origin: [
+      'http://localhost:4200',
+      'http://localhost:4201',
+      'http://host.docker.internal:4200',
+      'http://host.docker.internal:4201',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
 
