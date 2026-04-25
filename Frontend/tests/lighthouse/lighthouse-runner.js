@@ -164,7 +164,7 @@ async function run() {
 
     for (const route of allRoutes) {
       const url = `${BASE_URL}${route.path}`;
-      console.info(`\n🔍 Auditando: ${route.name} (${url})`);
+      console.info(`\nAuditando: ${route.name} (${url})`);
 
       const { name, lhr, report } = await auditUrl({
         browser,
@@ -175,7 +175,7 @@ async function run() {
 
       const reportPath = path.join(REPORTS_DIR, `${name}.html`);
       fs.writeFileSync(reportPath, report);
-      console.info(`  📄 Reporte guardado: ${reportPath}`);
+      console.info(`  Reporte guardado: ${reportPath}`);
 
       const failures = checkThresholds(name, lhr);
       if (failures.length > 0) {
