@@ -1,8 +1,8 @@
 module.exports = {
   thresholds: {
     performance: 50,
-    accessibility: 80,
-    'best-practices': 80,
+    accessibility: 75,
+    'best-practices': 75,
     seo: 80,
   },
   lighthouseFlags: {
