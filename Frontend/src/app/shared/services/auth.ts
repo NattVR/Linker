@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',
@@ -10,29 +11,31 @@ export class Auth {
 
   http = inject(HttpClient);
 
-  getUserType(){
+  apiUrl = environment.apiUrl;
+
+  getUserType() {
     const isEmpresa = sessionStorage.getItem('isEmpresa');
     return isEmpresa === 'true';
   }
 
-  getPerfilId(user: string){
-     return this.http.get(`http://localhost:3000/user/perfil/${user}`)  
+  getPerfilId(user: string) {
+    return this.http.get(`${this.apiUrl}/user/perfil/${user}`);
   }
 
   signUp(user: User): Observable<any> {
-    return this.http.post('http://localhost:3000/user/registro', user);
+    return this.http.post(`${this.apiUrl}/user/registro`, user);
   }
 
   signUpPostulante(postulante: PerfilPostulanteModel): Observable<any> {
-    return this.http.post('http://localhost:3000/postulante/registro', postulante);
+    return this.http.post(`${this.apiUrl}/postulante/registro`, postulante);
   }
 
   signUpEmpresa(empresa: Empresa): Observable<any> {
-    return this.http.post('http://localhost:3000/empresa/registro', empresa);
+    return this.http.post(`${this.apiUrl}/empresa/registro`, empresa);
   }
 
   login(user: User): Observable<any> {
-    return this.http.post('http://localhost:3000/user/login', user);
+    return this.http.post(`${this.apiUrl}/user/login`, user);
   }
 
   logout() {
