@@ -63,7 +63,7 @@ for (const test of testsToRun) {
 
   const result = spawnSync(k6Bin, args, {
     stdio: 'inherit',
-    shell: true,
+    shell: false,
     env: process.env,
   });
 
