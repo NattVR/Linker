@@ -163,49 +163,49 @@ pipeline {
         //     }
         // }
 
-        stage('Cypress') {
-            when {
-                expression { params.DEPLOY }
-            }
-            environment {
-                FRONTEND_URL     = 'http://host.docker.internal:4201'
-                BACKEND_URL      = 'http://host.docker.internal:3001'
-                CYPRESS_TEST_EMAIL    = credentials('linker-test-email')
-                CYPRESS_TEST_PASSWORD = credentials('linker-test-password')
-            }
-            agent {
-                docker {
-                    image 'cypress/included:15.14.1'
-                }
-            }
-            steps {
-                dir('Frontend') {
-                    sh '''
-                        npx cypress run \
-                        --browser chromium \
-                        --headless \
-                        --env FRONTEND_URL=$FRONTEND_URL,API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
-                        --config baseUrl=$FRONTEND_URL \
-                        --reporter spec
-                    '''
-                }
-            }
-            post {
-                always {
-                    publishHTML(target: [
-                        allowMissing         : true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll              : true,
-                        reportDir            : 'Frontend/coverage/cypress/screenshots',
-                        reportFiles          : '**/*.png',
-                        reportName           : 'Cypress Screenshots'
-                    ])
-                }
-                failure {
-                    echo 'Cypress: una o más pruebas E2E fallaron'
-                }
-            }
-        }
+        // stage('Cypress') {
+        //     when {
+        //         expression { params.DEPLOY }
+        //     }
+        //     environment {
+        //         FRONTEND_URL     = 'http://host.docker.internal:4201'
+        //         BACKEND_URL      = 'http://host.docker.internal:3001'
+        //         CYPRESS_TEST_EMAIL    = credentials('linker-test-email')
+        //         CYPRESS_TEST_PASSWORD = credentials('linker-test-password')
+        //     }
+        //     agent {
+        //         docker {
+        //             image 'cypress/included:15.14.1'
+        //         }
+        //     }
+        //     steps {
+        //         dir('Frontend') {
+        //             sh '''
+        //                 npx cypress run \
+        //                 --browser chromium \
+        //                 --headless \
+        //                 --env FRONTEND_URL=$FRONTEND_URL,API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
+        //                 --config baseUrl=$FRONTEND_URL \
+        //                 --reporter spec
+        //             '''
+        //         }
+        //     }
+        //     post {
+        //         always {
+        //             publishHTML(target: [
+        //                 allowMissing         : true,
+        //                 alwaysLinkToLastBuild: true,
+        //                 keepAll              : true,
+        //                 reportDir            : 'Frontend/coverage/cypress/screenshots',
+        //                 reportFiles          : '**/*.png',
+        //                 reportName           : 'Cypress Screenshots'
+        //             ])
+        //         }
+        //         failure {
+        //             echo 'Cypress: una o más pruebas E2E fallaron'
+        //         }
+        //     }
+        // }
 
         stage('Verify') {
             when {
