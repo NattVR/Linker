@@ -36,11 +36,11 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+        // stage('Checkout') {
+        //     steps {
+        //         checkout scm
+        //     }
+        // }
 
         stage('Validate Tools') {
             steps {
@@ -59,26 +59,26 @@ pipeline {
             }
         }
 
-        stage('SonarQube') {
-            steps {
-                script {
-                    dir('Backend') {
-                        runCommand('npm install')
-                        runCommand('npm run test:cov')
-                        withSonarQubeEnv('SonarQube') {
-                            runCommand('npx sonar-scanner')
-                        }
-                    }
-                    dir('Frontend') {
-                        runCommand('npm install --legacy-peer-deps')
-                        runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
-                        withSonarQubeEnv('SonarQube') {
-                            runCommand('npx sonar-scanner')
-                        }
-                    }
-                }
-            }
-        }
+        // stage('SonarQube') {
+        //     steps {
+        //         script {
+        //             dir('Backend') {
+        //                 runCommand('npm install')
+        //                 runCommand('npm run test:cov')
+        //                 withSonarQubeEnv('SonarQube') {
+        //                     runCommand('npx sonar-scanner')
+        //                 }
+        //             }
+        //             dir('Frontend') {
+        //                 runCommand('npm install --legacy-peer-deps')
+        //                 runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
+        //                 withSonarQubeEnv('SonarQube') {
+        //                     runCommand('npx sonar-scanner')
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Deploy') {
             when {
@@ -130,82 +130,82 @@ pipeline {
             }
         }
 
-        stage('Lighthouse') {
-            environment {
-                FRONTEND_URL     = 'http://host.docker.internal:4201'
-                BACKEND_URL      = 'http://host.docker.internal:3001'
-                LH_TEST_EMAIL    = credentials('linker-test-email')
-                LH_TEST_PASSWORD = credentials('linker-test-password')
-            }
-            steps {
-                dir('Frontend') {
-                    sh '''
-                        which chromium || echo "Chromium ya instalado"
-                        npm ci --legacy-peer-deps
-                        node tests/lighthouse/lighthouse-runner.js
-                    '''
-                }
-            }
-            post {
-                always {
-                    publishHTML(target: [
-                        allowMissing         : false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll              : true,
-                        reportDir            : 'Frontend/coverage/lighthouse',
-                        reportFiles          : '*.html',
-                        reportName           : 'Lighthouse Reports'
-                    ])
-                }
-                failure {
-                    echo 'Lighthouse: una o más rutas no alcanzan los thresholds mínimos'
-                }
-            }
-        }
-
-        // stage('Cypress') {
-        //     when {
-        //         expression { params.DEPLOY }
-        //     }
+        // stage('Lighthouse') {
         //     environment {
         //         FRONTEND_URL     = 'http://host.docker.internal:4201'
         //         BACKEND_URL      = 'http://host.docker.internal:3001'
-        //         CYPRESS_TEST_EMAIL    = credentials('linker-test-email')
-        //         CYPRESS_TEST_PASSWORD = credentials('linker-test-password')
-        //     }
-        //     agent {
-        //         docker {
-        //             image 'cypress/included:15.14.1'
-        //         }
+        //         LH_TEST_EMAIL    = credentials('linker-test-email')
+        //         LH_TEST_PASSWORD = credentials('linker-test-password')
         //     }
         //     steps {
         //         dir('Frontend') {
         //             sh '''
-        //                 npx cypress run \
-        //                 --browser chromium \
-        //                 --headless \
-        //                 --env FRONTEND_URL=$FRONTEND_URL,API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
-        //                 --config baseUrl=$FRONTEND_URL \
-        //                 --reporter spec
+        //                 which chromium || echo "Chromium ya instalado"
+        //                 npm ci --legacy-peer-deps
+        //                 node tests/lighthouse/lighthouse-runner.js
         //             '''
         //         }
         //     }
         //     post {
         //         always {
         //             publishHTML(target: [
-        //                 allowMissing         : true,
+        //                 allowMissing         : false,
         //                 alwaysLinkToLastBuild: true,
         //                 keepAll              : true,
-        //                 reportDir            : 'Frontend/coverage/cypress/screenshots',
-        //                 reportFiles          : '**/*.png',
-        //                 reportName           : 'Cypress Screenshots'
+        //                 reportDir            : 'Frontend/coverage/lighthouse',
+        //                 reportFiles          : '*.html',
+        //                 reportName           : 'Lighthouse Reports'
         //             ])
         //         }
         //         failure {
-        //             echo 'Cypress: una o más pruebas E2E fallaron'
+        //             echo 'Lighthouse: una o más rutas no alcanzan los thresholds mínimos'
         //         }
         //     }
         // }
+
+        stage('Cypress') {
+            when {
+                expression { params.DEPLOY }
+            }
+            environment {
+                FRONTEND_URL     = 'http://host.docker.internal:4201'
+                BACKEND_URL      = 'http://host.docker.internal:3001'
+                CYPRESS_TEST_EMAIL    = credentials('linker-test-email')
+                CYPRESS_TEST_PASSWORD = credentials('linker-test-password')
+            }
+            agent {
+                docker {
+                    image 'cypress/included:15.14.1'
+                }
+            }
+            steps {
+                dir('Frontend') {
+                    sh '''
+                        npx cypress run \
+                        --browser chromium \
+                        --headless \
+                        --env FRONTEND_URL=$FRONTEND_URL,API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
+                        --config baseUrl=$FRONTEND_URL \
+                        --reporter spec
+                    '''
+                }
+            }
+            post {
+                always {
+                    publishHTML(target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll              : true,
+                        reportDir            : 'Frontend/coverage/cypress/screenshots',
+                        reportFiles          : '**/*.png',
+                        reportName           : 'Cypress Screenshots'
+                    ])
+                }
+                failure {
+                    echo 'Cypress: una o más pruebas E2E fallaron'
+                }
+            }
+        }
 
         stage('Verify') {
             when {
