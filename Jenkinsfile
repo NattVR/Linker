@@ -116,6 +116,13 @@ pipeline {
             steps {
                 script {
                     dir('Backend') {
+                         sh '''
+                        echo "DB_HOST=${DB_HOST}"         > .env.test
+                        echo "DB_USER=${DB_USER}"         >> .env.test
+                        echo "DB_PASSWORD=${DB_PASSWORD}" >> .env.test
+                        echo "DB_DATABASE=${DB_DATABASE}" >> .env.test
+                        echo "DB_PORT=${DB_PORT}"         >> .env.test
+                        '''
                         runCommand('npm run test:e2e')
                     }
                 }
@@ -310,7 +317,7 @@ pipeline {
         //             echo 'Cypress: una o más pruebas E2E fallaron'
         //         }
         //     }
-        // }
+        // } Falta regression front y back , performance back , seguridad front con cyoress
 
         stage('Verify') {
             when {
