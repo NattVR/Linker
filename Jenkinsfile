@@ -17,12 +17,13 @@ pipeline {
 
     parameters {
         booleanParam(name: 'RUN_UNIT_TESTS',   defaultValue: true, description: 'Ejecutar unit tests (Jest + Karma)')
-        booleanParam(name: 'RUN_API & SECURITY BACKEND',          defaultValue: true, description: 'Ejecutar pruebas API (Supertest)')
-        booleanParam(name: 'RUN_SECURITY FRONTEND',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Supertest)')
+        booleanParam(name: 'RUN_SONAR',        defaultValue: true, description: 'Ejecutar analisis SonarQube')
+        booleanParam(name: 'RUN_REGRESSION_FRONTEND',   defaultValue: true, description: 'Ejecutar pruebas de regresion front (Angular/Karma)')
+        booleanParam(name: 'RUN_API_SECURITY_BACKEND',          defaultValue: true, description: 'Ejecutar pruebas API (Supertest)')
         booleanParam(name: 'RUN_PERFORMANCE',  defaultValue: true, description: 'Ejecutar pruebas de performance (k6)')
         booleanParam(name: 'RUN_REGRESSION',   defaultValue: true, description: 'Ejecutar pruebas de regresion E2E (Cypress)')
         booleanParam(name: 'RUN_LIGHTHOUSE',   defaultValue: true, description: 'Ejecutar performance web (Lighthouse)')
-        booleanParam(name: 'RUN_SONAR',        defaultValue: true, description: 'Ejecutar analisis SonarQube')
+        booleanParam(name: 'RUN_SECURITY_FRONTEND',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Cypress)')
         booleanParam(name: 'DEPLOY',           defaultValue: true, description: 'Levantar contenedores de prueba')
         choice(name: 'PERF_PROFILE',           choices: ['quick', 'smoke', 'load'], description: 'Perfil k6')
     }
@@ -126,47 +127,10 @@ pipeline {
             }
         }
 
-        //pruebas de seguridad y api backend
-
-        stage('API & Security Tests Backend') {
-            when {
-                expression { params.RUN_API && params.DEPLOY}
-            }
-            environment {
-                DB_HOST     = credentials('DB_HOST_TEST')
-                DB_USER     = credentials('DB_USER_TEST')
-                DB_PASSWORD = credentials('DB_PASSWORD_TEST')
-                DB_DATABASE = credentials('DB_DATABASE_TEST')
-            }
-
-            steps {
-                script {
-                    dir('Backend') {
-                         sh '''
-                        echo "DB_HOST=${DB_HOST}"         > .env.test
-                        echo "DB_USER=${DB_USER}"         >> .env.test
-                        echo "DB_PASSWORD=${DB_PASSWORD}" >> .env.test
-                        echo "DB_DATABASE=${DB_DATABASE}" >> .env.test
-                        echo "DB_PORT=${DB_PORT}"         >> .env.test
-                        echo "JWT_SECRET=${JWT_SECRET}"   >> .env.test
-                        '''
-                        runCommand('npm run test:e2e')
-                    }
-                }
-            }
-
-               post {
-                always {
-                    junit allowEmptyResults: true,
-                          testResults: 'Backend/test/api/junit*.xml'
-                }
-            }
-        }
-        
         //regression front
         stage('Regression Frontend Test') {
             when {
-                expression { params.RUN_REGRESSION }
+                expression { params.RUN_REGRESSION_FRONTEND }
             }
             steps {
                 script {
@@ -238,6 +202,25 @@ pipeline {
                         sleep 3
                     done
                 '''
+            }
+        }
+
+        stage('API & Security Tests Backend') {
+            when {
+                expression { params.RUN_API_SECURITY_BACKEND && params.DEPLOY }
+            }
+            environment {
+                DB_HOST     = credentials('DB_HOST_TEST')
+                DB_USER     = credentials('DB_USER_TEST')
+                DB_PASSWORD = credentials('DB_PASSWORD_TEST')
+                DB_DATABASE = credentials('DB_DATABASE_TEST')
+                DB_PORT     = '5432'
+                }
+            }
+            steps {
+                dir('Backend') {
+                    sh 'npx jest --runInBand --config ./test/jest-e2e.json'
+                }
             }
         }
         //lighthouse
