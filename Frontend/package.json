@@ -47,6 +47,8 @@
     "@types/cypress": "^0.1.6",
     "@types/jasmine": "~5.1.0",
     "@types/jest": "^30.0.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.6.0",
     "baseline-browser-mapping": "^2.9.11",
     "chrome-launcher": "^1.2.1",
     "cypress": "^15.14.1",
