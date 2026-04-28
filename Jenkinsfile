@@ -122,6 +122,7 @@ pipeline {
                         echo "DB_PASSWORD=${DB_PASSWORD}" >> .env.test
                         echo "DB_DATABASE=${DB_DATABASE}" >> .env.test
                         echo "DB_PORT=${DB_PORT}"         >> .env.test
+                        echo "JWT_SECRET=${JWT_SECRET}"   >> .env.test
                         '''
                         runCommand('npm run test:e2e')
                     }
