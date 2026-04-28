@@ -79,7 +79,6 @@ pipeline {
                         runCommand('npm install')
                     }
                     dir('Frontend') {
-                        sh 'rm -rf /var/jenkins_home/.cache/puppeteer/chrome/* || true'
                         runCommand('npm install --legacy-peer-deps')
                     }
                 }
