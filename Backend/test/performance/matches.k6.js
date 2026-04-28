@@ -4,13 +4,32 @@ import {
     BASE_URL,
     JSON_HEADERS,
     buildOptions,
-    env,
     think,
 } from './_shared/config.k6.js';
+import {
+    createEmpresa,
+    createMatch as createMatchFixture,
+    createPostulante,
+    createUser,
+    createVacante,
+} from './_shared/fixtures.k6.js';
 
-const MATCH_ID = env('EXISTING_MATCH_ID');
-const VACANTE_ID = env('EXISTING_VACANTE_ID');
-const POSTULANTE_ID = env('EXISTING_POSTULANTE_ID');
+export function setup() {
+    const empresaUser = createUser(BASE_URL, 'matches-empresa-user');
+    const empresa = createEmpresa(BASE_URL, empresaUser.id, 'matches-empresa');
+    const vacante = createVacante(BASE_URL, empresa.id, 'matches-vacante');
+
+    const postulanteUser = createUser(BASE_URL, 'matches-postulante-user');
+    const postulante = createPostulante(BASE_URL, postulanteUser.id, 'matches-postulante');
+
+    const match = createMatchFixture(BASE_URL, vacante.id, postulante.id);
+
+    return {
+        matchId: match.id,
+        vacanteId: vacante.id,
+        postulanteId: postulante.id,
+    };
+}
 
 export const options = buildOptions({
     'http_req_duration{endpoint:get_all_matches}': ['p(95)<1000'],
@@ -53,10 +72,10 @@ function getAllMatches() {
     });
 }
 
-function maybeGetMatchById() {
-    if (!MATCH_ID) return;
+function maybeGetMatchById(matchId) {
+    if (!matchId) return;
 
-    const res = http.get(`${BASE_URL}/matches/${MATCH_ID}`, {
+    const res = http.get(`${BASE_URL}/matches/${matchId}`, {
         tags: { endpoint: 'get_match_by_id' },
     });
 
@@ -73,12 +92,12 @@ function maybeGetMatchById() {
     });
 }
 
-function maybeCreateMatch() {
-    if (!VACANTE_ID || !POSTULANTE_ID) return;
+function maybeCreateMatch(vacanteId, postulanteId) {
+    if (!vacanteId || !postulanteId) return;
 
     const payload = JSON.stringify({
-        vacante: { id_vacante: VACANTE_ID },
-        postulante: { id: POSTULANTE_ID },
+        vacante: { id_vacante: vacanteId },
+        postulante: { id: postulanteId },
     });
 
     const res = http.post(`${BASE_URL}/matches`, payload, {
@@ -106,13 +125,17 @@ function maybeCreateMatch() {
     });
 }
 
-export default function matches() {
+export default function matches(data) {
+    const matchId = data?.matchId;
+    const vacanteId = data?.vacanteId;
+    const postulanteId = data?.postulanteId;
+
     getAllMatches();
     think();
 
-    maybeGetMatchById();
+    maybeGetMatchById(matchId);
     think();
 
-    maybeCreateMatch();
+    maybeCreateMatch(vacanteId, postulanteId);
     think();
 }

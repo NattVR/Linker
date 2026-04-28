@@ -70,7 +70,7 @@ pipeline {
                         }
                     }
                     dir('Frontend') {
-                        runCommand('npm install --legacy-peer-deps')
+                        runCommand('npm install --legacy-peer-deps ')
                         runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
                         withSonarQubeEnv('SonarQube') {
                             runCommand('npx sonar-scanner')

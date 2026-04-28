@@ -11,11 +11,11 @@ export class CertificadosService {
     private readonly certificadoRepository: Repository<Certificado>,
   ) {}
 
-  create(createCertificadoDto: CreateCertificadoDto) {
+  async create(createCertificadoDto: CreateCertificadoDto) {
     const certificadoEntity =
       this.certificadoRepository.create(createCertificadoDto);
-    this.certificadoRepository.save(certificadoEntity);
-    return certificadoEntity;
+    const saved = await this.certificadoRepository.save(certificadoEntity);
+    return saved;
   }
 
   findAll() {
