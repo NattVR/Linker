@@ -4,15 +4,34 @@ import {
   BASE_URL,
   JSON_HEADERS,
   buildOptions,
-  env,
   randomSuffix,
   think,
 } from './_shared/config.k6.js';
+import {
+  createEmpresa,
+  createPostulante,
+  createUser,
+  createVacante,
+} from './_shared/fixtures.k6.js';
 
-const EXISTING_VACANTE_ID    = env('EXISTING_VACANTE_ID');
-const EXISTING_EMPRESA_ID    = env('EXISTING_EMPRESA_ID');
-const CREATE_EMPRESA_ID      = env('CREATE_EMPRESA_ID');
-const POSTULANTE_ID_FOR_LIST = env('POSTULANTE_ID_FOR_LIST');
+export function setup() {
+  const existingEmpresaUser = createUser(BASE_URL, 'vacantes-existing-empresa-user');
+  const existingEmpresa = createEmpresa(BASE_URL, existingEmpresaUser.id, 'vacantes-existing-empresa');
+  const existingVacante = createVacante(BASE_URL, existingEmpresa.id, 'vacantes-existing-vacante');
+
+  const createEmpresaUser = createUser(BASE_URL, 'vacantes-create-empresa-user');
+  const createEmpresaTarget = createEmpresa(BASE_URL, createEmpresaUser.id, 'vacantes-create-empresa');
+
+  const postulanteUser = createUser(BASE_URL, 'vacantes-postulante-user');
+  const postulante = createPostulante(BASE_URL, postulanteUser.id, 'vacantes-postulante');
+
+  return {
+    existingVacanteId: existingVacante.id,
+    existingEmpresaId: existingEmpresa.id,
+    createEmpresaId: createEmpresaTarget.id,
+    postulanteIdForList: postulante.id,
+  };
+}
 
 export const options = buildOptions({
   'http_req_duration{endpoint:get_all_vacantes}':        ['p(95)<800'],
@@ -30,7 +49,6 @@ function buildVacantePayload() {
     tipo_modalidad: 'Remoto',
     salario: 3500000,
     ubicacion: 'Medellín',
-    empresa: CREATE_EMPRESA_ID,
   };
 }
 
@@ -48,10 +66,10 @@ function getAllVacantes() {
   });
 }
 
-function maybeGetVacantesEmpresa() {
-  if (!EXISTING_EMPRESA_ID) return;
+function maybeGetVacantesEmpresa(existingEmpresaId) {
+  if (!existingEmpresaId) return;
 
-  const res = http.get(`${BASE_URL}/vacantes/empresaId/${EXISTING_EMPRESA_ID}`, {
+  const res = http.get(`${BASE_URL}/vacantes/empresaId/${existingEmpresaId}`, {
     tags: { endpoint: 'get_vacantes_empresa' },
   });
 
@@ -64,10 +82,10 @@ function maybeGetVacantesEmpresa() {
   });
 }
 
-function maybeGetVacantesParaPostulante() {
-  if (!POSTULANTE_ID_FOR_LIST) return;
+function maybeGetVacantesParaPostulante(postulanteIdForList) {
+  if (!postulanteIdForList) return;
 
-  const res = http.get(`${BASE_URL}/vacantes/vacantes/${POSTULANTE_ID_FOR_LIST}`, {
+  const res = http.get(`${BASE_URL}/vacantes/vacantes/${postulanteIdForList}`, {
     tags: { endpoint: 'get_vacantes_postulante' },
   });
 
@@ -87,10 +105,13 @@ function maybeGetVacantesParaPostulante() {
   });
 }
 
-function maybeCreateVacante() {
-  if (!CREATE_EMPRESA_ID) return;
+function maybeCreateVacante(createEmpresaId) {
+  if (!createEmpresaId) return;
 
-  const payload = JSON.stringify(buildVacantePayload());
+  const payload = JSON.stringify({
+    ...buildVacantePayload(),
+    empresa: createEmpresaId,
+  });
   const res = http.post(`${BASE_URL}/vacantes`, payload, {
     headers: JSON_HEADERS,
     tags: { endpoint: 'create_vacante' },
@@ -105,15 +126,15 @@ function maybeCreateVacante() {
   });
 }
 
-function maybeUpdateVacante() {
-  if (!EXISTING_VACANTE_ID) return;
+function maybeUpdateVacante(existingVacanteId) {
+  if (!existingVacanteId) return;
 
   const payload = JSON.stringify({
     titulo: `Vacante actualizada k6 iter ${__ITER}`,
     salario: 4000000 + __ITER,
   });
 
-  const res = http.put(`${BASE_URL}/vacantes/${EXISTING_VACANTE_ID}`, payload, {
+  const res = http.put(`${BASE_URL}/vacantes/${existingVacanteId}`, payload, {
     headers: JSON_HEADERS,
     tags: { endpoint: 'update_vacante' },
   });
@@ -123,12 +144,17 @@ function maybeUpdateVacante() {
   });
 }
 
-export default function vacantes () {
+export default function vacantes (data) {
+  const existingVacanteId = data?.existingVacanteId;
+  const existingEmpresaId = data?.existingEmpresaId;
+  const createEmpresaId = data?.createEmpresaId;
+  const postulanteIdForList = data?.postulanteIdForList;
+
   getAllVacantes();
-  maybeGetVacantesEmpresa();
-  maybeGetVacantesParaPostulante();
-  maybeCreateVacante();
-  maybeUpdateVacante();
+  maybeGetVacantesEmpresa(existingEmpresaId);
+  maybeGetVacantesParaPostulante(postulanteIdForList);
+  maybeCreateVacante(createEmpresaId);
+  maybeUpdateVacante(existingVacanteId);
 
   think();
 }

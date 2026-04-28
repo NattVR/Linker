@@ -3,14 +3,30 @@ import { check } from 'k6';
 import {
     BASE_URL,
     JSON_HEADERS,
-    env,
     buildOptions,
     think,
 } from './_shared/config.k6.js';
+import {
+    createEmpresa,
+    createPostulante,
+    createUser,
+    createVacante,
+} from './_shared/fixtures.k6.js';
 
-const VACANTE_ID = env('EXISTING_VACANTE_ID');
-const POSTULANTE_ID = env('EXISTING_POSTULANTE_ID');
-const EMPRESA_ID = env('EXISTING_EMPRESA_ID');
+export function setup() {
+    const empresaUser = createUser(BASE_URL, 'interacciones-empresa-user');
+    const empresa = createEmpresa(BASE_URL, empresaUser.id, 'interacciones-empresa');
+    const vacante = createVacante(BASE_URL, empresa.id, 'interacciones-vacante');
+
+    const postulanteUser = createUser(BASE_URL, 'interacciones-postulante-user');
+    const postulante = createPostulante(BASE_URL, postulanteUser.id, 'interacciones-postulante');
+
+    return {
+        vacanteId: vacante.id,
+        postulanteId: postulante.id,
+        empresaId: empresa.id,
+    };
+}
 
 export const options = buildOptions({
     'http_req_duration{endpoint:create_interaccion}': ['p(95)<1200'],
@@ -19,17 +35,17 @@ export const options = buildOptions({
     'http_req_duration{endpoint:check_match}': ['p(95)<800'],
 });
 
-function buildInteraccionPayload(accionEmpresa, accionPostulante) {
+function buildInteraccionPayload(accionEmpresa, accionPostulante, ids) {
     return JSON.stringify({
-        vacante: VACANTE_ID,
-        postulante: POSTULANTE_ID,
-        empresa: EMPRESA_ID,
+        vacante: ids.vacanteId,
+        postulante: ids.postulanteId,
+        empresa: ids.empresaId,
         accion_empresa: accionEmpresa,
         accion_postulante: accionPostulante,
     });
 }
 
-function postInteraccion() {
+function postInteraccion(ids) {
     const scenarios = [
         { accionEmpresa: 'like', accionPostulante: 'no_interaccion' },
         { accionEmpresa: 'no_interaccion', accionPostulante: 'like' },
@@ -39,7 +55,7 @@ function postInteraccion() {
 
     const res = http.post(
         `${BASE_URL}/interacciones`,
-        buildInteraccionPayload(accionEmpresa, accionPostulante),
+        buildInteraccionPayload(accionEmpresa, accionPostulante, ids),
         {
             headers: JSON_HEADERS,
             tags: { endpoint: 'create_interaccion' },
@@ -68,9 +84,9 @@ function postInteraccion() {
     });
 }
 
-function getFilterVacantes() {
+function getFilterVacantes(postulanteId) {
     const res = http.get(
-        `${BASE_URL}/interacciones/filter/vacantes/${POSTULANTE_ID}`,
+        `${BASE_URL}/interacciones/filter/vacantes/${postulanteId}`,
         { tags: { endpoint: 'filter_vacantes' } },
     );
 
@@ -94,9 +110,9 @@ function getFilterVacantes() {
     });
 }
 
-function getFilterPostulantes() {
+function getFilterPostulantes(vacanteId) {
     const res = http.get(
-        `${BASE_URL}/interacciones/filter/postulantes/${VACANTE_ID}`,
+        `${BASE_URL}/interacciones/filter/postulantes/${vacanteId}`,
         { tags: { endpoint: 'filter_postulantes' } },
     );
 
@@ -120,9 +136,9 @@ function getFilterPostulantes() {
     });
 }
 
-function getCheckMatch() {
+function getCheckMatch(postulanteId, vacanteId) {
     const res = http.get(
-        `${BASE_URL}/interacciones/check-match/${POSTULANTE_ID}/${VACANTE_ID}`,
+        `${BASE_URL}/interacciones/check-match/${postulanteId}/${vacanteId}`,
         { tags: { endpoint: 'check_match' } },
     );
 
@@ -159,16 +175,21 @@ function getCheckMatch() {
     });
 }
 
-export default function interacciones() {
-    postInteraccion();
+export default function interacciones(data) {
+    const ids = data || {};
+    if (!ids.vacanteId || !ids.postulanteId || !ids.empresaId) {
+        return;
+    }
+
+    postInteraccion(ids);
     think();
 
-    getFilterVacantes();
+    getFilterVacantes(ids.postulanteId);
     think();
 
-    getFilterPostulantes();
+    getFilterPostulantes(ids.vacanteId);
     think();
 
-    getCheckMatch();
+    getCheckMatch(ids.postulanteId, ids.vacanteId);
     think();
 }

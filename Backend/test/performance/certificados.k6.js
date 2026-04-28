@@ -9,7 +9,6 @@ import {
   think,
 } from './_shared/config.k6.js';
 
-const RUN_WRITE = envBool('CERTIFICADOS_RUN_WRITE', false);
 
 export const options = buildOptions({
   'http_req_duration{endpoint:get_all_certificados}': ['p(95)<900'],
@@ -42,10 +41,6 @@ export default function () {
   check(response, {
     'GET /certificados status 200': (r) => r.status === 200,
   });
-
-  if (RUN_WRITE) {
-    createCertificado();
-  }
 
   think();
 }

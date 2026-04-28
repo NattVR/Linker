@@ -4,34 +4,54 @@ import {
   BASE_URL,
   JSON_HEADERS,
   buildOptions,
-  env,
-  randomSuffix,
+  //randomSuffix,
   think,
 } from './_shared/config.k6.js';
+import {
+  createEmpresa,
+  createPostulante,
+  createUser,
+  createVacante,
+} from './_shared/fixtures.k6.js';
 
-const EXISTING_POSTULANTE_ID = env('EXISTING_POSTULANTE_ID');
-const CREATE_USER_ID         = env('CREATE_USER_ID');
-const VACANTE_ID_FOR_LIST    = env('VACANTE_ID_FOR_LIST');
+export function setup() {
+  const existingPostulanteUser = createUser(BASE_URL, 'postulante-existing-user');
+  const existingPostulante = createPostulante(
+    BASE_URL,
+    existingPostulanteUser.id,
+    'postulante-existing',
+  );
+
+  //const createPostulanteUser = createUser(BASE_URL, 'postulante-create-user');
+
+  const empresaOwner = createUser(BASE_URL, 'postulante-vacante-owner-user');
+  const empresa = createEmpresa(BASE_URL, empresaOwner.id, 'postulante-vacante-owner');
+  const vacante = createVacante(BASE_URL, empresa.id, 'postulante-vacante');
+
+  return {
+    existingPostulanteId: existingPostulante.id,
+    //createUserId: createPostulanteUser.id,
+    vacanteIdForList: vacante.id,
+  };
+}
 
 export const options = buildOptions({
   'http_req_duration{endpoint:get_all_postulantes}':   ['p(95)<800'],
   'http_req_duration{endpoint:get_postulante_by_id}':  ['p(95)<800'],
   'http_req_duration{endpoint:get_perfil_completo}':   ['p(95)<1000'],
   'http_req_duration{endpoint:get_postulantes_vacante}':['p(95)<1000'],
-  'http_req_duration{endpoint:create_postulante}':     ['p(95)<1200'],
   'http_req_duration{endpoint:update_postulante}':     ['p(95)<1200'],
 });
 
-function buildPostulantePayload() {
+/**function buildPostulantePayload() {
   const suffix = randomSuffix();
   return {
     name: `Nombre${suffix}`,
     lastname: `Apellido${suffix}`,
     años_experiencia: 2,
     ubicacion: 'Medellín',
-    id_perfil: CREATE_USER_ID,
   };
-}
+}**/
 
 function getAllPostulantes() {
   const res = http.get(`${BASE_URL}/postulante`, {
@@ -47,10 +67,10 @@ function getAllPostulantes() {
   });
 }
 
-function maybeGetById() {
-  if (!EXISTING_POSTULANTE_ID) return;
+function maybeGetById(existingPostulanteId) {
+  if (!existingPostulanteId) return;
 
-  const res = http.get(`${BASE_URL}/postulante/${EXISTING_POSTULANTE_ID}`, {
+  const res = http.get(`${BASE_URL}/postulante/${existingPostulanteId}`, {
     tags: { endpoint: 'get_postulante_by_id' },
   });
 
@@ -63,10 +83,10 @@ function maybeGetById() {
   });
 }
 
-function maybeGetPerfilCompleto() {
-  if (!EXISTING_POSTULANTE_ID) return;
+function maybeGetPerfilCompleto(existingPostulanteId) {
+  if (!existingPostulanteId) return;
 
-  const res = http.get(`${BASE_URL}/postulante/perfil-completo/${EXISTING_POSTULANTE_ID}`, {
+  const res = http.get(`${BASE_URL}/postulante/perfil-completo/${existingPostulanteId}`, {
     tags: { endpoint: 'get_perfil_completo' },
   });
 
@@ -75,10 +95,10 @@ function maybeGetPerfilCompleto() {
   });
 }
 
-function maybeGetPostulantesParaVacante() {
-  if (!VACANTE_ID_FOR_LIST) return;
+function maybeGetPostulantesParaVacante(vacanteIdForList) {
+  if (!vacanteIdForList) return;
 
-  const res = http.get(`${BASE_URL}/postulante/postulantes/${VACANTE_ID_FOR_LIST}`, {
+  const res = http.get(`${BASE_URL}/postulante/postulantes/${vacanteIdForList}`, {
     tags: { endpoint: 'get_postulantes_vacante' },
   });
 
@@ -91,33 +111,16 @@ function maybeGetPostulantesParaVacante() {
   });
 }
 
-function maybeCreatePostulante() {
-  if (!CREATE_USER_ID) return;
 
-  const payload = JSON.stringify(buildPostulantePayload());
-  const res = http.post(`${BASE_URL}/postulante/registro`, payload, {
-    headers: JSON_HEADERS,
-    tags: { endpoint: 'create_postulante' },
-  });
-
-  check(res, {
-    'POST /postulante/registro status 201': (r) => r.status === 201,
-    'POST /postulante/registro tiene id': (r) => {
-      try { return JSON.parse(r.body).postulante?.id !== undefined; }
-      catch { return false; }
-    },
-  });
-}
-
-function maybeUpdatePostulante() {
-  if (!EXISTING_POSTULANTE_ID) return;
+function maybeUpdatePostulante(existingPostulanteId) {
+  if (!existingPostulanteId) return;
 
   const payload = JSON.stringify({
     experiencia: __ITER % 10,
     cv: `https://cv.example.com/k6_${__ITER}.pdf`,
   });
 
-  const res = http.patch(`${BASE_URL}/postulante/${EXISTING_POSTULANTE_ID}`, payload, {
+  const res = http.patch(`${BASE_URL}/postulante/${existingPostulanteId}`, payload, {
     headers: JSON_HEADERS,
     tags: { endpoint: 'update_postulante' },
   });
@@ -127,13 +130,17 @@ function maybeUpdatePostulante() {
   });
 }
 
-export default function postulante () {
+export default function postulante (data) {
+  const existingPostulanteId = data?.existingPostulanteId;
+  const createUserId = data?.createUserId;
+  const vacanteIdForList = data?.vacanteIdForList;
+
   getAllPostulantes();
-  maybeGetById();
-  maybeGetPerfilCompleto();
-  maybeGetPostulantesParaVacante();
-  maybeCreatePostulante();
-  maybeUpdatePostulante();
+  maybeGetById(existingPostulanteId);
+  maybeGetPerfilCompleto(existingPostulanteId);
+  maybeGetPostulantesParaVacante(vacanteIdForList);
+  //maybeCreatePostulante(createUserId);
+  maybeUpdatePostulante(existingPostulanteId);
 
   think();
 }

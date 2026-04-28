@@ -8,10 +8,21 @@ import {
   randomSuffix,
   think,
 } from './_shared/config.k6.js';
+import { createUser } from './_shared/fixtures.k6.js';
 
-const EXISTING_USER_ID = env('EXISTING_USER_ID');
 const LOGIN_EMAIL = env('LOGIN_EMAIL');
 const LOGIN_PASSWORD = env('LOGIN_PASSWORD');
+
+export function setup() {
+  const profileUser = createUser(BASE_URL, 'user-perfil');
+  const loginUser = createUser(BASE_URL, 'user-login');
+
+  return {
+    existingUserId: profileUser.id,
+    setupLoginEmail: loginUser.email,
+    setupLoginPassword: loginUser.password,
+  };
+}
 
 export const options = buildOptions({
   'http_req_duration{endpoint:registro}':    ['p(95)<1200'],
@@ -43,12 +54,14 @@ function maybeRegistrar() {
   });
 }
 
-function maybeLogin() {
-  if (!LOGIN_EMAIL || !LOGIN_PASSWORD) return;
+function maybeLogin(data) {
+  const loginEmail = LOGIN_EMAIL || data?.setupLoginEmail;
+  const loginPassword = LOGIN_PASSWORD || data?.setupLoginPassword;
+  if (!loginEmail || !loginPassword) return;
 
   const payload = JSON.stringify({
-    email: LOGIN_EMAIL,
-    password: LOGIN_PASSWORD,
+    email: loginEmail,
+    password: loginPassword,
   });
 
   const res = http.post(`${BASE_URL}/user/login`, payload, {
@@ -65,10 +78,10 @@ function maybeLogin() {
   });
 }
 
-function maybeGetPerfil() {
-  if (!EXISTING_USER_ID) return;
+function maybeGetPerfil(existingUserId) {
+  if (!existingUserId) return;
 
-  const res = http.get(`${BASE_URL}/user/perfil/${EXISTING_USER_ID}`, {
+  const res = http.get(`${BASE_URL}/user/perfil/${existingUserId}`, {
     tags: { endpoint: 'get_perfil' },
   });
 
@@ -77,10 +90,12 @@ function maybeGetPerfil() {
   });
 }
 
-export default function user () {
+export default function user (data) {
+  const existingUserId = data?.existingUserId;
+
   maybeRegistrar();
-  maybeLogin();
-  maybeGetPerfil();
+  maybeLogin(data);
+  maybeGetPerfil(existingUserId);
 
   think();
 }
