@@ -16,6 +16,15 @@ pipeline {
     }
 
     parameters {
+        booleanParam(name: 'RUN_UNIT_TESTS',   defaultValue: true, description: 'Ejecutar unit tests (Jest + Karma)')
+        booleanParam(name: 'RUN_API',          defaultValue: true, description: 'Ejecutar pruebas API (Supertest)')
+        booleanParam(name: 'RUN_SECURITY',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Supertest)')
+        booleanParam(name: 'RUN_PERFORMANCE',  defaultValue: true, description: 'Ejecutar pruebas de performance (k6)')
+        booleanParam(name: 'RUN_REGRESSION',   defaultValue: true, description: 'Ejecutar pruebas de regresion E2E (Cypress)')
+        booleanParam(name: 'RUN_LIGHTHOUSE',   defaultValue: true, description: 'Ejecutar performance web (Lighthouse)')
+        booleanParam(name: 'RUN_SONAR',        defaultValue: true, description: 'Ejecutar analisis SonarQube')
+        booleanParam(name: 'DEPLOY',           defaultValue: true, description: 'Levantar contenedores de prueba')
+        choice(name: 'PERF_PROFILE',           choices: ['quick', 'smoke', 'load'], description: 'Perfil k6')
         booleanParam(
             name: 'DEPLOY',
             defaultValue: true,
@@ -23,8 +32,10 @@ pipeline {
         )
     }
 
+    // Los environments
     environment {
         COMPOSE_FILE         = 'docker-compose.yml'
+        COMPOSE_TEST_FILE    = 'docker-compose.test.yml'
         COMPOSE_PROJECT_NAME = 'linker'
         DB_HOST              = credentials('DB_HOST')
         DB_USER              = credentials('DB_USER')
@@ -35,6 +46,7 @@ pipeline {
         DB_PORT              = '5432'
     }
 
+    //Validaciones de herramientas y archivos de configuración
     stages {
         // stage('Checkout') {
         //     steps {
@@ -47,6 +59,8 @@ pipeline {
                 script {
                     runCommand('docker --version')
                     runCommand('docker compose version')
+                    runCommand('node --version')
+                    runCommand('npm --version')
                 }
             }
         }
@@ -55,34 +69,99 @@ pipeline {
             steps {
                 script {
                     runCommand("docker compose -f ${env.COMPOSE_FILE} config")
+                    runCommand("docker compose -f ${env.COMPOSE_TEST_FILE} config")
                 }
             }
         }
 
-        // stage('SonarQube') {
-        //     steps {
-        //         script {
-        //             dir('Backend') {
-        //                 runCommand('npm install')
-        //                 runCommand('npm run test:cov')
-        //                 withSonarQubeEnv('SonarQube') {
-        //                     runCommand('npx sonar-scanner')
-        //                 }
-        //             }
-        //             dir('Frontend') {
-        //                 runCommand('npm install --legacy-peer-deps')
-        //                 runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
-        //                 withSonarQubeEnv('SonarQube') {
-        //                     runCommand('npx sonar-scanner')
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        //intalar dependencias
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    dir('Backend') {
+                        runCommand('npm install')
+                    }
+                    dir('Frontend') {
+                        runCommand('npm install --legacy-peer-deps')
+                    }
+                }
+            }
+        }
 
-        stage('Deploy') {
+        //Unit tests
+        stage('Unit Tests') {
             when {
-                expression { params.DEPLOY }
+                expression { params.RUN_UNIT_TESTS }
+            }
+            steps {
+                script {
+                    dir('Backend') {
+                        runCommand('npm run test:cov')
+                    }
+                    dir('Frontend') {
+                        runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
+                    }
+                }
+            }
+        }
+
+        stage('API & Security Tests Backend') {
+            when {
+                expression { params.RUN_API }
+            }
+            environment {
+                DB_HOST     = credentials('DB_HOST_TEST')
+                DB_USER     = credentials('DB_USER_TEST')
+                DB_PASSWORD = credentials('DB_PASSWORD_TEST')
+                DB_DATABASE = credentials('DB_DATABASE_TEST')
+            }
+
+            steps {
+                script {
+                    dir('Backend') {
+                        runCommand('npm run test:e2e')
+                    }
+                }
+            }
+
+               post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: 'Backend/test/api/junit*.xml'
+                }
+            }
+        }
+
+
+        stage('SonarQube') {
+            when{
+                expression {params.RUN_SONAR}
+            }
+            steps {
+                script {
+                    dir('Backend') {
+                    //runCommand('npm install')
+                    //runCommand('npm run test:cov')
+                        withSonarQubeEnv('SonarQube') {
+                            runCommand('npx sonar-scanner')
+                        }
+                    }
+                    dir('Frontend') {
+                        //runCommand('npm install --legacy-peer-deps')
+                        //runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
+                        withSonarQubeEnv('SonarQube') {
+                            runCommand('npx sonar-scanner')
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Test Environment') {
+            when {
+                expression {
+                    params.DEPLOY && (params.RUN_PERFORMANCE || params.RUN_REGRESSION || params.RUN_LIGHTHOUSE)
+                }
             }
             environment {
                 DB_HOST_TEST     = credentials('DB_HOST_TEST')
@@ -93,7 +172,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker compose -f docker-compose.yml down --remove-orphans --timeout 30 || true
+                        docker compose -f docker-compose.test.yml down --remove-orphans --timeout 30 || true
                         docker rm -f linker-backend-1 linker-frontend-1 2>/dev/null || true
                         docker network rm linker_default 2>/dev/null || true
 
@@ -103,8 +182,29 @@ pipeline {
                         docker network prune -f || true
                         sleep 5
                     '''
-                    runCommand("docker compose -f ${env.COMPOSE_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
+                    runCommand("docker compose -f ${env.COMPOSE_TEST_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
                 }
+            }
+        }
+
+        stage('Wait for Services') {
+            when {
+                expression {
+                    params.DEPLOY && (params.RUN_PERFORMANCE || params.RUN_REGRESSION || params.RUN_LIGHTHOUSE)
+                }
+            }
+            steps {
+                sh '''
+                    echo "Esperando a que el backend esté disponible..."
+                    for i in {1..20}; do
+                        if curl -s http://host.docker.internal:3001/api/health > /dev/null; then
+                            echo "Backend listo"
+                            break
+                        fi
+                        echo "Intento $i..."
+                        sleep 3
+                    done
+                '''
             }
         }
 
@@ -130,38 +230,41 @@ pipeline {
             }
         }
 
-        // stage('Lighthouse') {
-        //     environment {
-        //         FRONTEND_URL     = 'http://host.docker.internal:4201'
-        //         BACKEND_URL      = 'http://host.docker.internal:3001'
-        //         LH_TEST_EMAIL    = credentials('linker-test-email')
-        //         LH_TEST_PASSWORD = credentials('linker-test-password')
-        //     }
-        //     steps {
-        //         dir('Frontend') {
-        //             sh '''
-        //                 which chromium || echo "Chromium ya instalado"
-        //                 npm ci --legacy-peer-deps
-        //                 node tests/lighthouse/lighthouse-runner.js
-        //             '''
-        //         }
-        //     }
-        //     post {
-        //         always {
-        //             publishHTML(target: [
-        //                 allowMissing         : false,
-        //                 alwaysLinkToLastBuild: true,
-        //                 keepAll              : true,
-        //                 reportDir            : 'Frontend/coverage/lighthouse',
-        //                 reportFiles          : '*.html',
-        //                 reportName           : 'Lighthouse Reports'
-        //             ])
-        //         }
-        //         failure {
-        //             echo 'Lighthouse: una o más rutas no alcanzan los thresholds mínimos'
-        //         }
-        //     }
-        // }
+        stage('Lighthouse') {
+            when {
+                expression { params.RUN_LIGHTHOUSE && params.DEPLOY }
+            }
+            environment {
+                FRONTEND_URL     = 'http://host.docker.internal:4201'
+                BACKEND_URL      = 'http://host.docker.internal:3001'
+                LH_TEST_EMAIL    = credentials('linker-test-email')
+                LH_TEST_PASSWORD = credentials('linker-test-password')
+            }
+            steps {
+                dir('Frontend') {
+                    sh '''
+                        which chromium || echo "Chromium ya instalado"
+                        npm ci --legacy-peer-deps
+                        node tests/lighthouse/lighthouse-runner.js
+                    '''
+                }
+            }
+            post {
+                always {
+                    publishHTML(target: [
+                        allowMissing         : false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll              : true,
+                        reportDir            : 'Frontend/coverage/lighthouse',
+                        reportFiles          : '*.html',
+                        reportName           : 'Lighthouse Reports'
+                    ])
+                }
+                failure {
+                    echo 'Lighthouse: una o más rutas no alcanzan los thresholds mínimos'
+                }
+            }
+        }
 
         // stage('Cypress') {
         //     when {
