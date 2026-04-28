@@ -17,8 +17,8 @@ pipeline {
 
     parameters {
         booleanParam(name: 'RUN_UNIT_TESTS',   defaultValue: true, description: 'Ejecutar unit tests (Jest + Karma)')
-        booleanParam(name: 'RUN_API',          defaultValue: true, description: 'Ejecutar pruebas API (Supertest)')
-        booleanParam(name: 'RUN_SECURITY',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Supertest)')
+        booleanParam(name: 'RUN_API & SECURITY BACKEND',          defaultValue: true, description: 'Ejecutar pruebas API (Supertest)')
+        booleanParam(name: 'RUN_SECURITY FRONTEND',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Supertest)')
         booleanParam(name: 'RUN_PERFORMANCE',  defaultValue: true, description: 'Ejecutar pruebas de performance (k6)')
         booleanParam(name: 'RUN_REGRESSION',   defaultValue: true, description: 'Ejecutar pruebas de regresion E2E (Cypress)')
         booleanParam(name: 'RUN_LIGHTHOUSE',   defaultValue: true, description: 'Ejecutar performance web (Lighthouse)')
@@ -45,11 +45,11 @@ pipeline {
 
     //Validaciones de herramientas y archivos de configuración
     stages {
-        // stage('Checkout') {
-        //     steps {
-        //         checkout scm
-        //     }
-        // }
+        stage('Checkout') {
+          steps {
+               checkout scm
+          }
+     }
 
         stage('Validate Tools') {
             steps {
@@ -101,10 +101,36 @@ pipeline {
                 }
             }
         }
+        //Sonar scanner
+        stage('SonarQube') {
+            when{
+                expression {params.RUN_SONAR}
+            }
+            steps {
+                script {
+                    dir('Backend') {
+                    //runCommand('npm install')
+                    //runCommand('npm run test:cov')
+                        withSonarQubeEnv('SonarQube') {
+                            runCommand('npx sonar-scanner')
+                        }
+                    }
+                    dir('Frontend') {
+                        //runCommand('npm install --legacy-peer-deps')
+                        //runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
+                        withSonarQubeEnv('SonarQube') {
+                            runCommand('npx sonar-scanner')
+                        }
+                    }
+                }
+            }
+        }
+
+        //pruebas de seguridad y api backend
 
         stage('API & Security Tests Backend') {
             when {
-                expression { params.RUN_API }
+                expression { params.RUN_API && params.DEPLOY}
             }
             environment {
                 DB_HOST     = credentials('DB_HOST_TEST')
@@ -136,27 +162,16 @@ pipeline {
                 }
             }
         }
-
-
-        stage('SonarQube') {
-            when{
-                expression {params.RUN_SONAR}
+        
+        //regression front
+        stage('Regression Frontend Test') {
+            when {
+                expression { params.RUN_REGRESSION }
             }
             steps {
                 script {
-                    dir('Backend') {
-                    //runCommand('npm install')
-                    //runCommand('npm run test:cov')
-                        withSonarQubeEnv('SonarQube') {
-                            runCommand('npx sonar-scanner')
-                        }
-                    }
                     dir('Frontend') {
-                        //runCommand('npm install --legacy-peer-deps')
-                        //runCommand('npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI')
-                        withSonarQubeEnv('SonarQube') {
-                            runCommand('npx sonar-scanner')
-                        }
+                        runCommand('npm run test:regression')
                     }
                 }
             }
@@ -187,12 +202,13 @@ pipeline {
                         docker network prune -f || true
                         sleep 5
                     '''
-                    runCommand("docker compose -f ${env.COMPOSE_TEST_FILE} -f docker-compose.test.yml up -d --build --remove-orphans")
+                    runCommand("docker compose -f ${env.COMPOSE_TEST_FILE} up -d --build --remove-orphans")
                 }
             }
         }
 
-        stage('Wait for Services') {
+        // verificar que esten levantados 
+        stage('Wait For Services') {
             when {
                 expression {
                     params.DEPLOY && (params.RUN_PERFORMANCE || params.RUN_REGRESSION || params.RUN_LIGHTHOUSE)
@@ -200,45 +216,31 @@ pipeline {
             }
             steps {
                 sh '''
-                    echo "Esperando a que el backend esté disponible..."
-                    for i in {1..20}; do
-                        if curl -s http://host.docker.internal:3001/api/health > /dev/null; then
-                            echo "Backend listo"
+                    echo "Esperando backend..."
+                    for i in $(seq 1 40); do
+                        code=$(curl -s -o /dev/null -w "%{http_code}" http://host.docker.internal:3001 || true)
+                        if [ "$code" != "000" ]; then
+                            echo "Backend disponible (HTTP $code)"
                             break
                         fi
-                        echo "Intento $i..."
+                        echo "Intento $i/40..."
+                        sleep 3
+                    done
+
+                    echo "Esperando frontend..."
+                    for i in $(seq 1 40); do
+                        code=$(curl -s -o /dev/null -w "%{http_code}" http://host.docker.internal:4201 || true)
+                        if [ "$code" != "000" ]; then
+                            echo "Frontend disponible (HTTP $code)"
+                            break
+                        fi
+                        echo "Intento $i/40..."
                         sleep 3
                     done
                 '''
             }
         }
-
-        stage('Check Frontend') {
-            when {
-                expression {
-                    params.DEPLOY && (params.RUN_PERFORMANCE || params.RUN_REGRESSION || params.RUN_LIGHTHOUSE)
-                }
-            }
-            steps {
-                sh '''
-                    echo "Esperando a que el frontend esté disponible..."
-                    for i in {1..20}; do
-                        if curl -s http://host.docker.internal:4201 > /dev/null; then
-                            echo "Frontend listo"
-                            break
-                        fi
-                        echo "Intento $i..."
-                        sleep 3
-                    done
-
-                    echo "=== Contenido de config.json en el contenedor ==="
-                    docker exec linker-frontend-1 cat /usr/share/nginx/html/assets/config.json
-
-                    echo "=== config.json accesible desde el host ==="
-                    curl -s http://host.docker.internal:4201/assets/config.json
-                '''
-            }
-        }
+        //lighthouse
 
         stage('Lighthouse') {
             when {
