@@ -216,7 +216,6 @@ pipeline {
                 DB_DATABASE = credentials('DB_DATABASE_TEST')
                 DB_PORT     = '5432'
                 }
-            }
             steps {
                 dir('Backend') {
                     sh 'npx jest --runInBand --config ./test/jest-e2e.json'
