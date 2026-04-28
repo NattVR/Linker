@@ -25,11 +25,6 @@ pipeline {
         booleanParam(name: 'RUN_SONAR',        defaultValue: true, description: 'Ejecutar analisis SonarQube')
         booleanParam(name: 'DEPLOY',           defaultValue: true, description: 'Levantar contenedores de prueba')
         choice(name: 'PERF_PROFILE',           choices: ['quick', 'smoke', 'load'], description: 'Perfil k6')
-        booleanParam(
-            name: 'DEPLOY',
-            defaultValue: true,
-            description: 'Levantar o actualizar contenedores'
-        )
     }
 
     // Los environments
@@ -43,6 +38,8 @@ pipeline {
         DB_DATABASE          = credentials('DB_DATABASE')
         JWT_SECRET           = credentials('JWT_SECRET')
         CHROME_BIN           = '/usr/bin/chromium'
+        PUPPETEER_SKIP_DOWNLOAD          = 'true'
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = 'true'
         DB_PORT              = '5432'
     }
 
@@ -82,6 +79,7 @@ pipeline {
                         runCommand('npm install')
                     }
                     dir('Frontend') {
+                        sh 'rm -rf /var/jenkins_home/.cache/puppeteer/chrome/* || true'
                         runCommand('npm install --legacy-peer-deps')
                     }
                 }
@@ -209,6 +207,11 @@ pipeline {
         }
 
         stage('Check Frontend') {
+            when {
+                expression {
+                    params.DEPLOY && (params.RUN_PERFORMANCE || params.RUN_REGRESSION || params.RUN_LIGHTHOUSE)
+                }
+            }
             steps {
                 sh '''
                     echo "Esperando a que el frontend esté disponible..."
