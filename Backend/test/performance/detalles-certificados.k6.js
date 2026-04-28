@@ -4,15 +4,30 @@ import {
   BASE_URL,
   JSON_HEADERS,
   buildOptions,
-  env,
   envBool,
   think,
 } from './_shared/config.k6.js';
+import {
+  createCertificado,
+  createDetalleCertificado,
+  createEmpresa,
+  createUser,
+} from './_shared/fixtures.k6.js';
 
-const EMPRESA_ID = env('DETALLES_EMPRESA_ID');
-const CERTIFICADO_ID = env('DETALLES_CERTIFICADO_ID');
-const DETALLE_ID = env('DETALLES_ID');
 const RUN_WRITE = envBool('DETALLES_RUN_WRITE', false);
+
+export function setup() {
+  const empresaUser = createUser(BASE_URL, 'detalles-empresa-user');
+  const empresa = createEmpresa(BASE_URL, empresaUser.id, 'detalles-empresa');
+  const certificado = createCertificado(BASE_URL, 'detalles-certificado');
+  const detalle = createDetalleCertificado(BASE_URL, empresa.id, certificado.id);
+
+  return {
+    empresaId: empresa.id,
+    certificadoId: certificado.id,
+    detalleId: detalle.id,
+  };
+}
 
 export const options = buildOptions({
   'http_req_duration{endpoint:get_all_detalles_certificados}': ['p(95)<900'],
@@ -22,14 +37,14 @@ export const options = buildOptions({
   'http_req_duration{endpoint:delete_detalle_certificado}': ['p(95)<1200'],
 });
 
-function createDetalleCertificado() {
-  if (!EMPRESA_ID || !CERTIFICADO_ID) {
+function createDetalleCertificadoFromFixture(empresaId, certificadoId) {
+  if (!empresaId || !certificadoId) {
     return;
   }
 
   const payload = JSON.stringify({
-    empresa: { id: EMPRESA_ID },
-    certificado: { id_certificado: CERTIFICADO_ID },
+    empresa: { id: empresaId },
+    certificado: { id_certificado: certificadoId },
     fecha_emision: '2026-01-10',
     fecha_caducidad: '2027-01-10',
   });
@@ -43,10 +58,16 @@ function createDetalleCertificado() {
     'POST /detalles-certificados status 200|201': (r) =>
       r.status === 200 || r.status === 201,
   });
+
+  try {
+    return JSON.parse(response.body).id_detalles_certificados;
+  } catch {
+    return undefined;
+  }
 }
 
-function updateDetalleCertificado() {
-  if (!DETALLE_ID) {
+function updateDetalleCertificado(detalleId) {
+  if (!detalleId) {
     return;
   }
 
@@ -54,7 +75,7 @@ function updateDetalleCertificado() {
     fecha_caducidad: '2028-01-10',
   });
 
-  const response = http.patch(`${BASE_URL}/detalles-certificados/${DETALLE_ID}`, payload, {
+  const response = http.patch(`${BASE_URL}/detalles-certificados/${detalleId}`, payload, {
     headers: JSON_HEADERS,
     tags: { endpoint: 'update_detalle_certificado' },
   });
@@ -65,12 +86,12 @@ function updateDetalleCertificado() {
   });
 }
 
-function deleteDetalleCertificado() {
-  if (!DETALLE_ID) {
+function deleteDetalleCertificado(detalleId) {
+  if (!detalleId) {
     return;
   }
 
-  const response = http.del(`${BASE_URL}/detalles-certificados/${DETALLE_ID}`, null, {
+  const response = http.del(`${BASE_URL}/detalles-certificados/${detalleId}`, null, {
     tags: { endpoint: 'delete_detalle_certificado' },
   });
 
@@ -80,7 +101,11 @@ function deleteDetalleCertificado() {
   });
 }
 
-export default function () {
+export default function (data) {
+  const empresaId = data?.empresaId;
+  const certificadoId = data?.certificadoId;
+  const detalleId = data?.detalleId;
+
   const allResponse = http.get(`${BASE_URL}/detalles-certificados`, {
     tags: { endpoint: 'get_all_detalles_certificados' },
   });
@@ -89,8 +114,8 @@ export default function () {
     'GET /detalles-certificados status 200': (r) => r.status === 200,
   });
 
-  if (EMPRESA_ID) {
-    const byEmpresa = http.get(`${BASE_URL}/detalles-certificados/empresa/${EMPRESA_ID}`, {
+  if (empresaId) {
+    const byEmpresa = http.get(`${BASE_URL}/detalles-certificados/empresa/${empresaId}`, {
       tags: { endpoint: 'get_detalles_certificados_by_empresa' },
     });
 
@@ -100,9 +125,10 @@ export default function () {
   }
 
   if (RUN_WRITE) {
-    createDetalleCertificado();
-    updateDetalleCertificado();
-    deleteDetalleCertificado();
+    const createdDetalleId = createDetalleCertificadoFromFixture(empresaId, certificadoId);
+    const targetDetalleId = createdDetalleId || detalleId;
+    updateDetalleCertificado(targetDetalleId);
+    deleteDetalleCertificado(targetDetalleId);
   }
 
   think();

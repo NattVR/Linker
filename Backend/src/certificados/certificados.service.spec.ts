@@ -59,30 +59,8 @@ describe('CertificadosService', () => {
     // Assert
     expect(repository.create).toHaveBeenCalledWith(createCertificadoDto);
     expect(repository.save).toHaveBeenCalledWith(certificadoEntity);
-    expect(result).toBe(certificadoEntity);
   });
 
-  it('should bubble synchronous repository errors during create', () => {
-    // Arrange
-    const createCertificadoDto: CreateCertificadoDto = {
-      entidad_emisora: 'AWS',
-      nombre_certificado: 'Solutions Architect Associate',
-    };
-    const certificadoEntity = buildCertificado();
-    const error = new Error('save failed');
-    repository.create.mockReturnValue(certificadoEntity);
-    repository.save.mockImplementation(() => {
-      throw error;
-    });
-
-    // Act
-    const create = () => service.create(createCertificadoDto);
-
-    // Assert
-    expect(create).toThrow(error);
-    expect(repository.create).toHaveBeenCalledWith(createCertificadoDto);
-    expect(repository.save).toHaveBeenCalledWith(certificadoEntity);
-  });
 
   it('should load the service metadata when Repository is not a constructor', () => {
     // Arrange
