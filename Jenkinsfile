@@ -144,7 +144,12 @@ pipeline {
         stage('Deploy Test Environment') {
             when {
                 expression {
-                    params.DEPLOY && (params.RUN_PERFORMANCE || params.RUN_REGRESSION || params.RUN_LIGHTHOUSE)
+                    params.DEPLOY && (
+                        params.RUN_PERFORMANCE ||
+                        params.RUN_REGRESSION_BACKEND ||
+                        params.RUN_LIGHTHOUSE||
+                        params.RUN_API_SECURITY_BACKEND
+                    )
                 }
             }
             environment {
@@ -175,7 +180,12 @@ pipeline {
         stage('Wait For Services') {
             when {
                 expression {
-                    params.DEPLOY && (params.RUN_PERFORMANCE || params.RUN_REGRESSION || params.RUN_LIGHTHOUSE)
+                    params.DEPLOY && (
+                        params.RUN_PERFORMANCE ||
+                        params.RUN_REGRESSION_BACKEND ||
+                        params.RUN_LIGHTHOUSE
+                        params.RUN_API_SECURITY_BACKEND
+                    )
                 }
             }
             steps {
@@ -204,8 +214,8 @@ pipeline {
                 '''
             }
         }
-               // pruebas de performance back con k6
-
+        
+        // pruebas de performance back con k6
         stage('Performance Tests Backend') {
             when {
                 expression { params.RUN_PERFORMANCE && params.DEPLOY }
@@ -216,21 +226,26 @@ pipeline {
             steps {
                 sh '''
                     mkdir -p artifacts/k6
+                    rm -f artifacts/k6/*.json
 
+                    failed=0
                     for script in Backend/test/performance/*.k6.js; do
-                        test_name="$(basename "$script" .k6.js)"
-                        echo "Ejecutando: ${test_name} con perfil ${PERF_PROFILE}"
+                        suite="$(basename "$script" .k6.js)"
+                        echo "Ejecutando suite k6: ${suite} (perfil: ${PERF_PROFILE})"
 
-                    docker run --rm \
-                        --add-host=host.docker.internal:host-gateway \
-                        -e BASE_URL=http://host.docker.internal:3001 \
-                        -e PERF_PROFILE=${PERF_PROFILE} \
-                        -e K6_BIN=k6 \
-                        -v "$PWD/Backend/test/performance:/tests" \
-                        -v "$PWD/artifacts/k6:/results" \
-                        --entrypoint="" \
-                        grafana/k6:0.51.0 \
-                        sh -c "cd /tests && k6 run --env PERF_PROFILE=${PERF_PROFILE} --env BASE_URL=http://host.docker.internal:3001 certificados.k6.js"
+                        docker run --rm \
+                            --add-host=host.docker.internal:host-gateway \
+                            -e BASE_URL=http://host.docker.internal:3001 \
+                            -e PERF_PROFILE=${PERF_PROFILE} \
+                            -v "$PWD:/work" \
+                            -w /work \
+                            grafana/k6:0.51.0 \
+                            run \
+                            --out "json=/work/artifacts/k6/${suite}.json" \
+                            "$script" || failed=1
+                    done
+
+                    test "$failed" -eq 0
                 '''
             }
             post {
@@ -262,6 +277,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('API & Security Tests Backend') {
             when {
