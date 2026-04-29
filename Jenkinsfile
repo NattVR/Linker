@@ -407,13 +407,13 @@ pipeline {
                 CYPRESS_TEST_EMAIL    = credentials('linker-test-email')
                 CYPRESS_TEST_PASSWORD = credentials('linker-test-password')
             }
-            agent {
+            /**agent {
                 docker {
                     image 'cypress/included:15.14.1'
                     args '--add-host=host.docker.internal:host-gateway'
                     reuseNode true
                 }
-            }
+            }**/
             steps {
                 dir('Frontend') {
                     sh '''
