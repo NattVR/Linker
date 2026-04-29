@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Detalles Certificados API Regression (e2e) DELETE /detalles-certificados/:id mantiene el error cuando no existe 1`] = `
+{
+  "response": {
+    "error": "Not Found",
+    "message": "Certificado con id 00000000-0000-0000-0000-000000000000 no encontrado",
+    "statusCode": 404,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Detalles Certificados API Regression (e2e) DELETE /detalles-certificados/:id mantiene el mensaje de eliminacion 1`] = `
+{
+  "response": {
+    "message": "Certificado [uuid] eliminado correctamente",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Detalles Certificados API Regression (e2e) GET /detalles-certificados mantiene la lista general 1`] = `
+{
+  "response": [
+    {
+      "certificado": {
+        "entidad_emisora": "Coursera",
+        "id_certificado": "[uuid]",
+        "nombre_certificado": "Backend Testing",
+      },
+      "empresa": {
+        "NIT": "900100100-1",
+        "descripcion": "Empresa de pruebas",
+        "foto": "https://example.com/logo.png",
+        "id": "[uuid]",
+        "name_empresa": "Linker Labs",
+        "sector": "Tech",
+        "ubicacion": "Bogota",
+      },
+      "fecha_caducidad": "[date]",
+      "fecha_emision": "[date]",
+      "id_detalles_certificados": "[uuid]",
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Detalles Certificados API Regression (e2e) GET /detalles-certificados/empresa/:id mantiene el filtrado por empresa 1`] = `
+{
+  "response": [
+    {
+      "certificado": {
+        "entidad_emisora": "Coursera",
+        "id_certificado": "[uuid]",
+        "nombre_certificado": "Backend Testing",
+      },
+      "fecha_caducidad": "[date]",
+      "fecha_emision": "[date]",
+      "id_detalles_certificados": "[uuid]",
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Detalles Certificados API Regression (e2e) PATCH /detalles-certificados/:id mantiene el error cuando no existe 1`] = `
+{
+  "response": {
+    "error": "Not Found",
+    "message": "Certificado con id 00000000-0000-0000-0000-000000000000 no encontrado",
+    "statusCode": 404,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Detalles Certificados API Regression (e2e) PATCH /detalles-certificados/:id mantiene la respuesta de actualizacion 1`] = `
+{
+  "response": {
+    "certificado": {
+      "entidad_emisora": "Coursera",
+      "id_certificado": "[uuid]",
+      "nombre_certificado": "Backend Testing",
+    },
+    "fecha_caducidad": "[date]",
+    "fecha_emision": "[date]",
+    "id_detalles_certificados": "[uuid]",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Detalles Certificados API Regression (e2e) POST /detalles-certificados mantiene la respuesta de creacion 1`] = `
+{
+  "response": {
+    "certificado": {
+      "id_certificado": "[uuid]",
+    },
+    "empresa": {
+      "id": "[uuid]",
+    },
+    "fecha_caducidad": "[date]",
+    "fecha_emision": "[date]",
+    "id_detalles_certificados": "[uuid]",
+  },
+  "status": 201,
+}
+`;

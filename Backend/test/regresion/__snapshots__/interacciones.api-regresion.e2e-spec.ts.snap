@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Interacciones API Regression (e2e) GET /interacciones/check-match/:postulanteId/:vacanteId mantiene la consulta puntual 1`] = `
+{
+  "response": {
+    "accionEmpresa": "like",
+    "accionPostulante": "like",
+    "fecha_registro": "[datetime]",
+    "id_interaccion": "[uuid]",
+    "postulante": "[uuid]",
+    "vacante": "[uuid]",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Interacciones API Regression (e2e) GET /interacciones/filter/postulantes/:id mantiene los ids excluidos de la vacante 1`] = `
+{
+  "response": [
+    "[uuid]",
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Interacciones API Regression (e2e) GET /interacciones/filter/vacantes/:id mantiene los ids excluidos del postulante 1`] = `
+{
+  "response": [
+    "[uuid]",
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Interacciones API Regression (e2e) POST /interacciones mantiene la actualizacion y dispara match con doble like 1`] = `
+{
+  "response": {
+    "accionEmpresa": "like",
+    "accionPostulante": "like",
+    "fecha_registro": "[datetime]",
+    "id_interaccion": "[uuid]",
+    "postulante": "[uuid]",
+    "vacante": "[uuid]",
+  },
+  "status": 201,
+}
+`;
+
+exports[`Interacciones API Regression (e2e) POST /interacciones mantiene la estructura al crear una interaccion nueva 1`] = `
+{
+  "response": {
+    "accionEmpresa": "like",
+    "accionPostulante": "no_interaccion",
+    "fecha_registro": "[datetime]",
+    "id_interaccion": "[uuid]",
+    "postulante": {
+      "id": "[uuid]",
+    },
+    "vacante": {
+      "id_vacante": "[uuid]",
+    },
+  },
+  "status": 201,
+}
+`;

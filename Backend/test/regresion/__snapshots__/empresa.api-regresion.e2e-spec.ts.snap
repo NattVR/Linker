@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Empresa API Regression (e2e) GET /empresa mantiene la lista de empresas 1`] = `
+{
+  "response": [
+    {
+      "NIT": "900400400-1",
+      "descripcion": "Empresa de pruebas",
+      "foto": "https://example.com/logo.png",
+      "id": "[uuid]",
+      "name_empresa": "First Company",
+      "sector": "Tech",
+      "ubicacion": "Bogota",
+      "user": {
+        "email": "empresa@test.com",
+        "estado_verificacion": "verificado",
+        "fecha_registro": "[datetime]",
+        "id": "[uuid]",
+        "password": "hashed_password",
+      },
+    },
+    {
+      "NIT": "900400400-2",
+      "descripcion": "Empresa de pruebas",
+      "foto": "https://example.com/logo.png",
+      "id": "[uuid]",
+      "name_empresa": "Second Company",
+      "sector": "Tech",
+      "ubicacion": "Bogota",
+      "user": {
+        "email": "empresa.second@test.com",
+        "estado_verificacion": "verificado",
+        "fecha_registro": "[datetime]",
+        "id": "[uuid]",
+        "password": "hashed_password",
+      },
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Empresa API Regression (e2e) GET /empresa/:id mantiene el perfil de empresa por usuario 1`] = `
+{
+  "response": {
+    "NIT": "900400400-4",
+    "descripcion": "Empresa de pruebas",
+    "foto": "https://example.com/logo.png",
+    "id": "[uuid]",
+    "name_empresa": "By User Id",
+    "sector": "Tech",
+    "ubicacion": "Bogota",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Empresa API Regression (e2e) GET /empresa/isEmpresa/:id mantiene false cuando no hay empresa asociada 1`] = `
+{
+  "response": "false",
+  "status": 200,
+}
+`;
+
+exports[`Empresa API Regression (e2e) GET /empresa/isEmpresa/:id mantiene true cuando hay empresa asociada 1`] = `
+{
+  "response": "true",
+  "status": 200,
+}
+`;
+
+exports[`Empresa API Regression (e2e) PATCH /empresa/:id mantiene el error de no encontrado 1`] = `
+{
+  "response": {
+    "error": "Not Found",
+    "message": "Empresa no encontrada",
+    "statusCode": 404,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Empresa API Regression (e2e) PATCH /empresa/:id mantiene la respuesta de actualizacion 1`] = `
+{
+  "response": {
+    "NIT": "900400400-6",
+    "descripcion": "Descripcion actualizada",
+    "foto": "https://example.com/logo.png",
+    "id": "[uuid]",
+    "name_empresa": "Patch Company",
+    "sector": "Tech",
+    "ubicacion": "Medellin",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Empresa API Regression (e2e) POST /empresa/registro mantiene la respuesta de creacion 1`] = `
+{
+  "response": {
+    "empresa": {
+      "NIT": "900400400-3",
+      "descripcion": "Empresa para regresion",
+      "foto": "https://example.com/snapshot.png",
+      "id": "[uuid]",
+      "name_empresa": "Snapshot Inc",
+      "sector": "Software",
+      "ubicacion": "Bogota",
+      "user": {
+        "email": "empresa.register@test.com",
+        "estado_verificacion": "verificado",
+        "fecha_registro": "[datetime]",
+        "id": "[uuid]",
+        "password": "hashed_password",
+      },
+    },
+    "message": "Empresa registrada con éxito",
+  },
+  "status": 201,
+}
+`;

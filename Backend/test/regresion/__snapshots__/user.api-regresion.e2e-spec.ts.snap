@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`User API Regression (e2e) GET /user/perfil/:id mantiene la forma del perfil empresa 1`] = `
+{
+  "response": {
+    "NIT": "900777777-7",
+    "descripcion": "Empresa de pruebas",
+    "foto": "https://example.com/logo.png",
+    "id": "[uuid]",
+    "name_empresa": "Snapshot Corp",
+    "sector": "Tech",
+    "ubicacion": "Bogota",
+  },
+  "status": 200,
+}
+`;
+
+exports[`User API Regression (e2e) GET /user/perfil/:id mantiene la forma del perfil postulante 1`] = `
+{
+  "response": {
+    "años_experiencia": null,
+    "curriculum": "https://example.com/cv.pdf",
+    "foto": "https://example.com/photo.png",
+    "id": "[uuid]",
+    "lastname": "Walker",
+    "name": "Alice",
+    "ubicacion": "Bogota",
+  },
+  "status": 200,
+}
+`;
+
+exports[`User API Regression (e2e) GET /user/perfil/:id mantiene vacio cuando no existe perfil asociado 1`] = `
+{
+  "response": "",
+  "status": 200,
+}
+`;
+
+exports[`User API Regression (e2e) POST /user/login mantiene el error cuando la clave es invalida 1`] = `
+{
+  "response": {
+    "error": "Bad Request",
+    "message": "Credenciales inválidas",
+    "statusCode": 400,
+  },
+  "status": 400,
+}
+`;
+
+exports[`User API Regression (e2e) POST /user/login mantiene la forma del token y del payload 1`] = `
+{
+  "response": {
+    "message": "Inicio de sesión exitoso",
+    "success": true,
+    "token": "[jwt-token]",
+    "user": {
+      "id": "[uuid]",
+    },
+  },
+  "status": 201,
+}
+`;
+
+exports[`User API Regression (e2e) POST /user/registro mantiene la respuesta del alta 1`] = `
+{
+  "response": {
+    "message": "Postulante registrado correctamente",
+    "success": true,
+    "user": {
+      "id": "[uuid]",
+    },
+  },
+  "status": 201,
+}
+`;

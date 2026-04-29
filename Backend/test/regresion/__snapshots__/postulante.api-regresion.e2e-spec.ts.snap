@@ -1,0 +1,155 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Postulante API Regression (e2e) DELETE /postulante/limpiar/:id mantiene el mensaje de limpieza 1`] = `
+{
+  "response": {
+    "message": "Perfil limpiado",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Postulante API Regression (e2e) GET /postulante mantiene la lista completa de postulantes 1`] = `
+{
+  "response": [
+    {
+      "años_experiencia": null,
+      "curriculum": "https://example.com/cv.pdf",
+      "foto": "https://example.com/photo.png",
+      "id": "[uuid]",
+      "lastname": "One",
+      "name": "Ana",
+      "ubicacion": "Bogota",
+      "user": {
+        "email": "postulante@test.com",
+        "estado_verificacion": "verificado",
+        "fecha_registro": "[datetime]",
+        "id": "[uuid]",
+        "password": "hashed_password",
+      },
+    },
+    {
+      "años_experiencia": null,
+      "curriculum": "https://example.com/cv.pdf",
+      "foto": "https://example.com/photo.png",
+      "id": "[uuid]",
+      "lastname": "Two",
+      "name": "Luis",
+      "ubicacion": "Bogota",
+      "user": {
+        "email": "postulante.two@test.com",
+        "estado_verificacion": "verificado",
+        "fecha_registro": "[datetime]",
+        "id": "[uuid]",
+        "password": "hashed_password",
+      },
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Postulante API Regression (e2e) GET /postulante/:id mantiene el perfil resumido 1`] = `
+{
+  "response": {
+    "lastname": "Miles",
+    "name": "Robert",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Postulante API Regression (e2e) GET /postulante/perfil-completo/:id mantiene relaciones de idiomas y habilidades 1`] = `
+{
+  "response": {
+    "años_experiencia": null,
+    "curriculum": "https://example.com/cv.pdf",
+    "foto": "https://example.com/photo.png",
+    "id": "[uuid]",
+    "lastname": "Ray",
+    "name": "Laura",
+    "postulanteEstudios": [],
+    "postulanteHabilidades": [
+      {
+        "certificado": "nestjs.pdf",
+        "habilidades": {
+          "id_habilidad": "[uuid]",
+          "nombre_habilidad": "NestJS",
+        },
+        "id_postulante_habilidad": "[uuid]",
+      },
+    ],
+    "postulanteIdiomas": [
+      {
+        "certificado": "spanish.pdf",
+        "id_postulante_idiomas": "[uuid]",
+        "idioma": {
+          "id_idioma": "[uuid]",
+          "nombre": "Spanish",
+        },
+      },
+    ],
+    "ubicacion": "Bogota",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Postulante API Regression (e2e) GET /postulante/postulantes/:id mantiene el filtrado por interacciones 1`] = `
+{
+  "response": [
+    {
+      "años_experiencia": null,
+      "curriculum": "https://example.com/cv.pdf",
+      "foto": "https://example.com/photo.png",
+      "habilidades": [],
+      "id": "[uuid]",
+      "idiomas": [],
+      "lastname": "Candidate",
+      "name": "Visible",
+      "ubicacion": "Bogota",
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Postulante API Regression (e2e) PATCH /postulante/:id mantiene la respuesta de actualizacion 1`] = `
+{
+  "response": {
+    "años_experiencia": 9,
+    "curriculum": "https://example.com/cv-updated.pdf",
+    "foto": "https://example.com/photo.png",
+    "id": "[uuid]",
+    "lastname": "Target",
+    "name": "Patch",
+    "ubicacion": "Bogota",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Postulante API Regression (e2e) POST /postulante/registro mantiene la respuesta de creacion 1`] = `
+{
+  "response": {
+    "message": "Postulante registrado con éxito",
+    "postulante": {
+      "años_experiencia": null,
+      "curriculum": null,
+      "foto": null,
+      "id": "[uuid]",
+      "lastname": "Stone",
+      "name": "Maria",
+      "ubicacion": "Cali",
+      "user": {
+        "email": "new.postulante@test.com",
+        "estado_verificacion": "verificado",
+        "fecha_registro": "[datetime]",
+        "id": "[uuid]",
+        "password": "hashed_password",
+      },
+    },
+  },
+  "status": 201,
+}
+`;

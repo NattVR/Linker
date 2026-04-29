@@ -1,0 +1,146 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Vacantes API Regression (e2e) GET /vacantes mantiene la lista con empresa relacionada 1`] = `
+{
+  "response": [
+    {
+      "empresa": {
+        "NIT": "900200200-2",
+        "descripcion": "Empresa de pruebas",
+        "foto": "https://example.com/logo.png",
+        "id": "[uuid]",
+        "name_empresa": "Linker Labs",
+        "sector": "Tech",
+        "ubicacion": "Bogota",
+      },
+      "id_vacante": "[uuid]",
+      "modalidad": "Remoto",
+      "salario": 4500000,
+      "tipo_trabajo": "Full-time",
+      "titulo": "Backend I",
+      "ubicacion": "Bogota",
+    },
+    {
+      "empresa": {
+        "NIT": "900200200-2",
+        "descripcion": "Empresa de pruebas",
+        "foto": "https://example.com/logo.png",
+        "id": "[uuid]",
+        "name_empresa": "Linker Labs",
+        "sector": "Tech",
+        "ubicacion": "Bogota",
+      },
+      "id_vacante": "[uuid]",
+      "modalidad": "Remoto",
+      "salario": 4500000,
+      "tipo_trabajo": "Full-time",
+      "titulo": "Backend II",
+      "ubicacion": "Bogota",
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Vacantes API Regression (e2e) GET /vacantes/empresaId/:empresa mantiene el formato enriquecido 1`] = `
+{
+  "response": [
+    {
+      "empresa": {
+        "NIT": "900200200-3",
+        "descripcion": "Empresa de pruebas",
+        "foto": "https://example.com/logo.png",
+        "id": "[uuid]",
+        "name_empresa": "Linker Labs",
+        "sector": "Tech",
+        "ubicacion": "Bogota",
+      },
+      "habilidades": [
+        "TypeScript",
+      ],
+      "id_vacante": "[uuid]",
+      "idiomas": [
+        "English",
+      ],
+      "modalidad": "Remoto",
+      "salario": 4500000,
+      "tipo_trabajo": "Full-time",
+      "titulo": "Snapshot Vacante",
+      "ubicacion": "Bogota",
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Vacantes API Regression (e2e) GET /vacantes/vacantes/:id mantiene el filtrado de vacantes excluidas 1`] = `
+{
+  "response": [
+    {
+      "empresa": {
+        "NIT": "900100100-1",
+        "descripcion": "Empresa de pruebas",
+        "foto": "https://example.com/logo.png",
+        "id": "[uuid]",
+        "name_empresa": "Linker Labs",
+        "sector": "Tech",
+        "ubicacion": "Bogota",
+      },
+      "habilidades": [],
+      "id_vacante": "[uuid]",
+      "idiomas": [],
+      "modalidad": "Remoto",
+      "salario": 4500000,
+      "tipo_trabajo": "Full-time",
+      "titulo": "Visible Vacante",
+      "ubicacion": "Bogota",
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Vacantes API Regression (e2e) POST /vacantes mantiene la estructura de la vacante creada 1`] = `
+{
+  "response": {
+    "empresa": {
+      "id": "[uuid]",
+    },
+    "id_vacante": "[uuid]",
+    "modalidad": "Remoto",
+    "salario": 7000000,
+    "tipo_trabajo": "Full-time",
+    "titulo": "Platform Engineer",
+    "ubicacion": "Bogota",
+    "vacanteHabilidades": [],
+    "vacantesIdiomas": [],
+  },
+  "status": 201,
+}
+`;
+
+exports[`Vacantes API Regression (e2e) PUT /vacantes/:id mantiene el error de vacante inexistente 1`] = `
+{
+  "response": {
+    "message": "Internal server error",
+    "statusCode": 500,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Vacantes API Regression (e2e) PUT /vacantes/:id mantiene la forma de la vacante actualizada 1`] = `
+{
+  "response": {
+    "id_vacante": "[uuid]",
+    "modalidad": "Remoto",
+    "salario": 9100000,
+    "tipo_trabajo": "Full-time",
+    "titulo": "New Title",
+    "ubicacion": "Bogota",
+    "vacanteHabilidades": [],
+    "vacantesIdiomas": [],
+  },
+  "status": 200,
+}
+`;

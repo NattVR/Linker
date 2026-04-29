@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Matches API Regression (e2e) DELETE /matches/:id mantiene el mensaje actual del endpoint stub 1`] = `
+{
+  "response": "This action removes a #9 match",
+  "status": 200,
+}
+`;
+
+exports[`Matches API Regression (e2e) GET /matches mantiene la lista con relaciones 1`] = `
+{
+  "response": [
+    {
+      "fecha": "[datetime]",
+      "id_match": "[uuid]",
+      "postulante": {
+        "años_experiencia": null,
+        "curriculum": "https://example.com/cv.pdf",
+        "foto": "https://example.com/photo.png",
+        "id": "[uuid]",
+        "lastname": "Match",
+        "name": "List",
+        "ubicacion": "Bogota",
+      },
+      "vacante": {
+        "id_vacante": "[uuid]",
+        "modalidad": "Remoto",
+        "salario": 4500000,
+        "tipo_trabajo": "Full-time",
+        "titulo": "List Match",
+        "ubicacion": "Bogota",
+      },
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Matches API Regression (e2e) GET /matches/:id mantiene el mensaje actual del endpoint stub 1`] = `
+{
+  "response": "This action returns a #7 match",
+  "status": 200,
+}
+`;
+
+exports[`Matches API Regression (e2e) PATCH /matches/:id mantiene el mensaje actual del endpoint stub 1`] = `
+{
+  "response": "This action updates a #8 match",
+  "status": 200,
+}
+`;
+
+exports[`Matches API Regression (e2e) POST /matches mantiene la estructura del match creado 1`] = `
+{
+  "response": {
+    "fecha": "[datetime]",
+    "id_match": "[uuid]",
+    "postulante": {
+      "id": "[uuid]",
+    },
+    "vacante": {
+      "id_vacante": "[uuid]",
+    },
+  },
+  "status": 201,
+}
+`;
