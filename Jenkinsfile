@@ -424,19 +424,11 @@ pipeline {
                         --spec "cypress/e2e/seguridad.cy.ts" \
                         --env API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
                         --config baseUrl=$FRONTEND_URL \
-                        --reporter junit \
-                        --reporter-options "mochaFile=coverage/cypress/results-[hash].xml,toConsole=true"
                     '''
                 }
             }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: 'Frontend/coverage/cypress/results-*.xml'
-                    archiveArtifacts allowEmptyArchive: true, artifacts: 'Frontend/coverage/cypress/screenshots/**/*,Frontend/coverage/cypress/videos/**/*'
-                }
-                failure {
-                    echo 'Cypress: una o mas pruebas E2E fallaron'
-                }
+            failure {
+                echo 'Cypress: una o mas pruebas E2E fallaron'
             }
         }
 
