@@ -223,50 +223,53 @@ pipeline {
             environment {
                 BACKEND_URL = 'http://host.docker.internal:3001'
             }
-           steps {
-            sh '''
-                if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
-                    perf_dir="Backend/test/performance"
-                    perf_glob="${perf_dir}/*.k6.js"
-                elif ls Linker/Backend/test/performance/*.k6.js >/dev/null 2>&1; then
-                    perf_dir="Linker/Backend/test/performance"
-                    perf_glob="${perf_dir}/*.k6.js"
-                else
-                    echo "No se encontraron suites k6 en Backend/test/performance"
-                    exit 1
-                fi
+            steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                        if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
+                            perf_dir="Backend/test/performance"
+                            perf_glob="${perf_dir}/*.k6.js"
+                        elif ls Linker/Backend/test/performance/*.k6.js >/dev/null 2>&1; then
+                            perf_dir="Linker/Backend/test/performance"
+                            perf_glob="${perf_dir}/*.k6.js"
+                        else
+                            echo "No se encontraron suites k6 en Backend/test/performance"
+                            exit 1
+                        fi
 
-                failed=0
-                for script in $perf_glob; do
-                    suite="$(basename "$script" .k6.js)"
-                    echo "Ejecutando suite k6: ${suite} (perfil: ${PERF_PROFILE})"
-                    suite_failed=0
+                        failed=0
+                        for script in $perf_glob; do
+                            suite="$(basename "$script" .k6.js)"
+                            echo "Ejecutando suite k6: ${suite} (perfil: ${PERF_PROFILE})"
+                            suite_failed=0
 
-                    cid="$(docker create \
-                        --add-host=host.docker.internal:host-gateway \
-                        -e BASE_URL=${BACKEND_URL} \
-                        -e PERF_PROFILE=${PERF_PROFILE} \
-                        grafana/k6:0.57.0 \
-                        run "/tests/${suite}.k6.js")" || suite_failed=1
+                            cid="$(docker create \
+                                --add-host=host.docker.internal:host-gateway \
+                                -e BASE_URL=${BACKEND_URL} \
+                                -e PERF_PROFILE=${PERF_PROFILE} \
+                                grafana/k6:0.57.0 \
+                                run "/tests/${suite}.k6.js")" || suite_failed=1
 
-                    if [ "$suite_failed" -eq 0 ]; then
-                        docker cp "${perf_dir}/." "${cid}:/tests" || suite_failed=1
-                    fi
+                            if [ "$suite_failed" -eq 0 ]; then
+                                docker cp "${perf_dir}/." "${cid}:/tests" || suite_failed=1
+                            fi
 
-                    if [ "$suite_failed" -eq 0 ]; then
-                        docker start -a "${cid}" || suite_failed=1
-                    fi
+                            if [ "$suite_failed" -eq 0 ]; then
+                                docker start -a "${cid}" || suite_failed=1
+                            fi
 
-                    if [ -n "${cid}" ]; then
-                        docker rm -f "${cid}" >/dev/null 2>&1 || true
-                    fi
+                            if [ -n "${cid}" ]; then
+                                docker rm -f "${cid}" >/dev/null 2>&1 || true
+                            fi
 
-                    [ "$suite_failed" -ne 0 ] && failed=1
-                done
+                            [ "$suite_failed" -ne 0 ] && failed=1
+                        done
 
-                exit $failed
-            '''
-        }
+                        exit $failed
+                    '''
+                }
+            
+            }
         }
 
         //pruenas de regresion back con supertest
