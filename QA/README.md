@@ -64,6 +64,12 @@ cd QA
 mvn clean verify -Dqa.base.url=http://localhost:4201
 ```
 
+La resolucion de URL sigue esta prioridad:
+
+- `-Dqa.base.url=...`
+- `webdriver.base.url` del ambiente activo en `serenity.conf`
+- fallback local de seguridad
+
 ## Convenciones recomendadas
 
 - `features`: escenarios escritos en Gherkin

@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><testsuite errors="0" failures="0" name="Navegacion inicial del sitio" skipped="0" tests="3" time="8.34" timestamp="2026-04-28 09:00:28"><testcase name="Visualizar la portada principal"/><testcase name="Navegar al login desde el encabezado"/><testcase name="Redirigir al inicio cuando la ruta no existe"/></testsuite>

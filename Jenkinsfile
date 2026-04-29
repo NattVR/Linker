@@ -24,6 +24,7 @@ pipeline {
         booleanParam(name: 'RUN_REGRESSION_BACKEND',   defaultValue: true, description: 'Ejecutar pruebas de regresion backend (Supertest)')
         booleanParam(name: 'RUN_LIGHTHOUSE',   defaultValue: true, description: 'Ejecutar performance web (Lighthouse)')
         booleanParam(name: 'RUN_SECURITY_FRONTEND',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Cypress)')
+        booleanParam(name: 'RUN_SERENITY_UI',     defaultValue: true, description: 'Ejecutar pruebas de UI con Serenity/JS')
         booleanParam(name: 'DEPLOY',           defaultValue: true, description: 'Levantar contenedores de prueba')
         choice(name: 'PERF_PROFILE',           choices: ['quick', 'smoke', 'load'], description: 'Perfil k6')
     }
@@ -47,10 +48,10 @@ pipeline {
     //Validaciones de herramientas y archivos de configuración
     stages {
         stage('Checkout') {
-          steps {
-               checkout scm
-          }
-     }
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Validate Tools') {
             steps {
@@ -149,6 +150,8 @@ pipeline {
                         params.RUN_REGRESSION_BACKEND ||
                         params.RUN_LIGHTHOUSE||
                         params.RUN_API_SECURITY_BACKEND ||
+                        params.RUN_SERENITY_UI
+                        params.RUN_API_SECURITY_BACKEND ||
                         params.RUN_SECURITY_FRONTEND
                     )
                 }
@@ -225,50 +228,53 @@ pipeline {
             environment {
                 BACKEND_URL = 'http://host.docker.internal:3001'
             }
-           steps {
-            sh '''
-                if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
-                    perf_dir="Backend/test/performance"
-                    perf_glob="${perf_dir}/*.k6.js"
-                elif ls Linker/Backend/test/performance/*.k6.js >/dev/null 2>&1; then
-                    perf_dir="Linker/Backend/test/performance"
-                    perf_glob="${perf_dir}/*.k6.js"
-                else
-                    echo "No se encontraron suites k6 en Backend/test/performance"
-                    exit 1
-                fi
+            steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                        if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
+                            perf_dir="Backend/test/performance"
+                            perf_glob="${perf_dir}/*.k6.js"
+                        elif ls Linker/Backend/test/performance/*.k6.js >/dev/null 2>&1; then
+                            perf_dir="Linker/Backend/test/performance"
+                            perf_glob="${perf_dir}/*.k6.js"
+                        else
+                            echo "No se encontraron suites k6 en Backend/test/performance"
+                            exit 1
+                        fi
 
-                failed=0
-                for script in $perf_glob; do
-                    suite="$(basename "$script" .k6.js)"
-                    echo "Ejecutando suite k6: ${suite} (perfil: ${PERF_PROFILE})"
-                    suite_failed=0
+                        failed=0
+                        for script in $perf_glob; do
+                            suite="$(basename "$script" .k6.js)"
+                            echo "Ejecutando suite k6: ${suite} (perfil: ${PERF_PROFILE})"
+                            suite_failed=0
 
-                    cid="$(docker create \
-                        --add-host=host.docker.internal:host-gateway \
-                        -e BASE_URL=${BACKEND_URL} \
-                        -e PERF_PROFILE=${PERF_PROFILE} \
-                        grafana/k6:0.57.0 \
-                        run "/tests/${suite}.k6.js")" || suite_failed=1
+                            cid="$(docker create \
+                                --add-host=host.docker.internal:host-gateway \
+                                -e BASE_URL=${BACKEND_URL} \
+                                -e PERF_PROFILE=${PERF_PROFILE} \
+                                grafana/k6:0.57.0 \
+                                run "/tests/${suite}.k6.js")" || suite_failed=1
 
-                    if [ "$suite_failed" -eq 0 ]; then
-                        docker cp "${perf_dir}/." "${cid}:/tests" || suite_failed=1
-                    fi
+                            if [ "$suite_failed" -eq 0 ]; then
+                                docker cp "${perf_dir}/." "${cid}:/tests" || suite_failed=1
+                            fi
 
-                    if [ "$suite_failed" -eq 0 ]; then
-                        docker start -a "${cid}" || suite_failed=1
-                    fi
+                            if [ "$suite_failed" -eq 0 ]; then
+                                docker start -a "${cid}" || suite_failed=1
+                            fi
 
-                    if [ -n "${cid}" ]; then
-                        docker rm -f "${cid}" >/dev/null 2>&1 || true
-                    fi
+                            if [ -n "${cid}" ]; then
+                                docker rm -f "${cid}" >/dev/null 2>&1 || true
+                            fi
 
-                    [ "$suite_failed" -ne 0 ] && failed=1
-                done
+                            [ "$suite_failed" -ne 0 ] && failed=1
+                        done
 
-                exit $failed
-            '''
-        }
+                        exit $failed
+                    '''
+                }
+            
+            }
         }
 
         //pruenas de regresion back con supertest
@@ -346,8 +352,51 @@ pipeline {
             }
         }
 
- 
+        stage('Serenity/JS UI Tests') {
+            when {
+                expression { params.RUN_SERENITY_UI && params.DEPLOY }
+            }
             
+            environment {
+                LANG = 'C.UTF-8'
+                LC_ALL = 'C.UTF-8'
+                JAVA_TOOL_OPTIONS = '-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8'
+                MAVEN_OPTS = '-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8'
+            }
+
+            agent {
+                docker {
+                    image 'stephano21/linker-qa-runner:latest'
+                    args '--add-host=host.docker.internal:host-gateway'
+                    reuseNode true
+                }
+            }
+
+            steps {
+                dir('QA') {
+                    sh '''
+                        ls -la
+                        mvn clean verify serenity:aggregate \
+                        -Denvironment=test \
+                        -Dqa.base.url=http://host.docker.internal:4201 \
+                        -Dwebdriver.base.url=http://host.docker.internal:4201
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    publishHTML(target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll              : true,
+                        reportDir            : 'QA/target/site/serenity',
+                        reportFiles          : 'index.html',
+                        reportName           : 'Serenity BDD Report'
+                    ])
+                }
+            }
+        }
         stage('Cypress Security Frontend') {
             when {
                 expression { params.DEPLOY && params.RUN_SECURITY_FRONTEND }

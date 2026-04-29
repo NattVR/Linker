@@ -97,11 +97,19 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven.failsafe.plugin.version}</version>
                 <configuration>
+                    <argLine>-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8</argLine>
                     <includes>
                         <include>**/*TestSuite.java</include>
                     </includes>
+                    <useModulePath>false</useModulePath>
+                    <!-- Serenity discovers the local JUnit4 bridge from test-classes; this
+                         breaks with Failsafe's isolated classloader in Jenkins. -->
+                    <useSystemClassLoader>true</useSystemClassLoader>
                     <systemPropertyVariables>
                         <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
+                        <file.encoding>${project.build.sourceEncoding}</file.encoding>
+                        <sun.jnu.encoding>${project.build.sourceEncoding}</sun.jnu.encoding>
+                        <serenity.report.encoding>${project.build.sourceEncoding}</serenity.report.encoding>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>

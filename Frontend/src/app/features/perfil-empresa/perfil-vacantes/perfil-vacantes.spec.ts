@@ -588,19 +588,17 @@ describe('HU8RF9 — Publicar Vacante | PerfilVacantes.publicarVacante()', () =>
         expect(component.activeTab).toBe('list');
     });
 
-    it('[CP-041] Campos vacíos — [BUG] sin validación, createVacante llamado igualmente', () => {
+    it('[CP-041] Campos vacíos -> no ejecuta createVacante cuando el formulario es inválido', () => {
         // Arrange
         sessionStorage.setItem('perfilId', 'empresa-uuid-cp041');
         component.modoEdicion = false;
-        perfilSpy.createVacante.and.returnValue(of({}));
 
         // Act
         component.publicarVacante();
 
         // Assert
-        expect(perfilSpy.createVacante).toHaveBeenCalledWith(
-            jasmine.objectContaining({ titulo: '', ubicacion: '', salario: '' })
-        );
+        expect(component.nuevaVacante.invalid).toBeTrue();
+        expect(perfilSpy.createVacante).not.toHaveBeenCalled();
     });
 
     it('[CP-042] Caracteres especiales — [BUG] se envían sin validación', () => {
