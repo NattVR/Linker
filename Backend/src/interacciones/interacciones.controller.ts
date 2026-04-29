@@ -10,7 +10,7 @@ import { CreateInteraccioneDto } from './dto/create-interaccione.dto';
 
 @Controller('interacciones')
 export class InteraccionesController {
-  constructor(private readonly interaccionesService: InteraccionesService) {}
+  constructor(private readonly interaccionesService: InteraccionesService) { }
 
   @Post()
   create(@Body() createInteraccioneDto: CreateInteraccioneDto) {
@@ -27,12 +27,12 @@ export class InteraccionesController {
     return this.interaccionesService.isFilteredPostulantes(vacanteId);
   }
 
-  @Get('check-match/:postulanteId/:vacanteId') 
+  @Get('check-match/:postulanteId/:vacanteId')
   checkMatch(
     @Param('postulanteId') postulanteId: string,
-    @Param('vacanteId') vacanteId: string, 
+    @Param('vacanteId') vacanteId: string,
   ) {
-    
+
     return this.interaccionesService.findOne(
       vacanteId,
       postulanteId,
