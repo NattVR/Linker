@@ -242,6 +242,7 @@ pipeline {
                     echo "────────────────────────────────────"
 
                     docker run --rm \
+                        --user root \
                         --add-host=host.docker.internal:host-gateway \
                         -e BASE_URL=${BACKEND_URL} \
                         -e PERF_PROFILE=${PERF_PROFILE} \
