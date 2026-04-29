@@ -19,14 +19,43 @@ public class OpenThePage implements Task {
 
     @Override
     public <T extends Actor> void performAs(T actor) {
-        String configuredBaseUrl = System.getProperty(
-            "qa.base.url",
-            System.getenv().getOrDefault("QA_BASE_URL", "http://localhost:4200")
-        );
+        String configuredBaseUrl = resolveBaseUrl();
 
         String normalizedBaseUrl = configuredBaseUrl.replaceAll("/$", "");
         String normalizedPath = path.startsWith("/") ? path : "/" + path;
 
         actor.attemptsTo(Open.url(normalizedBaseUrl + normalizedPath));
+    }
+
+    private String resolveBaseUrl() {
+        String configuredBaseUrl = System.getProperty("qa.base.url");
+        if (isPresent(configuredBaseUrl)) {
+            return configuredBaseUrl;
+        }
+
+        configuredBaseUrl = System.getProperty("webdriver.base.url");
+        if (isPresent(configuredBaseUrl)) {
+            return configuredBaseUrl;
+        }
+
+        configuredBaseUrl = System.getenv("QA_BASE_URL");
+        if (isPresent(configuredBaseUrl)) {
+            return configuredBaseUrl;
+        }
+
+        String environment = System.getProperty("environment");
+        if (!isPresent(environment)) {
+            environment = System.getProperty("env");
+        }
+
+        if ("test".equalsIgnoreCase(environment)) {
+            return "http://host.docker.internal:4201";
+        }
+
+        return "http://localhost:4200";
+    }
+
+    private boolean isPresent(String value) {
+        return value != null && !value.isBlank();
     }
 }

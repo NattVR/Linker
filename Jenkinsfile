@@ -24,6 +24,7 @@ pipeline {
         booleanParam(name: 'RUN_REGRESSION_BACKEND',   defaultValue: true, description: 'Ejecutar pruebas de regresion backend (Supertest)')
         booleanParam(name: 'RUN_LIGHTHOUSE',   defaultValue: true, description: 'Ejecutar performance web (Lighthouse)')
         booleanParam(name: 'RUN_SECURITY_FRONTEND',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Cypress)')
+        booleanParam(name: 'RUN_SERENITY_UI',     defaultValue: true, description: 'Ejecutar pruebas de UI con Serenity/JS')
         booleanParam(name: 'DEPLOY',           defaultValue: true, description: 'Levantar contenedores de prueba')
         choice(name: 'PERF_PROFILE',           choices: ['quick', 'smoke', 'load'], description: 'Perfil k6')
     }
@@ -47,10 +48,10 @@ pipeline {
     //Validaciones de herramientas y archivos de configuración
     stages {
         stage('Checkout') {
-          steps {
-               checkout scm
-          }
-     }
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Validate Tools') {
             steps {
@@ -392,6 +393,52 @@ pipeline {
         //         }
         //     }
         // } Falta regression front y back , performance back , seguridad front con cyoress
+
+        stage('Serenity/JS UI Tests') {
+            when {
+                expression { params.RUN_SERENITY_UI && params.DEPLOY }
+            }
+            
+            environment {
+                LANG = 'C.UTF-8'
+                LC_ALL = 'C.UTF-8'
+                JAVA_TOOL_OPTIONS = '-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8'
+                MAVEN_OPTS = '-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8'
+            }
+
+            agent {
+                docker {
+                    image 'stephano21/linker-qa-runner:latest'
+                    args '--add-host=host.docker.internal:host-gateway'
+                    reuseNode true
+                }
+            }
+
+            steps {
+                dir('QA') {
+                    sh '''
+                        ls -la
+                        mvn clean verify serenity:aggregate \
+                        -Denvironment=test \
+                        -Dqa.base.url=http://host.docker.internal:4201 \
+                        -Dwebdriver.base.url=http://host.docker.internal:4201
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    publishHTML(target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll              : true,
+                        reportDir            : 'QA/target/site/serenity',
+                        reportFiles          : 'index.html',
+                        reportName           : 'Serenity BDD Report'
+                    ])
+                }
+            }
+        }
 
         stage('Verify') {
             when {
