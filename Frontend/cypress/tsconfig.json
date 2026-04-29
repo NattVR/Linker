@@ -2,7 +2,8 @@
   "compilerOptions": {
     "types": ["cypress"],
     "lib": ["es6", "dom"],
-    "isolatedModules": false
+    "isolatedModules": false,
+    "skipLibCheck": true
   },
   "include": ["**/*.ts", "**/*.js"]
 }
