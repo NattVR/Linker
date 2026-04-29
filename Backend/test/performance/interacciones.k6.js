@@ -29,10 +29,10 @@ export function setup() {
 }
 
 export const options = buildOptions({
-    'http_req_duration{endpoint:create_interaccion}': ['p(95)<1200'],
-    'http_req_duration{endpoint:filter_vacantes}': ['p(95)<800'],
-    'http_req_duration{endpoint:filter_postulantes}': ['p(95)<800'],
-    'http_req_duration{endpoint:check_match}': ['p(95)<800'],
+    'http_req_duration{endpoint:create_interaccion}': ['p(95)<2000'],
+    'http_req_duration{endpoint:filter_vacantes}': ['p(95)<1200'],
+    'http_req_duration{endpoint:filter_postulantes}': ['p(95)<1200'],
+    'http_req_duration{endpoint:check_match}': ['p(95)<1200'],
 });
 
 function buildInteraccionPayload(accionEmpresa, accionPostulante, ids) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-failsafe-plugin/xsd/failsafe-test-report-3.0.xsd" version="3.0" name="com.linker.qa.runners.AcceptanceTestSuite" time="30.599" tests="15" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-failsafe-plugin/xsd/failsafe-test-report-3.0.xsd" version="3.0" name="com.linker.qa.runners.AcceptanceTestSuite" time="30.134" tests="15" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="25"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -12,7 +12,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="CO"/>
     <property name="sun.boot.library.path" value="/opt/homebrew/Cellar/openjdk/25.0.2/libexec/openjdk.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/target/surefire/surefirebooter-20260428204710311_3.jar /Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/target/surefire 2026-04-28T20-47-10_275-jvmRun1 surefire-20260428204710311_1tmp surefire_0-20260428204710311_2tmp"/>
+    <property name="sun.java.command" value="/Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/target/surefire/surefirebooter-20260428210028505_3.jar /Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/target/surefire 2026-04-28T21-00-28_479-jvmRun1 surefire-20260428210028505_1tmp surefire_0-20260428210028505_2tmp"/>
     <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/target/test-classes:/Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/target/linker-qa-1.0-SNAPSHOT.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-core/4.2.16/serenity-core-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-model/4.2.16/serenity-model-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0.jar:/Users/stephanomejiamorales/.m2/repository/commons-net/commons-net/3.11.1/commons-net-3.11.1.jar:/Users/stephanomejiamorales/.m2/repository/com/google/guava/guava/33.3.1-jre/guava-33.3.1-jre.jar:/Users/stephanomejiamorales/.m2/repository/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar:/Users/stephanomejiamorales/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/Users/stephanomejiamorales/.m2/repository/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar:/Users/stephanomejiamorales/.m2/repository/org/checkerframework/checker-qual/3.43.0/checker-qual-3.43.0.jar:/Users/stephanomejiamorales/.m2/repository/com/google/j2objc/j2objc-annotations/3.0.0/j2objc-annotations-3.0.0.jar:/Users/stephanomejiamorales/.m2/repository/org/jsoup/jsoup/1.15.4/jsoup-1.15.4.jar:/Users/stephanomejiamorales/.m2/repository/com/thoughtworks/xstream/xstream/1.4.21/xstream-1.4.21.jar:/Users/stephanomejiamorales/.m2/repository/io/github/x-stream/mxparser/1.2.2/mxparser-1.2.2.jar:/Users/stephanomejiamorales/.m2/repository/xmlpull/xmlpull/1.1.3.1/xmlpull-1.1.3.1.jar:/Users/stephanomejiamorales/.m2/repository/com/opencsv/opencsv/5.9/opencsv-5.9.jar:/Users/stephanomejiamorales/.m2/repository/commons-beanutils/commons-beanutils/1.9.4/commons-beanutils-1.9.4.jar:/Users/stephanomejiamorales/.m2/repository/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar:/Users/stephanomejiamorales/.m2/repository/com/typesafe/config/1.4.3/config-1.4.3.jar:/Users/stephanomejiamorales/.m2/repository/org/imgscalr/imgscalr-lib/4.2/imgscalr-lib-4.2.jar:/Users/stephanomejiamorales/.m2/repository/org/awaitility/awaitility/4.2.2/awaitility-4.2.2.jar:/Users/stephanomejiamorales/.m2/repository/org/freemarker/freemarker/2.3.33/freemarker-2.3.33.jar:/Users/stephanomejiamorales/.m2/repository/io/github/classgraph/classgraph/4.8.157/classgraph-4.8.157.jar:/Users/stephanomejiamorales/.m2/repository/com/github/ben-manes/caffeine/caffeine/2.9.2/caffeine-2.9.2.jar:/Users/stephanomejiamorales/.m2/repository/org/ehcache/ehcache/3.10.8/ehcache-3.10.8.jar:/Users/stephanomejiamorales/.m2/repository/javax/cache/cache-api/1.1.0/cache-api-1.1.0.jar:/Users/stephanomejiamorales/.m2/repository/net/sourceforge/jexcelapi/jxl/2.6.12/jxl-2.6.12.jar:/Users/stephanomejiamorales/.m2/repository/net/bytebuddy/byte-buddy/1.15.11/byte-buddy-1.15.11.jar:/Users/stephanomejiamorales/.m2/repository/net/bytebuddy/byte-buddy-agent/1.15.11/byte-buddy-agent-1.15.11.jar:/Users/stephanomejiamorales/.m2/repository/org/objenesis/objenesis/3.4/objenesis-3.4.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-all/0.64.8/flexmark-all-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark/0.64.8/flexmark-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-abbreviation/0.64.8/flexmark-ext-abbreviation-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-admonition/0.64.8/flexmark-ext-admonition-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-anchorlink/0.64.8/flexmark-ext-anchorlink-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-aside/0.64.8/flexmark-ext-aside-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-attributes/0.64.8/flexmark-ext-attributes-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-autolink/0.64.8/flexmark-ext-autolink-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/org/nibor/autolink/autolink/0.6.0/autolink-0.6.0.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-definition/0.64.8/flexmark-ext-definition-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-emoji/0.64.8/flexmark-ext-emoji-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-enumerated-reference/0.64.8/flexmark-ext-enumerated-reference-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-escaped-character/0.64.8/flexmark-ext-escaped-character-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-footnotes/0.64.8/flexmark-ext-footnotes-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-gfm-issues/0.64.8/flexmark-ext-gfm-issues-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-gfm-strikethrough/0.64.8/flexmark-ext-gfm-strikethrough-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-gfm-tasklist/0.64.8/flexmark-ext-gfm-tasklist-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-gfm-users/0.64.8/flexmark-ext-gfm-users-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-gitlab/0.64.8/flexmark-ext-gitlab-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-jekyll-front-matter/0.64.8/flexmark-ext-jekyll-front-matter-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-jekyll-tag/0.64.8/flexmark-ext-jekyll-tag-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-media-tags/0.64.8/flexmark-ext-media-tags-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-macros/0.64.8/flexmark-ext-macros-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-ins/0.64.8/flexmark-ext-ins-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-xwiki-macros/0.64.8/flexmark-ext-xwiki-macros-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-superscript/0.64.8/flexmark-ext-superscript-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-toc/0.64.8/flexmark-ext-toc-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-typographic/0.64.8/flexmark-ext-typographic-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-wikilink/0.64.8/flexmark-ext-wikilink-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-yaml-front-matter/0.64.8/flexmark-ext-yaml-front-matter-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-youtube-embedded/0.64.8/flexmark-ext-youtube-embedded-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-html2md-converter/0.64.8/flexmark-html2md-converter-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-jira-converter/0.64.8/flexmark-jira-converter-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-pdf-converter/0.64.8/flexmark-pdf-converter-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/openhtmltopdf/openhtmltopdf-core/1.0.10/openhtmltopdf-core-1.0.10.jar:/Users/stephanomejiamorales/.m2/repository/com/openhtmltopdf/openhtmltopdf-pdfbox/1.0.10/openhtmltopdf-pdfbox-1.0.10.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/pdfbox/pdfbox/2.0.24/pdfbox-2.0.24.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/pdfbox/fontbox/2.0.24/fontbox-2.0.24.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/pdfbox/xmpbox/2.0.24/xmpbox-2.0.24.jar:/Users/stephanomejiamorales/.m2/repository/de/rototor/pdfbox/graphics2d/0.32/graphics2d-0.32.jar:/Users/stephanomejiamorales/.m2/repository/com/openhtmltopdf/openhtmltopdf-rtl-support/1.0.10/openhtmltopdf-rtl-support-1.0.10.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-profile-pegdown/0.64.8/flexmark-profile-pegdown-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-ast/0.64.8/flexmark-util-ast-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/org/jetbrains/annotations/24.0.1/annotations-24.0.1.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-builder/0.64.8/flexmark-util-builder-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-collection/0.64.8/flexmark-util-collection-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-data/0.64.8/flexmark-util-data-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-dependency/0.64.8/flexmark-util-dependency-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-format/0.64.8/flexmark-util-format-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-html/0.64.8/flexmark-util-html-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-misc/0.64.8/flexmark-util-misc-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-options/0.64.8/flexmark-util-options-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-sequence/0.64.8/flexmark-util-sequence-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util-visitor/0.64.8/flexmark-util-visitor-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-youtrack-converter/0.64.8/flexmark-youtrack-converter-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-resizable-image/0.64.8/flexmark-ext-resizable-image-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-ext-tables/0.64.8/flexmark-ext-tables-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/com/vladsch/flexmark/flexmark-util/0.64.8/flexmark-util-0.64.8.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-reports/4.2.16/serenity-reports-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-stats/4.2.16/serenity-stats-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/2.1.0/kotlin-stdlib-2.1.0.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-reports-configuration/4.2.16/serenity-reports-configuration-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/com/ibm/icu/icu4j/72.1/icu4j-72.1.jar:/Users/stephanomejiamorales/.m2/repository/es/nitaur/markdown/txtmark/0.16/txtmark-0.16.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-report-resources/4.2.16/serenity-report-resources-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar:/Users/stephanomejiamorales/.m2/repository/com/google/errorprone/error_prone_annotations/2.27.0/error_prone_annotations-2.27.0.jar:/Users/stephanomejiamorales/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.18.1/jackson-core-2.18.1.jar:/Users/stephanomejiamorales/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.18.1/jackson-databind-2.18.1.jar:/Users/stephanomejiamorales/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.18.1/jackson-annotations-2.18.1.jar:/Users/stephanomejiamorales/.m2/repository/commons-codec/commons-codec/1.17.1/commons-codec-1.17.1.jar:/Users/stephanomejiamorales/.m2/repository/commons-io/commons-io/2.17.0/commons-io-2.17.0.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/httpcomponents/httpcore/4.4.13/httpcore-4.4.13.jar:/Users/stephanomejiamorales/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-java/4.28.1/selenium-java-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v130/4.28.1/selenium-devtools-v130-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v131/4.28.1/selenium-devtools-v131-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v132/4.28.1/selenium-devtools-v132-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v85/4.28.1/selenium-devtools-v85-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-remote-driver/4.28.1/selenium-remote-driver-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/semconv/opentelemetry-semconv/1.28.0-alpha/opentelemetry-semconv-1.28.0-alpha.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-api/1.46.0/opentelemetry-api-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-context/1.46.0/opentelemetry-context-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-exporter-logging/1.46.0/opentelemetry-exporter-logging-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-sdk-common/1.46.0/opentelemetry-sdk-common-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.46.0/opentelemetry-sdk-extension-autoconfigure-spi-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure/1.46.0/opentelemetry-sdk-extension-autoconfigure-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-api-incubator/1.46.0-alpha/opentelemetry-api-incubator-1.46.0-alpha.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-sdk-trace/1.46.0/opentelemetry-sdk-trace-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-sdk/1.46.0/opentelemetry-sdk-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-sdk-metrics/1.46.0/opentelemetry-sdk-metrics-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/io/opentelemetry/opentelemetry-sdk-logs/1.46.0/opentelemetry-sdk-logs-1.46.0.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-os/4.28.1/selenium-os-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/commons/commons-exec/1.4.0/commons-exec-1.4.0.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-safari-driver/4.28.1/selenium-safari-driver-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-api/4.28.1/selenium-api-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-support/4.28.1/selenium-support-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/com/google/auto/service/auto-service-annotations/1.1.1/auto-service-annotations-1.1.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-json/4.28.1/selenium-json-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-chrome-driver/4.28.1/selenium-chrome-driver-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-chromium-driver/4.28.1/selenium-chromium-driver-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-manager/4.28.1/selenium-manager-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-firefox-driver/4.28.1/selenium-firefox-driver-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-http/4.28.1/selenium-http-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-edge-driver/4.28.1/selenium-edge-driver-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/selenium-ie-driver/4.28.1/selenium-ie-driver-4.28.1.jar:/Users/stephanomejiamorales/.m2/repository/org/htmlunit/htmlunit/4.7.0/htmlunit-4.7.0.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/httpcomponents/httpmime/4.5.14/httpmime-4.5.14.jar:/Users/stephanomejiamorales/.m2/repository/org/htmlunit/htmlunit-core-js/4.7.0/htmlunit-core-js-4.7.0.jar:/Users/stephanomejiamorales/.m2/repository/org/htmlunit/neko-htmlunit/4.7.0/neko-htmlunit-4.7.0.jar:/Users/stephanomejiamorales/.m2/repository/org/htmlunit/htmlunit-cssparser/4.7.0/htmlunit-cssparser-4.7.0.jar:/Users/stephanomejiamorales/.m2/repository/org/htmlunit/htmlunit-xpath/4.7.0/htmlunit-xpath-4.7.0.jar:/Users/stephanomejiamorales/.m2/repository/org/htmlunit/htmlunit-csp/4.7.0/htmlunit-csp-4.7.0.jar:/Users/stephanomejiamorales/.m2/repository/org/htmlunit/htmlunit-websocket-client/4.7.0/htmlunit-websocket-client-4.7.0.jar:/Users/stephanomejiamorales/.m2/repository/org/brotli/dec/0.1.2/dec-0.1.2.jar:/Users/stephanomejiamorales/.m2/repository/org/seleniumhq/selenium/htmlunit3-driver/4.27.0/htmlunit3-driver-4.27.0.jar:/Users/stephanomejiamorales/.m2/repository/io/appium/java-client/9.3.0/java-client-9.3.0.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/groovy/groovy/4.0.23/groovy-4.0.23.jar:/Users/stephanomejiamorales/.m2/repository/net/sf/opencsv/opencsv/2.3/opencsv-2.3.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/commons/commons-compress/1.27.1/commons-compress-1.27.1.jar:/Users/stephanomejiamorales/.m2/repository/org/fluentlenium/fluentlenium-core/0.10.2/fluentlenium-core-0.10.2.jar:/Users/stephanomejiamorales/.m2/repository/com/jhlabs/filters/2.0.235/filters-2.0.235.jar:/Users/stephanomejiamorales/.m2/repository/com/paulhammant/ngwebdriver/1.2/ngwebdriver-1.2.jar:/Users/stephanomejiamorales/.m2/repository/joda-time/joda-time/2.13.0/joda-time-2.13.0.jar:/Users/stephanomejiamorales/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/Users/stephanomejiamorales/.m2/repository/com/google/jimfs/jimfs/1.3.0/jimfs-1.3.0.jar:/Users/stephanomejiamorales/.m2/repository/org/mockito/mockito-core/3.3.3/mockito-core-3.3.3.jar:/Users/stephanomejiamorales/.m2/repository/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar:/Users/stephanomejiamorales/.m2/repository/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar:/Users/stephanomejiamorales/.m2/repository/com/sun/xml/bind/jaxb-core/2.3.0.1/jaxb-core-2.3.0.1.jar:/Users/stephanomejiamorales/.m2/repository/com/sun/xml/bind/jaxb-impl/2.3.3/jaxb-impl-2.3.3.jar:/Users/stephanomejiamorales/.m2/repository/com/sun/activation/jakarta.activation/1.2.2/jakarta.activation-1.2.2.jar:/Users/stephanomejiamorales/.m2/repository/javax/activation/activation/1.1.1/activation-1.1.1.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-junit/4.2.16/serenity-junit-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.0/jakarta.xml.bind-api-4.0.0.jar:/Users/stephanomejiamorales/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.0/jakarta.activation-api-2.1.0.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-cucumber/4.2.16/serenity-cucumber-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/cucumber-core/7.20.1/cucumber-core-7.20.1.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/cucumber-gherkin/7.20.1/cucumber-gherkin-7.20.1.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/cucumber-gherkin-messages/7.20.1/cucumber-gherkin-messages-7.20.1.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/gherkin/28.0.0/gherkin-28.0.0.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/messages/24.1.0/messages-24.1.0.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/testng-xml-formatter/0.2.0/testng-xml-formatter-0.2.0.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/query/12.2.0/query-12.2.0.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/tag-expressions/6.1.0/tag-expressions-6.1.0.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/cucumber-expressions/17.1.0/cucumber-expressions-17.1.0.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/datatable/7.20.1/datatable-7.20.1.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/cucumber-plugin/7.20.1/cucumber-plugin-7.20.1.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/docstring/7.20.1/docstring-7.20.1.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/html-formatter/21.7.0/html-formatter-21.7.0.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/junit-xml-formatter/0.5.0/junit-xml-formatter-0.5.0.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/ci-environment/10.0.1/ci-environment-10.0.1.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/cucumber-java/7.20.1/cucumber-java-7.20.1.jar:/Users/stephanomejiamorales/.m2/repository/io/cucumber/cucumber-junit/7.20.1/cucumber-junit-7.20.1.jar:/Users/stephanomejiamorales/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/commons/commons-csv/1.12.0/commons-csv-1.12.0.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-screenplay/4.2.16/serenity-screenplay-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-screenplay-webdriver/4.2.16/serenity-screenplay-webdriver-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-screenplay-rest/4.2.16/serenity-screenplay-rest-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/net/serenity-bdd/serenity-rest-assured/4.2.16/serenity-rest-assured-4.2.16.jar:/Users/stephanomejiamorales/.m2/repository/io/rest-assured/rest-assured/5.5.0/rest-assured-5.5.0.jar:/Users/stephanomejiamorales/.m2/repository/org/ccil/cowan/tagsoup/tagsoup/1.2.1/tagsoup-1.2.1.jar:/Users/stephanomejiamorales/.m2/repository/io/rest-assured/json-path/5.5.0/json-path-5.5.0.jar:/Users/stephanomejiamorales/.m2/repository/io/rest-assured/rest-assured-common/5.5.0/rest-assured-common-5.5.0.jar:/Users/stephanomejiamorales/.m2/repository/io/rest-assured/xml-path/5.5.0/xml-path-5.5.0.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/groovy/groovy-json/4.0.23/groovy-json-4.0.23.jar:/Users/stephanomejiamorales/.m2/repository/org/apache/groovy/groovy-xml/4.0.23/groovy-xml-4.0.23.jar:/Users/stephanomejiamorales/.m2/repository/org/assertj/assertj-core/3.26.3/assertj-core-3.26.3.jar:/Users/stephanomejiamorales/.m2/repository/junit/junit/4.13.2/junit-4.13.2.jar:/Users/stephanomejiamorales/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/stephanomejiamorales/.m2/repository/org/slf4j/slf4j-simple/2.0.16/slf4j-simple-2.0.16.jar:/Users/stephanomejiamorales/.m2/repository/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar:"/>
@@ -29,7 +29,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/target/surefire/surefirebooter-20260428204710311_3.jar"/>
+    <property name="surefire.real.class.path" value="/Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/target/surefire/surefirebooter-20260428210028505_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.runtime.version" value="25.0.2"/>
@@ -60,7 +60,7 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="69.0"/>
   </properties>
-  <testcase name="Visualizar la portada principal" classname="Navegacion inicial del sitio" time="6.018">
+  <testcase name="Visualizar la portada principal" classname="Navegacion inicial del sitio" time="6.167">
     <system-out><![CDATA[
 @smoke @ui @home
 Escenario: Visualizar la portada principal                   &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/home/inicio.feature:8&amp#27;[0m
@@ -103,9 +103,9 @@ Visualizar la portada principal(navegacion-inicial-del-sitio;visualizar-la-porta
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:15 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:34 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:15 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:34 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -117,7 +117,7 @@ Visualizar la portada principal
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Navegar al login desde el encabezado" classname="Navegacion inicial del sitio" time="1.509">
+  <testcase name="Navegar al login desde el encabezado" classname="Navegacion inicial del sitio" time="1.518">
     <system-out><![CDATA[
 @ui @home
 Escenario: Navegar al login desde el encabezado       &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/home/inicio.feature:13&amp#27;[0m
@@ -135,9 +135,9 @@ Navegar al login desde el encabezado(navegacion-inicial-del-sitio;navegar-al-log
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:17 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:35 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:17 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:35 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -149,7 +149,7 @@ Navegar al login desde el encabezado
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Redirigir al inicio cuando la ruta no existe" classname="Navegacion inicial del sitio" time="1.235">
+  <testcase name="Redirigir al inicio cuando la ruta no existe" classname="Navegacion inicial del sitio" time="1.002">
     <system-out><![CDATA[
 @ui @home
 Escenario: Redirigir al inicio cuando la ruta no existe    &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/home/inicio.feature:19&amp#27;[0m
@@ -166,9 +166,9 @@ Redirigir al inicio cuando la ruta no existe(navegacion-inicial-del-sitio;rediri
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:19 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:37 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:19 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:37 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -180,7 +180,7 @@ Redirigir al inicio cuando la ruta no existe
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Visualizar el formulario de inicio de sesion" classname="Inicio de sesion" time="1.398">
+  <testcase name="Visualizar el formulario de inicio de sesion" classname="Inicio de sesion" time="1.653">
     <system-out><![CDATA[
 @smoke @ui @login
 Escenario: Visualizar el formulario de inicio de sesion               &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/login/inicio_sesion.feature:8&amp#27;[0m
@@ -200,9 +200,9 @@ Visualizar el formulario de inicio de sesion(inicio-de-sesion;visualizar-el-form
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:20 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:38 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:20 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:38 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -214,7 +214,7 @@ Visualizar el formulario de inicio de sesion
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Visualizar la ruta privada de match para empresa" classname="Match privado de empresa" time="1.468">
+  <testcase name="Visualizar la ruta privada de match para empresa" classname="Match privado de empresa" time="1.454">
     <system-out><![CDATA[
 @smoke @ui @private @match @empresa
 Escenario: Visualizar la ruta privada de match para empresa                  &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/private/match_empresa.feature:8&amp#27;[0m
@@ -232,9 +232,9 @@ Visualizar la ruta privada de match para empresa(match-privado-de-empresa;visual
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:21 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:40 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:21 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:40 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -246,7 +246,7 @@ Visualizar la ruta privada de match para empresa
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Visualizar la ruta privada de match para postulante" classname="Match privado del postulante" time="1.415">
+  <testcase name="Visualizar la ruta privada de match para postulante" classname="Match privado del postulante" time="1.316">
     <system-out><![CDATA[
 @smoke @ui @private @match @postulante
 Escenario: Visualizar la ruta privada de match para postulante                  &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/private/match_postulante.feature:8&amp#27;[0m
@@ -264,9 +264,9 @@ Visualizar la ruta privada de match para postulante(match-privado-del-postulante
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:23 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:41 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:23 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:41 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -278,7 +278,7 @@ Visualizar la ruta privada de match para postulante
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Visualizar la ruta privada del perfil de empresa" classname="Perfil privado de empresa" time="1.521">
+  <testcase name="Visualizar la ruta privada del perfil de empresa" classname="Perfil privado de empresa" time="1.403">
     <system-out><![CDATA[
 @smoke @ui @private @empresa
 Escenario: Visualizar la ruta privada del perfil de empresa                    &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/private/perfil_empresa.feature:8&amp#27;[0m
@@ -296,9 +296,9 @@ Visualizar la ruta privada del perfil de empresa(perfil-privado-de-empresa;visua
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:24 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:42 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:24 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:42 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -310,7 +310,7 @@ Visualizar la ruta privada del perfil de empresa
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Cambiar a la gestion de certificados de empresa" classname="Perfil privado de empresa" time="1.445">
+  <testcase name="Cambiar a la gestion de certificados de empresa" classname="Perfil privado de empresa" time="1.43">
     <system-out><![CDATA[
 @ui @private @empresa
 Escenario: Cambiar a la gestion de certificados de empresa                     &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/private/perfil_empresa.feature:13&amp#27;[0m
@@ -328,9 +328,9 @@ Cambiar a la gestion de certificados de empresa(perfil-privado-de-empresa;cambia
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:26 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:44 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:26 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:44 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -342,7 +342,7 @@ Cambiar a la gestion de certificados de empresa
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Visualizar la ruta privada del perfil de postulante" classname="Perfil privado del postulante" time="1.362">
+  <testcase name="Visualizar la ruta privada del perfil de postulante" classname="Perfil privado del postulante" time="1.272">
     <system-out><![CDATA[
 @smoke @ui @private @postulante
 Escenario: Visualizar la ruta privada del perfil de postulante                       &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/private/perfil_postulante.feature:8&amp#27;[0m
@@ -360,9 +360,9 @@ Visualizar la ruta privada del perfil de postulante(perfil-privado-del-postulant
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:27 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:45 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:27 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:45 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -374,7 +374,7 @@ Visualizar la ruta privada del perfil de postulante
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Visualizar el primer paso del registro de postulante" classname="Registro de postulante" time="1.675">
+  <testcase name="Visualizar el primer paso del registro de postulante" classname="Registro de postulante" time="1.693">
     <system-out><![CDATA[
 @smoke @ui @signup
 Escenario: Visualizar el primer paso del registro de postulante               &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/signup/registro_postulante.feature:8&amp#27;[0m
@@ -392,9 +392,9 @@ Visualizar el primer paso del registro de postulante(registro-de-postulante;visu
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:28 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:46 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:28 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:46 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -406,7 +406,7 @@ Visualizar el primer paso del registro de postulante
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Avanzar al segundo paso del registro de postulante" classname="Registro de postulante" time="2.396">
+  <testcase name="Avanzar al segundo paso del registro de postulante" classname="Registro de postulante" time="2.4">
     <system-out><![CDATA[
 @ui @signup
 Escenario: Avanzar al segundo paso del registro de postulante                                       &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/signup/registro_postulante.feature:13&amp#27;[0m
@@ -424,9 +424,9 @@ Avanzar al segundo paso del registro de postulante(registro-de-postulante;avanza
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:30 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:48 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:30 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:48 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -438,7 +438,7 @@ Avanzar al segundo paso del registro de postulante
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Volver al primer paso del registro de postulante" classname="Registro de postulante" time="2.692">
+  <testcase name="Volver al primer paso del registro de postulante" classname="Registro de postulante" time="2.237">
     <system-out><![CDATA[
 @ui @signup
 Escenario: Volver al primer paso del registro de postulante                                         &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/signup/registro_postulante.feature:19&amp#27;[0m
@@ -457,9 +457,9 @@ Volver al primer paso del registro de postulante(registro-de-postulante;volver-a
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:32 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:50 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:32 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:50 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -471,7 +471,7 @@ Volver al primer paso del registro de postulante
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Visualizar el primer paso del registro de empresa" classname="Registro de empresa" time="1.436">
+  <testcase name="Visualizar el primer paso del registro de empresa" classname="Registro de empresa" time="1.675">
     <system-out><![CDATA[
 @smoke @ui @signup-empresa
 Escenario: Visualizar el primer paso del registro de empresa               &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/signup_empresa/registro_empresa.feature:8&amp#27;[0m
@@ -489,9 +489,9 @@ Visualizar el primer paso del registro de empresa(registro-de-empresa;visualizar
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:35 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:53 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:35 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:53 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -503,7 +503,7 @@ Visualizar el primer paso del registro de empresa
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Avanzar al segundo paso del registro de empresa" classname="Registro de empresa" time="2.347">
+  <testcase name="Avanzar al segundo paso del registro de empresa" classname="Registro de empresa" time="2.297">
     <system-out><![CDATA[
 @ui @signup-empresa
 Escenario: Avanzar al segundo paso del registro de empresa                                        &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/signup_empresa/registro_empresa.feature:13&amp#27;[0m
@@ -521,9 +521,9 @@ Avanzar al segundo paso del registro de empresa(registro-de-empresa;avanzar-al-s
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:37 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:54 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:37 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:54 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  
@@ -535,7 +535,7 @@ Avanzar al segundo paso del registro de empresa
 ----------------------------------------------------------------------
 ]]></system-err>
   </testcase>
-  <testcase name="Volver al primer paso del registro de empresa" classname="Registro de empresa" time="2.334">
+  <testcase name="Volver al primer paso del registro de empresa" classname="Registro de empresa" time="2.28">
     <system-out><![CDATA[
 @ui @signup-empresa
 Escenario: Volver al primer paso del registro de empresa                                          &amp#27;[90m# ///Users/stephanomejiamorales/Documents/Universidad de Medellin/Semestre VII/(61) Validación y Verificación de Software/Linker/QA/src/test/resources/features/signup_empresa/registro_empresa.feature:19&amp#27;[0m
@@ -554,9 +554,9 @@ Volver al primer paso del registro de empresa(registro-de-empresa;volver-al-prim
 --------------------------------------------------------------------------------
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Starting Chrome driver instance with capabilities:
 [main] INFO net.serenitybdd.core.webdriver.driverproviders.ChromeDriverProvider - Capabilities {acceptInsecureCerts: false, browserName: chrome, goog:chromeOptions: {args: [remote-allow-origins=*], extensions: []}}
-Apr 28, 2026 8:47:39 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+Apr 28, 2026 9:00:57 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 147
-Apr 28, 2026 8:47:39 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
+Apr 28, 2026 9:00:57 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$4
 WARNING: Unable to find version of CDP to use for 147.0.7727.117. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.28.1` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 [main] INFO  - 
   _____   ___   ___   _____     ___     _     ___   ___   ___   ___  

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.linker.qa.runners.AcceptanceTestSuite
 -------------------------------------------------------------------------------
-Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 30.60 s -- in com.linker.qa.runners.AcceptanceTestSuite
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 30.13 s -- in com.linker.qa.runners.AcceptanceTestSuite
