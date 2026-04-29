@@ -224,62 +224,32 @@ pipeline {
                 BACKEND_URL = 'http://host.docker.internal:3001'
             }
             steps {
-                sh '''
-                    mkdir -p artifacts/k6
-                    rm -f artifacts/k6/*.json
+            sh '''
+                perf_dir="Backend/test/performance"
+                if ! ls "${perf_dir}"/*.k6.js >/dev/null 2>&1; then
+                    echo "No se encontraron suites k6 en ${perf_dir}"
+                    exit 1
+                fi
 
-                    if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
-                        perf_dir="Backend/test/performance"
-                        perf_glob="${perf_dir}/*.k6.js"
-                    else
-                        echo "No se encontraron suites k6 en Backend/test/performance"
-                        exit 1
-                    fi
-
-                    failed=0
-                    for script in $perf_glob; do
-                        suite="$(basename "$script" .k6.js)"
-                        echo "Ejecutando suite k6: ${suite} (perfil: ${PERF_PROFILE})"
-                        suite_failed=0
-
-                        cid="$(docker create \
-                            --add-host=host.docker.internal:host-gateway \
-                            -e BASE_URL=${BACKEND_URL} \
-                            -e PERF_PROFILE=${PERF_PROFILE} \
-                            grafana/k6:0.57.0 \
-                            run \
-                            --out "json=/results/${suite}.json" \
-                            "/tests/${suite}.k6.js")" || suite_failed=1
-
-                        if [ "$suite_failed" -eq 0 ]; then
-                            docker cp "${perf_dir}/." "${cid}:/tests" || suite_failed=1
-                        fi
-
-                        if [ "$suite_failed" -eq 0 ]; then
-                            docker start -a "${cid}" || suite_failed=1
-                        fi
-
-                        if [ -n "${cid}" ]; then
-                            docker cp "${cid}:/results/${suite}.json" "artifacts/k6/${suite}.json" >/dev/null 2>&1 || true
-                            docker rm -f "${cid}" >/dev/null 2>&1 || true
-                        fi
-
-                        if [ "$suite_failed" -ne 0 ]; then
-                            failed=1
-                        fi
-                    done
-
-                    test "$failed" -eq 0
-                '''
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'artifacts/k6/*.json',
-                                    allowEmptyArchive: true
-                }
-                failure {
-                    echo 'K6: las pruebas fallaron o no alcanzaron los thresholds definidos'
-                }
+                docker run --rm \
+                    --add-host=host.docker.internal:host-gateway \
+                    -e BASE_URL="${BACKEND_URL}" \
+                    -e PERF_PROFILE="${PERF_PROFILE}" \
+                    -v "$(pwd)/${perf_dir}:/tests:ro" \
+                    --entrypoint /bin/sh \
+                    grafana/k6:0.57.0 \
+                    -c '
+                        failed=0
+                        for script in /tests/*.k6.js; do
+                            suite="$(basename "$script" .k6.js)"
+                            echo "────────────────────────────────────"
+                            echo "Suite: ${suite}"
+                            echo "────────────────────────────────────"
+                            k6 run "$script" || failed=1
+                        done
+                        exit $failed
+                    '
+            '''
             }
         }
 
