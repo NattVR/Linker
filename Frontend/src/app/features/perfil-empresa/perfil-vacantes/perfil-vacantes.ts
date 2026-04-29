@@ -5,11 +5,13 @@ import {
   FormGroup,
   FormArray,
   FormControl,
-  ReactiveFormsModule
+  ReactiveFormsModule,
+  Validators
 } from '@angular/forms';
 import { Perfil } from '../../../shared/services/perfil';
 import { Match } from '../../../shared/services/match';
 import { LoggerService } from '../../../shared/services/logger';
+import { Alerts } from '../../../shared/services/alerts';
 
 @Component({
   selector: 'app-perfil-vacantes',
@@ -24,6 +26,7 @@ export class PerfilVacantes {
   match = inject(Match)
   activeTab: 'form' | 'list' = 'form';
   logger = inject(LoggerService);
+  alert = inject(Alerts);
 
 
   tiposTrabajo = ['Full-time', 'Part-time', 'Contrato', 'Prácticas'];
@@ -41,11 +44,11 @@ export class PerfilVacantes {
   vacanteEditandoId: string | null = null;
 
   nuevaVacante: FormGroup = this.fb.group({
-    titulo: [''],
-    salario: [''],
-    ubicacion: [''],
-    modalidad: [''],
-    tipo_trabajo: [''],
+    titulo: ['', Validators.required],
+    salario: ['', Validators.required],
+    ubicacion: ['', Validators.required],
+    modalidad: ['', Validators.required],
+    tipo_trabajo: ['', Validators.required],
     vacanteHabilidades: this.fb.array([]),
     vacantesIdiomas: this.fb.array([]),
     empresa: [''],
@@ -124,6 +127,12 @@ export class PerfilVacantes {
   // REFACTORIZADA
 
   public publicarVacante(): void {
+    if (this.nuevaVacante.invalid) {
+      this.nuevaVacante.markAllAsTouched();
+      this.alert.error('Campos obligatorios incompletos');
+      return;
+    }
+
     const idEmpresa = this.obtenerIdEmpresa(); //2
     if (!idEmpresa) { // 3
       return; // 4
