@@ -231,9 +231,6 @@ pipeline {
                     if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
                         perf_dir="Backend/test/performance"
                         perf_glob="${perf_dir}/*.k6.js"
-                    elif ls Linker/Backend/test/performance/*.k6.js >/dev/null 2>&1; then
-                        perf_dir="Linker/Backend/test/performance"
-                        perf_glob="${perf_dir}/*.k6.js"
                     else
                         echo "No se encontraron suites k6 en Backend/test/performance"
                         exit 1
@@ -249,7 +246,7 @@ pipeline {
                             --add-host=host.docker.internal:host-gateway \
                             -e BASE_URL=${BACKEND_URL} \
                             -e PERF_PROFILE=${PERF_PROFILE} \
-                            grafana/k6:0.51.0 \
+                            grafana/k6:0.57.0 \
                             run \
                             --out "json=/results/${suite}.json" \
                             "/tests/${suite}.k6.js")" || suite_failed=1
