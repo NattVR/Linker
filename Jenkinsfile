@@ -427,8 +427,10 @@ pipeline {
                     '''
                 }
             }
-            failure {
-                echo 'Cypress: una o mas pruebas E2E fallaron'
+            post {
+                failure {
+                    echo 'Cypress: una o más pruebas E2E fallaron'
+                }
             }
         }
 
