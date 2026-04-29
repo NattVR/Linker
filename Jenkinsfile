@@ -21,7 +21,7 @@ pipeline {
         booleanParam(name: 'RUN_REGRESSION_FRONTEND',   defaultValue: true, description: 'Ejecutar pruebas de regresion front (Angular/Karma)')
         booleanParam(name: 'RUN_API_SECURITY_BACKEND',          defaultValue: true, description: 'Ejecutar pruebas API (Supertest)')
         booleanParam(name: 'RUN_PERFORMANCE',  defaultValue: true, description: 'Ejecutar pruebas de performance (k6)')
-        booleanParam(name: 'RUN_REGRESSION',   defaultValue: true, description: 'Ejecutar pruebas de regresion E2E (Cypress)')
+        booleanParam(name: 'RUN_REGRESSION_BACKEND',   defaultValue: true, description: 'Ejecutar pruebas de regresion backend (Supertest)')
         booleanParam(name: 'RUN_LIGHTHOUSE',   defaultValue: true, description: 'Ejecutar performance web (Lighthouse)')
         booleanParam(name: 'RUN_SECURITY_FRONTEND',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Cypress)')
         booleanParam(name: 'DEPLOY',           defaultValue: true, description: 'Levantar contenedores de prueba')
@@ -204,6 +204,60 @@ pipeline {
                 '''
             }
         }
+               // pruebas de performance back con k6
+
+        stage('Performance Tests Backend') {
+            when {
+                expression { params.RUN_PERFORMANCE && params.DEPLOY }
+            }
+            environment {
+                BACKEND_URL = 'http://host.docker.internal:3001'
+            }
+            steps {
+                sh '''
+                    mkdir -p artifacts/k6
+
+                    docker run --rm \
+                        --add-host=host.docker.internal:host-gateway \
+                        -e BASE_URL=http://host.docker.internal:3001 \
+                        -e PERF_PROFILE=${PERF_PROFILE} \
+                        -e K6_BIN=k6 \
+                        -v "$PWD/Backend/test/performance:/tests" \
+                        -v "$PWD/artifacts/k6:/results" \
+                        --entrypoint="" \
+                        grafana/k6:0.51.0 \
+                        sh -c "cd /tests && k6 run --env PERF_PROFILE=${PERF_PROFILE} --env BASE_URL=http://host.docker.internal:3001 certificados.k6.js"
+                '''
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'artifacts/k6/*.json',
+                                    allowEmptyArchive: true
+                }
+                failure {
+                    echo 'K6: las pruebas fallaron o no alcanzaron los thresholds definidos'
+                }
+            }
+        }
+
+        //pruenas de regresion back con supertest
+        stage('Regression Backend Test') {
+            when {
+                expression { params.RUN_REGRESSION_BACKEND && params.DEPLOY }
+            }
+            environment {
+                DB_HOST     = credentials('DB_HOST_TEST')
+                DB_USER     = credentials('DB_USER_TEST')
+                DB_PASSWORD = credentials('DB_PASSWORD_TEST')
+                DB_DATABASE = credentials('DB_DATABASE_TEST')
+                DB_PORT     = '5432'
+            }
+            steps {
+                dir('Backend') {
+                    sh 'npm run test:regresion'
+                }
+            }
+        }
 
         stage('API & Security Tests Backend') {
             when {
@@ -260,6 +314,8 @@ pipeline {
             }
         }
 
+ 
+            
         // stage('Cypress') {
         //     when {
         //         expression { params.DEPLOY }
