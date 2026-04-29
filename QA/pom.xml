@@ -102,7 +102,9 @@
                         <include>**/*TestSuite.java</include>
                     </includes>
                     <useModulePath>false</useModulePath>
-                    <useSystemClassLoader>false</useSystemClassLoader>
+                    <!-- Serenity discovers the local JUnit4 bridge from test-classes; this
+                         breaks with Failsafe's isolated classloader in Jenkins. -->
+                    <useSystemClassLoader>true</useSystemClassLoader>
                     <systemPropertyVariables>
                         <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
                         <file.encoding>${project.build.sourceEncoding}</file.encoding>
