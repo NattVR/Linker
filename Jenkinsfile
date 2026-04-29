@@ -229,9 +229,11 @@ pipeline {
                     rm -f artifacts/k6/*.json
 
                     if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
-                        perf_glob="Backend/test/performance/*.k6.js"
+                        perf_dir="Backend/test/performance"
+                        perf_glob="${perf_dir}/*.k6.js"
                     elif ls Linker/Backend/test/performance/*.k6.js >/dev/null 2>&1; then
-                        perf_glob="Linker/Backend/test/performance/*.k6.js"
+                        perf_dir="Linker/Backend/test/performance"
+                        perf_glob="${perf_dir}/*.k6.js"
                     else
                         echo "No se encontraron suites k6 en Backend/test/performance"
                         exit 1
@@ -240,19 +242,34 @@ pipeline {
                     failed=0
                     for script in $perf_glob; do
                         suite="$(basename "$script" .k6.js)"
-                        script_in_container="/work/${script}"
                         echo "Ejecutando suite k6: ${suite} (perfil: ${PERF_PROFILE})"
+                        suite_failed=0
 
-                        docker run --rm \
+                        cid="$(docker create \
                             --add-host=host.docker.internal:host-gateway \
-                            -e BASE_URL=http://host.docker.internal:3001 \
+                            -e BASE_URL=${BACKEND_URL} \
                             -e PERF_PROFILE=${PERF_PROFILE} \
-                            -v "$PWD:/work" \
-                            -w /work \
                             grafana/k6:0.51.0 \
                             run \
-                            --out "json=/work/artifacts/k6/${suite}.json" \
-                            "$script_in_container" || failed=1
+                            --out "json=/results/${suite}.json" \
+                            "/tests/${suite}.k6.js")" || suite_failed=1
+
+                        if [ "$suite_failed" -eq 0 ]; then
+                            docker cp "${perf_dir}/." "${cid}:/tests" || suite_failed=1
+                        fi
+
+                        if [ "$suite_failed" -eq 0 ]; then
+                            docker start -a "${cid}" || suite_failed=1
+                        fi
+
+                        if [ -n "${cid}" ]; then
+                            docker cp "${cid}:/results/${suite}.json" "artifacts/k6/${suite}.json" >/dev/null 2>&1 || true
+                            docker rm -f "${cid}" >/dev/null 2>&1 || true
+                        fi
+
+                        if [ "$suite_failed" -ne 0 ]; then
+                            failed=1
+                        fi
                     done
 
                     test "$failed" -eq 0
