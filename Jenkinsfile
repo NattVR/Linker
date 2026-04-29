@@ -228,9 +228,19 @@ pipeline {
                     mkdir -p artifacts/k6
                     rm -f artifacts/k6/*.json
 
+                    if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
+                        perf_glob="Backend/test/performance/*.k6.js"
+                    elif ls Linker/Backend/test/performance/*.k6.js >/dev/null 2>&1; then
+                        perf_glob="Linker/Backend/test/performance/*.k6.js"
+                    else
+                        echo "No se encontraron suites k6 en Backend/test/performance"
+                        exit 1
+                    fi
+
                     failed=0
-                    for script in Backend/test/performance/*.k6.js; do
+                    for script in $perf_glob; do
                         suite="$(basename "$script" .k6.js)"
+                        script_in_container="/work/${script}"
                         echo "Ejecutando suite k6: ${suite} (perfil: ${PERF_PROFILE})"
 
                         docker run --rm \
@@ -242,7 +252,7 @@ pipeline {
                             grafana/k6:0.51.0 \
                             run \
                             --out "json=/work/artifacts/k6/${suite}.json" \
-                            "$script" || failed=1
+                            "$script_in_container" || failed=1
                     done
 
                     test "$failed" -eq 0
