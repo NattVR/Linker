@@ -229,7 +229,7 @@ pipeline {
                 BACKEND_URL = 'http://host.docker.internal:3001'
             }
             steps {
-                catchError(buildResult: 'SUCCESS.', stageResult: 'FAILURE') {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh '''
                         if ls Backend/test/performance/*.k6.js >/dev/null 2>&1; then
                             perf_dir="Backend/test/performance"
