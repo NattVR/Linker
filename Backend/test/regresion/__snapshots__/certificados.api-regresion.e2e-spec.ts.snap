@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Certificados API Regression (e2e) GET /certificados mantiene la lista de certificados 1`] = `
+{
+  "response": [
+    {
+      "entidad_emisora": "Coursera",
+      "id_certificado": "[uuid]",
+      "nombre_certificado": "Backend Testing",
+    },
+    {
+      "entidad_emisora": "Udemy",
+      "id_certificado": "[uuid]",
+      "nombre_certificado": "CI Pipelines",
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Certificados API Regression (e2e) GET /certificados mantiene lista vacia cuando no hay registros 1`] = `
+{
+  "response": "[]",
+  "status": 200,
+}
+`;
+
+exports[`Certificados API Regression (e2e) POST /certificados mantiene la respuesta de creacion 1`] = `
+{
+  "response": {
+    "entidad_emisora": "Platzi",
+    "id_certificado": "[uuid]",
+    "nombre_certificado": "Node Advanced",
+  },
+  "status": 201,
+}
+`;

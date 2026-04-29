@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:performance": "ng test --include src/performance-test-entry.spec.ts --watch=false",
-    "test:regression": "ng test --include src/checks-entry.spec.ts --watch=false",
+    "test:regression": "ng test --include src/checks-entry.spec.ts --watch=false --browsers=ChromeHeadlessCI",
     "test:lighthouse": "node tests/lighthouse/lighthouse-runner.js"
   },
   "prettier": {

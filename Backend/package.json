@@ -19,6 +19,8 @@
     "test:seguridad": "jest test/seguridad",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenv -e .env.test -- node -e \"console.log('BD:', process.env.DB_DATABASE)\" && dotenv -e .env.test -- jest --runInBand --config ./test/jest-e2e.json",
+    "test:regresion": "dotenv -e .env -- jest --runInBand --config ./test/jest-e2e.json ./test/regresion",
+    "test:regresion:update": "dotenv -e .env -- jest --runInBand --config ./test/jest-e2e.json ./test/regresion -u",
     "start:test": "dotenv -e .env.test -- nest start --watch",
     "test:perf:list": "dotenv -e .env.test -- node test/performance/run-k6.js --list",
     "test:perf:quick": "dotenv -e .env.test -- node test/performance/run-k6.js --profile quick",
