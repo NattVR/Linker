@@ -224,32 +224,39 @@ pipeline {
                 BACKEND_URL = 'http://host.docker.internal:3001'
             }
             steps {
-            sh '''
-                perf_dir="Backend/test/performance"
-                if ! ls "${perf_dir}"/*.k6.js >/dev/null 2>&1; then
-                    echo "No se encontraron suites k6 en ${perf_dir}"
-                    exit 1
-                fi
+                sh '''
+                    perf_dir="Backend/test/performance"
+                    if ! ls "${perf_dir}"/*.k6.js >/dev/null 2>&1; then
+                        echo "No se encontraron suites k6 en ${perf_dir}"
+                        exit 1
+                    fi
 
-                docker run --rm \
-                    --add-host=host.docker.internal:host-gateway \
-                    -e BASE_URL="${BACKEND_URL}" \
-                    -e PERF_PROFILE="${PERF_PROFILE}" \
-                    -v "$(pwd)/${perf_dir}:/tests:ro" \
-                    --entrypoint /bin/sh \
-                    grafana/k6:0.57.0 \
-                    -c '
-                        failed=0
-                        for script in /tests/*.k6.js; do
-                            suite="$(basename "$script" .k6.js)"
-                            echo "────────────────────────────────────"
-                            echo "Suite: ${suite}"
-                            echo "────────────────────────────────────"
-                            k6 run "$script" || failed=1
-                        done
-                        exit $failed
-                    '
-            '''
+                    # Construir la lista de scripts desde el host (donde sí expande el glob)
+                    scripts=""
+                    for script in "${perf_dir}"/*.k6.js; do
+                        suite="$(basename "$script" .k6.js)"
+                        scripts="${scripts} ${suite}"
+                    done
+
+                    docker run --rm \
+                        --add-host=host.docker.internal:host-gateway \
+                        -e BASE_URL="${BACKEND_URL}" \
+                        -e PERF_PROFILE="${PERF_PROFILE}" \
+                        -e K6_SUITES="${scripts}" \
+                        -v "$(pwd)/${perf_dir}:/tests:ro" \
+                        --entrypoint /bin/sh \
+                        grafana/k6:0.57.0 \
+                        -c '
+                            failed=0
+                            for suite in ${K6_SUITES}; do
+                                echo "────────────────────────────────────"
+                                echo "Suite: ${suite}"
+                                echo "────────────────────────────────────"
+                                k6 run "/tests/${suite}.k6.js" || failed=1
+                            done
+                            exit $failed
+                        '
+                '''
             }
         }
 
