@@ -150,7 +150,7 @@ pipeline {
                         params.RUN_REGRESSION_BACKEND ||
                         params.RUN_LIGHTHOUSE||
                         params.RUN_API_SECURITY_BACKEND ||
-                        params.RUN_SERENITY_UI
+                        params.RUN_SERENITY_UI ||
                         params.RUN_API_SECURITY_BACKEND ||
                         params.RUN_SECURITY_FRONTEND
                     )
