@@ -2,7 +2,7 @@
 
 export { };
 
-const BASE_URL = 'http://localhost:4200';
+const BASE_URL = Cypress.config('baseUrl') || 'http://localhost:4200';
 
 const visitLogin = () => {
     cy.visit(`${BASE_URL}/login`);

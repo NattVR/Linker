@@ -148,7 +148,8 @@ pipeline {
                         params.RUN_PERFORMANCE ||
                         params.RUN_REGRESSION_BACKEND ||
                         params.RUN_LIGHTHOUSE||
-                        params.RUN_API_SECURITY_BACKEND
+                        params.RUN_API_SECURITY_BACKEND ||
+                        params.RUN_SECURITY_FRONTEND
                     )
                 }
             }
@@ -184,7 +185,8 @@ pipeline {
                         params.RUN_PERFORMANCE ||
                         params.RUN_REGRESSION_BACKEND ||
                         params.RUN_LIGHTHOUSE||
-                        params.RUN_API_SECURITY_BACKEND
+                        params.RUN_API_SECURITY_BACKEND ||
+                        params.RUN_SECURITY_FRONTEND
                     )
                 }
             }
@@ -346,49 +348,48 @@ pipeline {
 
  
             
-        // stage('Cypress') {
-        //     when {
-        //         expression { params.DEPLOY }
-        //     }
-        //     environment {
-        //         FRONTEND_URL     = 'http://host.docker.internal:4201'
-        //         BACKEND_URL      = 'http://host.docker.internal:3001'
-        //         CYPRESS_TEST_EMAIL    = credentials('linker-test-email')
-        //         CYPRESS_TEST_PASSWORD = credentials('linker-test-password')
-        //     }
-        //     agent {
-        //         docker {
-        //             image 'cypress/included:15.14.1'
-        //         }
-        //     }
-        //     steps {
-        //         dir('Frontend') {
-        //             sh '''
-        //                 npx cypress run \
-        //                 --browser chromium \
-        //                 --headless \
-        //                 --env FRONTEND_URL=$FRONTEND_URL,API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
-        //                 --config baseUrl=$FRONTEND_URL \
-        //                 --reporter spec
-        //             '''
-        //         }
-        //     }
-        //     post {
-        //         always {
-        //             publishHTML(target: [
-        //                 allowMissing         : true,
-        //                 alwaysLinkToLastBuild: true,
-        //                 keepAll              : true,
-        //                 reportDir            : 'Frontend/coverage/cypress/screenshots',
-        //                 reportFiles          : '**/*.png',
-        //                 reportName           : 'Cypress Screenshots'
-        //             ])
-        //         }
-        //         failure {
-        //             echo 'Cypress: una o más pruebas E2E fallaron'
-        //         }
-        //     }
-        // } Falta regression front y back , performance back , seguridad front con cyoress
+        stage('Cypress Security Frontend') {
+            when {
+                expression { params.DEPLOY && params.RUN_SECURITY_FRONTEND }
+            }
+            environment {
+                FRONTEND_URL          = 'http://host.docker.internal:4201'
+                BACKEND_URL           = 'http://host.docker.internal:3001'
+                CYPRESS_TEST_EMAIL    = credentials('linker-test-email')
+                CYPRESS_TEST_PASSWORD = credentials('linker-test-password')
+            }
+            agent {
+                docker {
+                    image 'cypress/included:15.14.1'
+                    args '--add-host=host.docker.internal:host-gateway'
+                    reuseNode true
+                }
+            }
+            steps {
+                dir('Frontend') {
+                    sh '''
+                        npm ci --legacy-peer-deps
+                        npx cypress run \
+                        --browser chromium \
+                        --headless \
+                        --spec "cypress/e2e/seguridad.cy.ts" \
+                        --env API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
+                        --config baseUrl=$FRONTEND_URL \
+                        --reporter junit \
+                        --reporter-options "mochaFile=coverage/cypress/results-[hash].xml,toConsole=true"
+                    '''
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'Frontend/coverage/cypress/results-*.xml'
+                    archiveArtifacts allowEmptyArchive: true, artifacts: 'Frontend/coverage/cypress/screenshots/**/*,Frontend/coverage/cypress/videos/**/*'
+                }
+                failure {
+                    echo 'Cypress: una o mas pruebas E2E fallaron'
+                }
+            }
+        }
 
         stage('Verify') {
             when {

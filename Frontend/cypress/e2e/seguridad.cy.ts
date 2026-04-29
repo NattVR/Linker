@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-const BASE_URL = 'http://localhost:4200';
+const BASE_URL = Cypress.config('baseUrl') || 'http://localhost:4200';
 
 const loginConCredenciales = (email: string, password: string) => {
   cy.visit(`${BASE_URL}/login`);
