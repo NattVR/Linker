@@ -217,6 +217,10 @@ pipeline {
                 sh '''
                     mkdir -p artifacts/k6
 
+                    for script in Backend/test/performance/*.k6.js; do
+                        test_name="$(basename "$script" .k6.js)"
+                        echo "Ejecutando: ${test_name} con perfil ${PERF_PROFILE}"
+
                     docker run --rm \
                         --add-host=host.docker.internal:host-gateway \
                         -e BASE_URL=http://host.docker.internal:3001 \
