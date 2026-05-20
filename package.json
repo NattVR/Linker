@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "axe-core": "^4.11.4",
+    "cypress-axe": "^1.7.0"
+  }
+}

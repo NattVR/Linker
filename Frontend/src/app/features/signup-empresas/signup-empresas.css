@@ -27,7 +27,7 @@ a {
   font-size: 16px;
   text-align: center;
   cursor: pointer;
-  color: #6366f1;
+  color: #3b3dac;
   transition: color 0.3s;
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -80,12 +80,12 @@ a:hover {
 
 .step-label {
   font-size: 13px;
-  color: #cacaca;
+  color: #444444;
   font-weight: 500;
 }
 
 .step.active .step-label {
-  color: #505050;
+  color:  #1b1b1b;
   font-weight: 600;
 }
 
@@ -122,13 +122,13 @@ a:hover {
 label {
   font-weight: 450;
   font-size: 16px;
-  color: #161616;
+  color: #000000;
 }
 
 input {
   margin-top: 4px;
   border: none;
-  color: rgb(83, 83, 83);
+  color: rgb(49, 49, 49);
   padding: 14px 40px;
   font-size: 16px;
   border-radius: 8px;

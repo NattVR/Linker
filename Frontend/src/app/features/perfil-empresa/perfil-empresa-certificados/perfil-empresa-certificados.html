@@ -35,6 +35,7 @@
         }
         @for (cert of certificados; track cert.id_certificado) {
         <button
+          aria-label="Seleccionar certificado"
           type="button"
           (click)="seleccionarCertificado(cert)"
           class="dropdown-item"

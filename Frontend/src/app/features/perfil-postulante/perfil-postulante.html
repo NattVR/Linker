@@ -13,7 +13,7 @@
         <div class="mini-titulo">
           <span>Mi CV</span>
         </div>
-        <select formControlName="experiencia">
+        <select formControlName="experiencia" aria-label="Seleccionar experiencia">
           <option value="">Experiencia</option>
           <option value="1">Junior</option>
           <option value="3">Semi-Senior</option>
@@ -32,8 +32,8 @@
             <div class="mini-titulo">
               <span>Estudios {{ i + 1 }}</span>
             </div>
-            <input type="text" placeholder="Título" formControlName="titulo" />
-            <select formControlName="nivel">
+            <input type="text" placeholder="Título" formControlName="titulo" aria-label="Seleccionar título"/>
+            <select formControlName="nivel" aria-label="Seleccionar nivel">
               <option value="">Seleccione un nivel</option>
               <option value="Primaria">Primaria</option>
               <option value="Secundaria">Secundaria</option>
@@ -67,7 +67,7 @@
             <div class="mini-titulo">
               <span>Habilidad {{ i + 1 }}</span>
             </div>
-            <select formControlName="nombre">
+            <select formControlName="nombre" aria-label="Seleccionar habilidad">
               <option value="">Selecciona una habilidad</option>
               @for (hab of catalogoHabilidades; track hab.id_habilidad) {
                 <option [value]="hab.id_habilidad">{{ hab.nombre_habilidad }}</option>
@@ -97,7 +97,7 @@
             <div class="mini-titulo">
               <span>Idioma {{ i + 1 }}</span>
             </div>
-            <select formControlName="nombre">
+            <select formControlName="nombre" aria-label="Seleccionar idioma">
               <option value="">Selecciona un idioma</option>
               @for (idm of catalogoIdiomas; track idm.id_idioma) {
                 <option [value]="idm.id_idioma">{{ idm.nombre }}</option>

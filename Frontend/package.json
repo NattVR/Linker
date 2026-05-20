@@ -10,6 +10,7 @@
     "test:performance": "ng test --include src/performance-test-entry.spec.ts --watch=false",
     "test:regression": "ng test --include src/checks-entry.spec.ts --watch=false --browsers=ChromeHeadlessCI",
     "test:lighthouse": "node tests/lighthouse/lighthouse-runner.js",
+    "test:cypress:a11y": "cypress run --spec \"cypress/accessibility/**/*.cy.ts\"",
     "test:ai": "node --experimental-vm-modules node_modules/.bin/jest --config=tests-AI/jest.config.js --runInBand",
     "test:ai:watch": "node --experimental-vm-modules node_modules/.bin/jest --config=tests-AI/jest.config.js --watch"
   },
@@ -55,6 +56,7 @@
     "baseline-browser-mapping": "^2.9.11",
     "chrome-launcher": "^1.2.1",
     "cypress": "^15.14.1",
+    "cypress-axe": "^1.7.0",
     "dotenv": "^17.4.2",
     "jasmine-core": "~5.9.0",
     "jest": "^30.4.2",
@@ -66,6 +68,7 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "lcov-result-merger": "^5.0.1",
     "lighthouse": "^12.8.2",
+    "axe-core": "^4.11.0",
     "puppeteer": "^24.42.0",
     "ts-jest": "^29.4.10",
     "typescript": "~5.9.2"

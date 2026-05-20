@@ -24,14 +24,14 @@
       </div>
 
       <div class="form-group-grid form-group-grid-4">
-        <select formControlName="modalidad" class="form-select">
+        <select formControlName="modalidad" class="form-select" aria-label="Seleccionar modalidad">
           <option value="">Seleccionar modalidad</option>
           @for (m of modalidades; track $index) {
           <option [value]="m">{{ m }}</option>
           }
         </select>
 
-        <select formControlName="tipo_trabajo" class="form-select">
+        <select formControlName="tipo_trabajo" class="form-select" aria-label="Seleccionar tipo de trabajo">
           <option value="">Tipo de trabajo</option>
           @for (t of tiposTrabajo; track $index) {
           <option [value]="t">{{ t }}</option>
