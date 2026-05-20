@@ -9,7 +9,9 @@
     "test": "ng test",
     "test:performance": "ng test --include src/performance-test-entry.spec.ts --watch=false",
     "test:regression": "ng test --include src/checks-entry.spec.ts --watch=false --browsers=ChromeHeadlessCI",
-    "test:lighthouse": "node tests/lighthouse/lighthouse-runner.js"
+    "test:lighthouse": "node tests/lighthouse/lighthouse-runner.js",
+    "test:ai": "node --experimental-vm-modules node_modules/.bin/jest --config=tests-AI/jest.config.js --runInBand",
+    "test:ai:watch": "node --experimental-vm-modules node_modules/.bin/jest --config=tests-AI/jest.config.js --watch"
   },
   "prettier": {
     "printWidth": 100,
@@ -44,16 +46,18 @@
     "@angular/build": "^20.2.0",
     "@angular/cli": "^20.3.2",
     "@angular/compiler-cli": "^20.2.0",
+    "@browserbasehq/stagehand": "^3.4.0",
     "@types/cypress": "^0.1.6",
     "@types/jasmine": "~5.1.0",
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.9.1",
     "baseline-browser-mapping": "^2.9.11",
     "chrome-launcher": "^1.2.1",
     "cypress": "^15.14.1",
+    "dotenv": "^17.4.2",
     "jasmine-core": "~5.9.0",
-    "jest": "^30.3.0",
+    "jest": "^30.4.2",
     "jest-preset-angular": "^16.1.4",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -63,6 +67,7 @@
     "lcov-result-merger": "^5.0.1",
     "lighthouse": "^12.8.2",
     "puppeteer": "^24.42.0",
+    "ts-jest": "^29.4.10",
     "typescript": "~5.9.2"
   }
 }
