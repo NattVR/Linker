@@ -25,6 +25,7 @@ pipeline {
         booleanParam(name: 'RUN_LIGHTHOUSE',   defaultValue: true, description: 'Ejecutar performance web (Lighthouse)')
         booleanParam(name: 'RUN_SECURITY_FRONTEND',     defaultValue: true, description: 'Ejecutar pruebas de seguridad (Cypress)')
         booleanParam(name: 'RUN_SERENITY_UI',     defaultValue: true, description: 'Ejecutar pruebas de UI con Serenity/JS')
+        booleanParam(name: 'RUN_API_TESTS_POSTMAN',     defaultValue: true, description: 'Ejecutar pruebas de seguridad API con Postman')
         booleanParam(name: 'DEPLOY',           defaultValue: true, description: 'Levantar contenedores de prueba')
         choice(name: 'PERF_PROFILE',           choices: ['quick', 'smoke', 'load'], description: 'Perfil k6')
     }
@@ -433,6 +434,22 @@ pipeline {
                 }
             }
         }
+
+        stage('Install Postman CLI and Run API Tests') {
+        when {
+            expression { params.RUN_API_TESTS_POSTMAN && params.DEPLOY }
+        }
+        steps {
+            sh 'curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh'
+        }
+        steps {
+            sh 'postman login --with-api-key $POSTMAN_API_KEY'
+            }
+            steps {
+            sh 'postman collection run "34122715-90dceb75-826f-4adc-903d-b9687d50522a"-e "34122715-72e5d442-1780-4c81-bd26-35777b877835"'
+      }
+        }
+
 
         stage('Verify') {
             when {
