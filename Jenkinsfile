@@ -435,19 +435,24 @@ pipeline {
             }
         }
 
+       
+            
         stage('Install Postman CLI and Run API Tests') {
-        when {
-            expression { params.RUN_API_TESTS_POSTMAN && params.DEPLOY }
-        }
-        steps {
-            sh 'curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh'
-        }
-        steps {
-            sh 'postman login --with-api-key $POSTMAN_API_KEY'
+            when {
+                expression { params.RUN_API_TESTS_POSTMAN && params.DEPLOY }
             }
+
             steps {
-            sh 'postman collection run "34122715-90dceb75-826f-4adc-903d-b9687d50522a"-e "34122715-72e5d442-1780-4c81-bd26-35777b877835"'
-      }
+                sh '''
+                    curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+                    postman login --with-api-key $POSTMAN_API_KEY
+
+                    postman collection run \
+                    "34122715-90dceb75-826f-4adc-903d-b9687d50522a" \
+                    -e "34122715-72e5d442-1780-4c81-bd26-35777b877835"
+                '''
+            }
         }
 
 
