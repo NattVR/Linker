@@ -448,8 +448,8 @@ pipeline {
                     postman login --with-api-key $POSTMAN_API_KEY
 
                     postman collection run \
-                    "34122715-90dceb75-826f-4adc-903d-b9687d50522a" \
-                    -e "34122715-72e5d442-1780-4c81-bd26-35777b877835"
+                   "34122715-90dceb75-826f-4adc-903d-b9687d50522a" \
+                    -e "34122715-36a84cb4-ce09-4c78-8b76-f5dd8c356373"
                 '''
             }
         }
