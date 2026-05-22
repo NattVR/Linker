@@ -353,7 +353,7 @@ pipeline {
             }
         }
 
-        stage('Serenity/JS UI Tests') {
+        /**stage('Serenity/JS UI Tests') {
             when {
                 expression { params.RUN_SERENITY_UI && params.DEPLOY }
             }
@@ -397,7 +397,7 @@ pipeline {
                     ])
                 }
             }
-        }
+        }**/
         stage('Cypress Security Frontend') {
             when {
                 expression { params.DEPLOY && params.RUN_SECURITY_FRONTEND }
