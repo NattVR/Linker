@@ -40,6 +40,7 @@ pipeline {
         DB_PASSWORD          = credentials('DB_PASSWORD')
         DB_DATABASE          = credentials('DB_DATABASE')
         JWT_SECRET           = credentials('JWT_SECRET')
+        POSTMAN_API_KEY      = credentials('POSTMAN_API_KEY')
         CHROME_BIN           = '/usr/bin/chromium'
         PUPPETEER_SKIP_DOWNLOAD          = 'true'
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = 'true'
@@ -444,7 +445,7 @@ pipeline {
 
             steps {
                 sh '''
-                    postman login --with-api-key ${env.POSTMAN_API_KEY}
+                    postman login --with-api-key $POSTMAN_API_KEY
 
                     postman collection run \
                     "34122715-90dceb75-826f-4adc-903d-b9687d50522a" \
