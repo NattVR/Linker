@@ -444,7 +444,7 @@ pipeline {
 
             steps {
                 sh '''
-                    postman login --with-api-key $POSTMAN_API_KEY
+                    postman login --with-api-key ${env.POSTMAN_API_KEY}
 
                     postman collection run \
                     "34122715-90dceb75-826f-4adc-903d-b9687d50522a" \
