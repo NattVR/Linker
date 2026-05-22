@@ -445,6 +445,7 @@ pipeline {
             steps {
                 sh '''
                     curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+                    bash /tmp/install-postman.sh
 
                     postman login --with-api-key $POSTMAN_API_KEY
 
