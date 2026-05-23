@@ -3,7 +3,11 @@ import { defineConfig } from 'cypress';
 export default defineConfig({
   e2e: {
     baseUrl: 'http://localhost:4200',
-    specPattern: ['cypress/e2e/**/*.cy.ts', 'cypress/accessibility/**/*.cy.ts'],
+    specPattern: [
+      'cypress/e2e/**/*.cy.ts',
+      'cypress/accessibility/**/*.cy.ts',
+      'cypress/components/**/*.cy.ts',
+    ],
     supportFile: false,
     video: false,
     screenshotsFolder: 'coverage/cypress/screenshots',

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["cypress", "cypress-axe"],
+    "types": ["cypress", "node"],
     "lib": ["es6", "dom"],
     "isolatedModules": false,
     "skipLibCheck": true
