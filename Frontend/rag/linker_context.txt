@@ -1,0 +1,23 @@
+Linker es una plataforma de conexión entre empresas y candidatos.
+
+Flujo de autenticación:
+- El endpoint POST /auth/login recibe email y contraseña.
+- Si las credenciales son válidas, retorna un JWT token.
+- El token se almacena en localStorage bajo la clave 'token'.
+- El usuario es redirigido al dashboard.
+
+Módulo de vacantes:
+- Las vacantes tienen: título, descripción, idiomas requeridos, habilidades.
+- El endpoint POST /vacantes crea una nueva vacante.
+- El endpoint GET /vacantes retorna lista de vacantes activas.
+- Solo usuarios con rol 'empresa' pueden crear vacantes.
+
+Módulo de matching:
+- El sistema calcula compatibilidad entre candidatos y vacantes.
+- El score de match va de 0% a 100%.
+- Se consideran: habilidades, idiomas, experiencia requerida.
+
+Roles del sistema:
+- empresa: puede crear vacantes, ver candidatos.
+- candidato: puede aplicar a vacantes, gestionar perfil.
+- admin: acceso completo al sistema.

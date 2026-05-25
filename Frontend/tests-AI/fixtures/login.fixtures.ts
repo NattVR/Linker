@@ -1,6 +1,6 @@
 export const validUser = {
-    email: "test@linker.com",
-    password: "TestPassword123",
+    email: "stephano.mejia20@icloud.com",
+    password: "12345678",
 };
 
 export const invalidUser = {

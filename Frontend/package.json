@@ -12,7 +12,8 @@
     "test:lighthouse": "node tests/lighthouse/lighthouse-runner.js",
     "test:cypress:a11y": "cypress run --spec \"cypress/accessibility/**/*.cy.ts\"",
     "test:ai": "node --experimental-vm-modules node_modules/.bin/jest --config=tests-AI/jest.config.js --runInBand",
-    "test:ai:watch": "node --experimental-vm-modules node_modules/.bin/jest --config=tests-AI/jest.config.js --watch"
+    "test:ai:watch": "node --experimental-vm-modules node_modules/.bin/jest --config=tests-AI/jest.config.js --watch",
+    "test:ai:deepeval": "cd deepeval_tests && python -m pytest test_task_completion.py -v"
   },
   "prettier": {
     "printWidth": 100,
@@ -53,6 +54,7 @@
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.9.1",
+    "axe-core": "^4.11.0",
     "baseline-browser-mapping": "^2.9.11",
     "chrome-launcher": "^1.2.1",
     "cypress": "^15.14.1",
@@ -68,7 +70,6 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "lcov-result-merger": "^5.0.1",
     "lighthouse": "^12.8.2",
-    "axe-core": "^4.11.0",
     "puppeteer": "^24.42.0",
     "ts-jest": "^29.4.10",
     "typescript": "~5.9.2"
