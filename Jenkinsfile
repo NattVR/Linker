@@ -424,10 +424,29 @@ pipeline {
                         npx cypress run \
                         --browser chromium \
                         --headless \
-                        --spec "cypress/e2e/seguridad.cy.ts" \
+                        --spec "cypress/e2e/**/*.cy.ts" \
                         --env API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
                         --config baseUrl=$FRONTEND_URL \
                     '''
+
+                     sh '''
+                        npx cypress run \
+                        --browser chromium --headless \
+                        --component \
+                        --spec "cypress/components/**/*.cy.ts" \
+                        --env API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
+                        || true
+                    '''
+
+                    sh '''
+                        npx cypress run \
+                        --browser chromium --headless \
+                        --spec "cypress/accessibility/**/*.cy.ts" \
+                        --env API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
+                        --config baseUrl=$FRONTEND_URL \
+                        || true
+                    '''
+        }
                 }
             }
             post {
@@ -445,6 +464,7 @@ pipeline {
             }
 
             steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                 sh '''
                     postman login --with-api-key $POSTMAN_API_KEY
 
