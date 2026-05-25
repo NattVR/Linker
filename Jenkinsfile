@@ -432,7 +432,6 @@ pipeline {
                      sh '''
                         npx cypress run \
                         --browser chromium --headless \
-                        --component \
                         --spec "cypress/components/**/*.cy.ts" \
                         --env API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
                         || true
