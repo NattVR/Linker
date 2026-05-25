@@ -446,9 +446,8 @@ pipeline {
                         --config baseUrl=$FRONTEND_URL \
                         || true
                     '''
-        }
+                    }
                 }
-            }
             post {
                 failure {
                     echo 'Cypress: una o más pruebas E2E fallaron'
