@@ -474,6 +474,7 @@ pipeline {
                 '''
             }
         }
+        }
 
 
         stage('Verify') {
