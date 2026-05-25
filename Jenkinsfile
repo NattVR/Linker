@@ -434,6 +434,7 @@ pipeline {
                         --browser chromium --headless \
                         --spec "cypress/components/**/*.cy.ts" \
                         --env API_URL=$BACKEND_URL,TEST_EMAIL=$CYPRESS_TEST_EMAIL,TEST_PASSWORD=$CYPRESS_TEST_PASSWORD \
+                        --config baseUrl=$FRONTEND_URL \
                         || true
                     '''
 
